@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Gmail Cleaner Buddy — OAuth2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./style.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lipis/flag-icons@7.2.3/css/flag-icons.min.css">
+</head>
+<body>
+
+<div class="container">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">G</div>
+      <div>
+        <h1>Gmail Cleaner Buddy</h1>
+        <div class="subtitle" data-i18n="subtitle">🔐 Conectado ao Gmail via OAuth2</div>
+      </div>
+    </div>
+    <div class="lang-wrapper" id="langWrapper">
+      <button class="lang-btn" id="langBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
+        <span id="langFlag" class="fi fi-br"></span>
+        <span id="langLabel">PT</span>
+        <span class="lang-chevron">▾</span>
+      </button>
+      <ul class="lang-menu" id="langMenu" role="listbox">
+        <li data-lang="pt" role="option"><span class="fi fi-br"></span> Português</li>
+        <li data-lang="en" role="option"><span class="fi fi-us"></span> English</li>
+        <li data-lang="es" role="option"><span class="fi fi-es"></span> Español</li>
+        <li data-lang="fr" role="option"><span class="fi fi-fr"></span> Français</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- AUTH -->
+  <div class="card auth" id="authScreen">
+    <h2 data-i18n="auth.title">🔒 Conectar ao Gmail</h2>
+    <p data-i18n="auth.desc">Autorize o acesso à sua conta Gmail para analisar os remetentes que mais lotam sua caixa e movê-los para a lixeira.</p>
+    <button id="loginButton" class="btn btn-google" type="button">
+      <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiIGZpbGw9IiM0Mjg1RjQiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxwYXRoIGQ9Ik05IDE4YzIuNCAwIDQuNS0uOCA2LTIuMmwtMy0yLjJhNS40IDUuNCAwIDAgMS04LTIuOUgxVjEzYTkgOSAwIDAgMCA4IDV6IiBmaWxsPSIjMzRBODUzIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDhsMy0yLjN6IiBmaWxsPSIjRkJCQzA1IiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNOSAzLjZjMS4zIDAgMi41LjQgMy40IDEuM0wxNSAyLjNBOSA5IDAgMCAwIDEgNWwzIDIuNGE1LjQgNS40IDAgMCAxIDUtMy43eiIgZmlsbD0iI0VBNDMzNSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZD0iTTAgMGgxOHYxOEgweiIvPjwvZz48L3N2Zz4=" alt="Google">
+      <span data-i18n="auth.loginBtn">Entrar com Google</span>
+    </button>
+    <p class="auth-note" data-i18n-html="auth.note">
+      🔐 Autenticação OAuth2 oficial do Google<br>
+      🗑️ Permissão para ler e mover seus emails para a lixeira
+    </p>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="card results" id="resultsScreen">
+    <div class="panel-head">
+      <div>
+        <h2 data-i18n="results.title">🏆 Top 10 remetentes</h2>
+        <p id="userEmail"></p>
+      </div>
+      <div class="actions">
+        <button id="cleanAllButton" class="btn danger" type="button" data-i18n="btn.cleanAll">🗑️ Limpar Top 10</button>
+        <button id="logoutButton" class="btn secondary" type="button" data-i18n="btn.logout">🚪 Sair</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <strong id="totalEmails">0</strong>
+        <span data-i18n="stat.analyzed">Emails analisados</span>
+      </div>
+      <div class="stat">
+        <strong id="totalSize">0</strong>
+        <span data-i18n="stat.space">Espaço total</span>
+      </div>
+      <div class="stat">
+        <strong id="uniqueSenders">0</strong>
+        <span data-i18n="stat.senders">Remetentes únicos</span>
+      </div>
+      <div class="stat">
+        <strong id="top10Count">0</strong>
+        <span data-i18n="stat.top10">Top 10 (emails)</span>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="list">
+        <div class="list-title" data-i18n="list.title">📬 Remetentes com mais emails</div>
+        <div id="offendersList"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="./app.js"></script>
+</body>
+</html>

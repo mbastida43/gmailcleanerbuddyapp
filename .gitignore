@@ -1,0 +1,18 @@
+# Dependências
+node_modules/
+
+# Artefatos de build web (gerados por npm run build:web)
+www/app.js
+www/app.js.map
+
+# Segredos — NUNCA versionar
+*.keystore
+*.jks
+keystore.properties
+
+# SO / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log

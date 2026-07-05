@@ -1,0 +1,37 @@
+{
+  "name": "gmail-cleaner-buddy-app",
+  "version": "1.0.0",
+  "description": "Gmail Cleaner Buddy — aplicativo Android nativo (Capacitor) com OAuth2 PKCE e Gmail API",
+  "private": true,
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "build:web": "esbuild src/app.ts --bundle --outfile=www/app.js --format=iife --target=es2018",
+    "sync": "npm run typecheck && npm run build:web && cap sync android",
+    "configure": "node scripts/set-client-id.mjs",
+    "android:studio": "cap open android",
+    "build:apk": "npm run sync && cd android && gradlew assembleRelease",
+    "build:apk:debug": "npm run sync && cd android && gradlew assembleDebug"
+  },
+  "keywords": [
+    "gmail",
+    "cleaner",
+    "capacitor",
+    "android",
+    "oauth2"
+  ],
+  "author": "Marlon Bastida",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "@capgo/capacitor-social-login": "^8.3.33"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.4.1",
+    "esbuild": "^0.28.1",
+    "typescript": "^6.0.3"
+  }
+}
