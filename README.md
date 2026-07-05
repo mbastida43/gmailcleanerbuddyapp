@@ -131,3 +131,8 @@ scripts/      ← set-client-id.mjs (npm run configure)
 - O escopo `gmail.modify` é **restrito**: o Google mostra a tela de
   consentimento ("app não verificado" em modo Testing) dentro do fluxo
   nativo — normal, é só confirmar.
+
+
+  ## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
