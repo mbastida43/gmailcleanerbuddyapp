@@ -14,6 +14,6 @@
 // ============================================================
 
 export const GOOGLE_WEB_CLIENT_ID =
-  '509052485005-qipj5vobrpj93togcea604fs6aeta2ef.apps.googleusercontent.com';
+  '509052485005-j2gsd3pfrb13qbi6accbaojtertjigpg.apps.googleusercontent.com';
 
 export const OAUTH_SCOPE = 'https://www.googleapis.com/auth/gmail.modify';
