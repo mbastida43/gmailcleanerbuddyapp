@@ -10,7 +10,8 @@
     "configure": "node scripts/set-client-id.mjs",
     "android:studio": "cap open android",
     "build:apk": "npm run sync && cd android && gradlew assembleRelease",
-    "build:apk:debug": "npm run sync && cd android && gradlew assembleDebug"
+    "build:apk:debug": "npm run sync && cd android && gradlew assembleDebug",
+    "build:aab": "npm run sync && cd android && gradlew bundleRelease"
   },
   "keywords": [
     "gmail",

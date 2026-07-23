@@ -71,12 +71,13 @@ npm run build:apk:debug   # APK de desenvolvimento (assinado com a chave debug)
 npm run build:apk         # APK de produção (release, precisa de assinatura — abaixo)
 ```
 
-Onde os APKs são gerados:
+Onde os artefatos são gerados:
 
 | Comando | Arquivo |
 |---|---|
 | `build:apk:debug` | `android/app/build/outputs/apk/debug/app-debug.apk` |
 | `build:apk` | `android/app/build/outputs/apk/release/app-release.apk` (assinado se houver `keystore.properties`; senão, `app-release-unsigned.apk`) |
+| `build:aab` | `android/app/build/outputs/bundle/release/app-release.aab` (App Bundle assinado — **é este que sobe na Play Store**) |
 
 ### Assinar o APK de produção
 
@@ -133,6 +134,31 @@ Google Cloud (Passo 2):
 > do keystore de release no client Android do Google Cloud (Passo 2), senão
 > o login falha com `403 access_denied` nesse APK.
 
+## 🏬 Publicar na Play Store
+
+A Play Store **não aceita APK** para apps novos — ela exige um **Android App
+Bundle (`.aab`)**. Gere o bundle assinado:
+
+```bash
+npm run build:aab   # → android/app/build/outputs/bundle/release/app-release.aab
+```
+
+É esse `.aab` que você faz upload no **Google Play Console** (Criar app →
+Versão de produção/teste → enviar o bundle).
+
+> ⚠️ **Play App Signing (leia antes de configurar o login):** ao subir o
+> bundle, o Google gera e guarda a **chave de assinatura do app**; o seu
+> `gcb-release.keystore` passa a ser apenas a **chave de upload**. Isso quer
+> dizer que o APK que os usuários baixam da Play é assinado com uma chave
+> **diferente** da nossa — com **outro SHA-1**.
+>
+> Consequência para o login Google: o SHA-1 do keystore de release (que já
+> cadastramos) só vale para o APK instalado direto. Para a versão distribuída
+> pela Play, pegue o **SHA-1 do "App signing key"** em
+> **Play Console → Test and release → App integrity** e cadastre-o também no
+> client Android do Google Cloud (Passo 2). Sem isso, o login falha
+> (`403 access_denied`) para quem instalar pela loja.
+
 ## 🧰 Scripts disponíveis
 
 | Script | O que faz |
@@ -144,6 +170,7 @@ Google Cloud (Passo 2):
 | `npm run android:studio` | Abre o projeto nativo no Android Studio |
 | `npm run build:apk:debug` | APK debug instalável |
 | `npm run build:apk` | APK release (assinado se houver `keystore.properties`) |
+| `npm run build:aab` | App Bundle release assinado (para a Play Store) |
 
 ## 📁 Estrutura
 
@@ -158,7 +185,7 @@ android/      ← projeto nativo (gerado pelo Capacitor, versionado)
               ← keystore.properties + *.keystore ficam aqui (fora do git)
 scripts/      ← set-client-id.mjs (npm run configure)
 store/        ← icon-512.png para a ficha da Play Store
-final_app/    ← gmailcleanerbuddy.apk (release assinado, para instalar direto)
+final_app/    ← gmailcleanerbuddy.apk (instalar direto) + .aab (Play Store)
 ```
 
 ## ⚠️ Gotchas conhecidos
