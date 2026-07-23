@@ -76,21 +76,62 @@ Onde os APKs são gerados:
 | Comando | Arquivo |
 |---|---|
 | `build:apk:debug` | `android/app/build/outputs/apk/debug/app-debug.apk` |
-| `build:apk` | `android/app/build/outputs/apk/release/app-release-unsigned.apk` |
+| `build:apk` | `android/app/build/outputs/apk/release/app-release.apk` (assinado se houver `keystore.properties`; senão, `app-release-unsigned.apk`) |
 
 ### Assinar o APK de produção
 
-O release sai **sem assinatura** (o Android só instala APKs assinados).
-Crie seu keystore uma única vez e assine:
+O `build.gradle` assina o release **automaticamente** quando existe o
+arquivo `android/keystore.properties` com as credenciais do seu keystore.
+Sem esse arquivo, o release sai sem assinatura (`app-release-unsigned.apk`)
+e o Android não instala.
+
+Configure uma única vez:
+
+**1. Crie o keystore** (na pasta `android/`, uma vez só):
 
 ```bash
-keytool -genkeypair -v -keystore gcb-release.keystore -alias gcb -keyalg RSA -keysize 2048 -validity 10000
-"%ANDROID_HOME%\build-tools\<versão>\apksigner" sign --ks gcb-release.keystore --out app-release.apk android\app\build\outputs\apk\release\app-release-unsigned.apk
+cd android
+keytool -genkeypair -v -keystore gcb-release.keystore -alias gcb \
+  -keyalg RSA -keysize 2048 -validity 10000
 ```
 
-> ⚠️ Guarde o keystore com carinho (e fora do git — já está no
-> `.gitignore`): perder o keystore = não poder atualizar o app.
-> Lembre de cadastrar o SHA-1 dele no client Android (Passo 2).
+O `keytool` pede uma senha — escolha uma forte e **guarde-a**. Se não tiver
+o `keytool` no PATH, ele vem junto com o Android Studio:
+`"%ProgramFiles%\Android\Android Studio\jbr\bin\keytool"`.
+
+**2. Crie `android/keystore.properties`** apontando para o keystore:
+
+```properties
+storeFile=gcb-release.keystore
+storePassword=SUA_SENHA
+keyAlias=gcb
+keyPassword=SUA_SENHA
+```
+
+**3. Compile** — agora o APK sai assinado:
+
+```bash
+npm run build:apk    # → android/app/build/outputs/apk/release/app-release.apk
+```
+
+**4. (Opcional) Confira a assinatura e pegue o SHA-1** para cadastrar no
+Google Cloud (Passo 2):
+
+```bash
+"%ANDROID_HOME%\build-tools\<versão>\apksigner" verify --print-certs \
+  android/app/build/outputs/apk/release/app-release.apk
+```
+
+> ⚠️ **Guarde o keystore E a senha com carinho.** Tanto o
+> `gcb-release.keystore` quanto o `keystore.properties` ficam **fora do
+> git** (já cobertos pelo `.gitignore` via `*.keystore` e
+> `keystore.properties`) — então existem só na sua máquina. Perder o
+> keystore **ou** a senha = não conseguir mais publicar atualizações do app.
+> Faça backup dos dois num lugar seguro (ex.: gerenciador de senhas).
+>
+> ⚠️ O APK de release tem um **SHA-1 diferente** do debug — cadastre o SHA-1
+> do keystore de release no client Android do Google Cloud (Passo 2), senão
+> o login falha com `403 access_denied` nesse APK.
 
 ## 🧰 Scripts disponíveis
 
@@ -102,7 +143,7 @@ keytool -genkeypair -v -keystore gcb-release.keystore -alias gcb -keyalg RSA -ke
 | `npm run configure -- <id>` | Grava o Web Client ID em `src/config.ts` |
 | `npm run android:studio` | Abre o projeto nativo no Android Studio |
 | `npm run build:apk:debug` | APK debug instalável |
-| `npm run build:apk` | APK release (assinar depois) |
+| `npm run build:apk` | APK release (assinado se houver `keystore.properties`) |
 
 ## 📁 Estrutura
 
@@ -114,7 +155,10 @@ src/
   app.ts      ← UI (i18n PT/EN/ES/FR, Top 10, toasts) — mesma do app web
 www/          ← index.html, style.css e o bundle app.js (gerado)
 android/      ← projeto nativo (gerado pelo Capacitor, versionado)
+              ← keystore.properties + *.keystore ficam aqui (fora do git)
 scripts/      ← set-client-id.mjs (npm run configure)
+store/        ← icon-512.png para a ficha da Play Store
+final_app/    ← gmailcleanerbuddy.apk (release assinado, para instalar direto)
 ```
 
 ## ⚠️ Gotchas conhecidos
