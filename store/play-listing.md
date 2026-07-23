@@ -4,6 +4,12 @@ Textos prontos para colar no Play Console (Painel do app → Ficha principal da 
 Limites do Google: **nome do app ≤ 30 caracteres**, **descrição curta ≤ 80**,
 **descrição completa ≤ 4000**.
 
+## Recursos da ficha (já prontos)
+- **Ícone 512×512:** `store/icon-512.png`
+- **Screenshots do celular (1080×1920):** `store/screenshots/01-login.png`, `02-analise.png`, `03-ranking.png`
+- **Política de Privacidade (URL pública):** https://mbastida43.github.io/gmailcleanerbuddy/privacy.html
+- **App Bundle para upload:** `final_app/gmailcleanerbuddy.aab`
+
 ---
 
 ## 🇧🇷 Português (pt-BR) — idioma padrão
