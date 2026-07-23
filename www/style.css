@@ -65,7 +65,7 @@ h1{font-size:34px;font-weight:900;}
 .btn.danger{background:linear-gradient(135deg,#ea4335,#d92d20);color:white;}
 .btn.secondary{background:white;border:1px solid var(--line);color:var(--text);}
 
-.lang-wrapper{position:relative;}
+.lang-wrapper{position:relative;margin-left:auto;}
 
 .lang-btn{
   display:flex;align-items:center;gap:6px;
