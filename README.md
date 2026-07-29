@@ -11,7 +11,7 @@ deles para a lixeira — direto do celular.
 | Servidor Node/Express | ✅ obrigatório | ❌ **não existe** — o celular fala direto com a API do Gmail |
 | Login | Redirect OAuth no navegador | **Caixa nativa do Android** (Credential Manager + Authorization API do Google Play Services, via plugin `@capgo/capacitor-social-login`) |
 | Segredo OAuth | `client_secret` no `.env` do servidor | **Nenhum segredo no APK** — apps instalados usam o fluxo para apps nativos, sem client_secret |
-| Lógica de análise/limpeza | `src/server.ts` | portada para `src/gmail.ts` (mesma semântica: amostra de 500, contagem exata dos top 25, limpeza via `batchModify`) |
+| Lógica de análise/limpeza | `src/server.ts` | portada para `src/gmail.ts` (mesma semântica: amostra de 1000, contagem exata dos top 25, limpeza via `batchModify`) |
 
 O token de acesso vive **somente em memória** (~1h) — nada é persistido no
 aparelho.

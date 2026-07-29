@@ -2,7 +2,7 @@
 // Camada Gmail — porta da lógica do servidor Express (src/server.ts do
 // projeto web) para chamadas diretas à REST API do Gmail com Bearer token.
 // Mantém a mesma semântica validada no app web:
-// - análise por amostra de 500 mensagens
+// - análise por amostra de 1000 mensagens
 // - contagem EXATA (busca from:"..." na conta inteira) para os top 25
 // - limpeza via batchModify (até 1000 ids/chamada, TRASH + remove INBOX)
 //   com fallback para messages.trash individual
@@ -12,7 +12,7 @@ import { getAccessToken } from './auth';
 
 const BASE = 'https://gmail.googleapis.com/gmail/v1/users/me';
 
-const MAX_ANALYZE = 500;
+const MAX_ANALYZE = 1000;
 const EXACT_COUNT_LIMIT = 25;
 
 export class UnauthorizedError extends Error {
