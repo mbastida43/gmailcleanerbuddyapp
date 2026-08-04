@@ -2,16 +2,24 @@ import * as auth from './auth';
 import * as gmail from './gmail';
 import type { AnalyzeData } from './gmail';
 
-type Lang = 'pt' | 'en' | 'es' | 'fr';
+type Lang = 'pt' | 'en' | 'es' | 'fr' | 'it' | 'ru' | 'zh';
 
 let currentData: AnalyzeData | null = null;
 let currentLang: Lang = 'pt';
 
-const LANG_FLAG_CLASSES: Record<Lang, string> = { pt: 'fi fi-br', en: 'fi fi-us', es: 'fi fi-es', fr: 'fi fi-fr' };
-const LANG_LABELS: Record<Lang, string> = { pt: 'PT', en: 'EN', es: 'ES', fr: 'FR' };
+const LANG_FLAG_CLASSES: Record<Lang, string> = {
+  pt: 'fi fi-br', en: 'fi fi-us', es: 'fi fi-es', fr: 'fi fi-fr',
+  it: 'fi fi-it', ru: 'fi fi-ru', zh: 'fi fi-cn'
+};
+const LANG_LABELS: Record<Lang, string> = {
+  pt: 'PT', en: 'EN', es: 'ES', fr: 'FR', it: 'IT', ru: 'RU', zh: '中文'
+};
 
 // ===================== i18n =====================
-const LOCALES: Record<Lang, string> = { pt: 'pt-BR', en: 'en-US', es: 'es-ES', fr: 'fr-FR' };
+const LOCALES: Record<Lang, string> = {
+  pt: 'pt-BR', en: 'en-US', es: 'es-ES', fr: 'fr-FR',
+  it: 'it-IT', ru: 'ru-RU', zh: 'zh-CN'
+};
 
 const TRANSLATIONS: Record<Lang, Record<string, string>> = {
   pt: {
@@ -41,7 +49,18 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'confirm.cleanSender': 'Mover emails de {sender} para a lixeira?',
     'confirm.cleanAll': 'Mover TODOS os Top 10 para a lixeira?',
     'toast.cleaned': '✅ {n} emails movidos para a lixeira',
-    'toast.cleanAllPartial': '⚠️ {removed} movidos; {failed} falharam'
+    'toast.cleanAllPartial': '⚠️ {removed} movidos; {failed} falharam',
+    'cat.social': 'Rede Social',
+    'cat.google': 'Google',
+    'cat.devops': 'DevOps',
+    'cat.delivery': 'Delivery',
+    'cat.shopping': 'Compras',
+    'cat.design': 'Design',
+    'cat.infra': 'Infraestrutura',
+    'cat.collab': 'Colaboração',
+    'cat.news': 'Notícias',
+    'cat.content': 'Conteúdo',
+    'cat.other': 'Outros'
   },
   en: {
     'subtitle': '🔐 Connected to Gmail via OAuth2',
@@ -70,7 +89,18 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'confirm.cleanSender': 'Move emails from {sender} to the trash?',
     'confirm.cleanAll': 'Move ALL Top 10 to the trash?',
     'toast.cleaned': '✅ {n} emails moved to the trash',
-    'toast.cleanAllPartial': '⚠️ {removed} moved; {failed} failed'
+    'toast.cleanAllPartial': '⚠️ {removed} moved; {failed} failed',
+    'cat.social': 'Social',
+    'cat.google': 'Google',
+    'cat.devops': 'DevOps',
+    'cat.delivery': 'Delivery',
+    'cat.shopping': 'Shopping',
+    'cat.design': 'Design',
+    'cat.infra': 'Infrastructure',
+    'cat.collab': 'Collaboration',
+    'cat.news': 'News',
+    'cat.content': 'Content',
+    'cat.other': 'Other'
   },
   es: {
     'subtitle': '🔐 Conectado a Gmail vía OAuth2',
@@ -99,7 +129,18 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'confirm.cleanSender': '¿Mover los correos de {sender} a la papelera?',
     'confirm.cleanAll': '¿Mover TODO el Top 10 a la papelera?',
     'toast.cleaned': '✅ {n} correos movidos a la papelera',
-    'toast.cleanAllPartial': '⚠️ {removed} movidos; {failed} fallaron'
+    'toast.cleanAllPartial': '⚠️ {removed} movidos; {failed} fallaron',
+    'cat.social': 'Red Social',
+    'cat.google': 'Google',
+    'cat.devops': 'DevOps',
+    'cat.delivery': 'Delivery',
+    'cat.shopping': 'Compras',
+    'cat.design': 'Diseño',
+    'cat.infra': 'Infraestructura',
+    'cat.collab': 'Colaboración',
+    'cat.news': 'Noticias',
+    'cat.content': 'Contenido',
+    'cat.other': 'Otros'
   },
   fr: {
     'subtitle': '🔐 Connecté à Gmail via OAuth2',
@@ -128,7 +169,138 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'confirm.cleanSender': 'Déplacer les e-mails de {sender} vers la corbeille ?',
     'confirm.cleanAll': 'Déplacer TOUT le Top 10 vers la corbeille ?',
     'toast.cleaned': '✅ {n} e-mails déplacés vers la corbeille',
-    'toast.cleanAllPartial': '⚠️ {removed} déplacés ; {failed} échoués'
+    'toast.cleanAllPartial': '⚠️ {removed} déplacés ; {failed} échoués',
+    'cat.social': 'Réseau social',
+    'cat.google': 'Google',
+    'cat.devops': 'DevOps',
+    'cat.delivery': 'Livraison',
+    'cat.shopping': 'Achats',
+    'cat.design': 'Design',
+    'cat.infra': 'Infrastructure',
+    'cat.collab': 'Collaboration',
+    'cat.news': 'Actualités',
+    'cat.content': 'Contenu',
+    'cat.other': 'Autres'
+  },
+  it: {
+    'subtitle': '🔐 Connesso a Gmail tramite OAuth2',
+    'auth.title': '🔒 Connettersi a Gmail',
+    'auth.desc': 'Autorizza l’accesso al tuo account Gmail per analizzare i mittenti che intasano di più la tua casella e spostarli nel cestino.',
+    'auth.loginBtn': 'Accedi con Google',
+    'auth.note': '🔐 Autenticazione OAuth2 ufficiale di Google<br>🗑️ Autorizzazione a leggere e spostare le tue email nel cestino',
+    'results.title': '🏆 Top 10 mittenti',
+    'btn.cleanAll': '🗑️ Pulisci la Top 10',
+    'btn.logout': '🚪 Esci',
+    'stat.analyzed': 'Email analizzate',
+    'stat.space': 'Spazio totale',
+    'stat.senders': 'Mittenti unici',
+    'stat.top10': 'Top 10 (email)',
+    'list.title': '📬 Mittenti con più email',
+    'btn.clean': 'Pulisci',
+    'toast.authSuccess': '✅ Autenticazione riuscita!',
+    'toast.authError': '❌ Errore di autenticazione. Riprova.',
+    'toast.sessionExpired': '🔒 Sessione scaduta. Accedi di nuovo.',
+    'toast.logoutError': '❌ Errore durante la disconnessione',
+    'toast.loadError': '❌ Errore nel caricamento dei dati',
+    'toast.analyzing': '🔍 Analisi della casella in corso...',
+    'toast.analyzePartial': '✅ Analisi parziale: {ok} ok, {failed} non riuscite',
+    'toast.analyzeDone': '✅ Analisi completata!',
+    'toast.analyzeError': '❌ Errore durante l’analisi',
+    'confirm.cleanSender': 'Spostare le email di {sender} nel cestino?',
+    'confirm.cleanAll': 'Spostare TUTTA la Top 10 nel cestino?',
+    'toast.cleaned': '✅ {n} email spostate nel cestino',
+    'toast.cleanAllPartial': '⚠️ {removed} spostate; {failed} non riuscite',
+    'cat.social': 'Social',
+    'cat.google': 'Google',
+    'cat.devops': 'DevOps',
+    'cat.delivery': 'Consegne',
+    'cat.shopping': 'Acquisti',
+    'cat.design': 'Design',
+    'cat.infra': 'Infrastruttura',
+    'cat.collab': 'Collaborazione',
+    'cat.news': 'Notizie',
+    'cat.content': 'Contenuti',
+    'cat.other': 'Altro'
+  },
+  ru: {
+    'subtitle': '🔐 Подключено к Gmail через OAuth2',
+    'auth.title': '🔒 Подключиться к Gmail',
+    'auth.desc': 'Разрешите доступ к вашему аккаунту Gmail, чтобы проанализировать отправителей, которые больше всего забивают ваш ящик, и переместить их письма в корзину.',
+    'auth.loginBtn': 'Войти через Google',
+    'auth.note': '🔐 Официальная аутентификация Google OAuth2<br>🗑️ Разрешение читать письма и перемещать их в корзину',
+    'results.title': '🏆 Топ-10 отправителей',
+    'btn.cleanAll': '🗑️ Очистить Топ-10',
+    'btn.logout': '🚪 Выйти',
+    'stat.analyzed': 'Писем проанализировано',
+    'stat.space': 'Всего места',
+    'stat.senders': 'Уникальных отправителей',
+    'stat.top10': 'Топ-10 (письма)',
+    'list.title': '📬 Отправители с наибольшим числом писем',
+    'btn.clean': 'Очистить',
+    'toast.authSuccess': '✅ Вход выполнен успешно!',
+    'toast.authError': '❌ Ошибка аутентификации. Попробуйте ещё раз.',
+    'toast.sessionExpired': '🔒 Сессия истекла. Войдите снова.',
+    'toast.logoutError': '❌ Ошибка при выходе',
+    'toast.loadError': '❌ Ошибка загрузки данных',
+    'toast.analyzing': '🔍 Анализ почтового ящика...',
+    'toast.analyzePartial': '✅ Частичный анализ: {ok} успешно, {failed} с ошибкой',
+    'toast.analyzeDone': '✅ Анализ завершён!',
+    'toast.analyzeError': '❌ Ошибка при анализе',
+    'confirm.cleanSender': 'Переместить письма от {sender} в корзину?',
+    'confirm.cleanAll': 'Переместить ВЕСЬ Топ-10 в корзину?',
+    'toast.cleaned': '✅ {n} писем перемещено в корзину',
+    'toast.cleanAllPartial': '⚠️ {removed} перемещено; {failed} с ошибкой',
+    'cat.social': 'Соцсети',
+    'cat.google': 'Google',
+    'cat.devops': 'DevOps',
+    'cat.delivery': 'Доставка',
+    'cat.shopping': 'Покупки',
+    'cat.design': 'Дизайн',
+    'cat.infra': 'Инфраструктура',
+    'cat.collab': 'Совместная работа',
+    'cat.news': 'Новости',
+    'cat.content': 'Контент',
+    'cat.other': 'Другое'
+  },
+  zh: {
+    'subtitle': '🔐 已通过 OAuth2 连接到 Gmail',
+    'auth.title': '🔒 连接到 Gmail',
+    'auth.desc': '授权访问你的 Gmail 账号，以便分析最占用收件箱的发件人并将其邮件移至垃圾箱。',
+    'auth.loginBtn': '使用 Google 登录',
+    'auth.note': '🔐 官方 Google OAuth2 身份验证<br>🗑️ 读取邮件并将其移至垃圾箱的权限',
+    'results.title': '🏆 前 10 名发件人',
+    'btn.cleanAll': '🗑️ 清理前 10 名',
+    'btn.logout': '🚪 退出',
+    'stat.analyzed': '已分析邮件',
+    'stat.space': '总占用空间',
+    'stat.senders': '独立发件人',
+    'stat.top10': '前 10 名（邮件数）',
+    'list.title': '📬 邮件最多的发件人',
+    'btn.clean': '清理',
+    'toast.authSuccess': '✅ 认证成功！',
+    'toast.authError': '❌ 认证失败，请重试。',
+    'toast.sessionExpired': '🔒 会话已过期，请重新登录。',
+    'toast.logoutError': '❌ 退出时出错',
+    'toast.loadError': '❌ 加载数据时出错',
+    'toast.analyzing': '🔍 正在分析收件箱…',
+    'toast.analyzePartial': '✅ 部分分析完成：{ok} 成功，{failed} 失败',
+    'toast.analyzeDone': '✅ 分析完成！',
+    'toast.analyzeError': '❌ 分析时出错',
+    'confirm.cleanSender': '将来自 {sender} 的邮件移至垃圾箱？',
+    'confirm.cleanAll': '将全部前 10 名的邮件移至垃圾箱？',
+    'toast.cleaned': '✅ 已将 {n} 封邮件移至垃圾箱',
+    'toast.cleanAllPartial': '⚠️ 已移动 {removed} 封；{failed} 封失败',
+    'cat.social': '社交媒体',
+    'cat.google': 'Google',
+    'cat.devops': 'DevOps',
+    'cat.delivery': '外卖配送',
+    'cat.shopping': '购物',
+    'cat.design': '设计',
+    'cat.infra': '基础设施',
+    'cat.collab': '协作办公',
+    'cat.news': '新闻',
+    'cat.content': '内容平台',
+    'cat.other': '其他'
   }
 };
 
@@ -321,7 +493,7 @@ function renderResults(data: AnalyzeData): void {
     domainEl.textContent = item.domain;
     const categoryEl = document.createElement('div');
     categoryEl.className = 'cat';
-    categoryEl.textContent = item.category;
+    categoryEl.textContent = t(item.category);
     details.appendChild(domainEl);
     details.appendChild(categoryEl);
 

@@ -271,18 +271,21 @@ export async function clean(
   return { removed, failed };
 }
 
+// Devolve uma CHAVE de i18n, não texto pronto — quem traduz é a camada de
+// interface (TRANSLATIONS em app.ts). Antes isto retornava português fixo,
+// que vazava para a tela em qualquer idioma.
 function categorizeSender(email: string): string {
   const domain = email.toLowerCase();
-  if (domain.includes('linkedin')) return 'Rede Social';
-  if (domain.includes('facebook') || domain.includes('instagram')) return 'Rede Social';
-  if (domain.includes('google') || domain.includes('youtube')) return 'Google';
-  if (domain.includes('github') || domain.includes('gitlab')) return 'DevOps';
-  if (domain.includes('ifood') || domain.includes('uber')) return 'Delivery';
-  if (domain.includes('amazon')) return 'Compras';
-  if (domain.includes('canva') || domain.includes('figma')) return 'Design';
-  if (domain.includes('cloudflare') || domain.includes('aws')) return 'Infraestrutura';
-  if (domain.includes('slack') || domain.includes('teams')) return 'Colaboração';
-  if (domain.includes('news') || domain.includes('nytimes')) return 'Notícias';
-  if (domain.includes('medium') || domain.includes('substack')) return 'Conteúdo';
-  return 'Outros';
+  if (domain.includes('linkedin')) return 'cat.social';
+  if (domain.includes('facebook') || domain.includes('instagram')) return 'cat.social';
+  if (domain.includes('google') || domain.includes('youtube')) return 'cat.google';
+  if (domain.includes('github') || domain.includes('gitlab')) return 'cat.devops';
+  if (domain.includes('ifood') || domain.includes('uber')) return 'cat.delivery';
+  if (domain.includes('amazon')) return 'cat.shopping';
+  if (domain.includes('canva') || domain.includes('figma')) return 'cat.design';
+  if (domain.includes('cloudflare') || domain.includes('aws')) return 'cat.infra';
+  if (domain.includes('slack') || domain.includes('teams')) return 'cat.collab';
+  if (domain.includes('news') || domain.includes('nytimes')) return 'cat.news';
+  if (domain.includes('medium') || domain.includes('substack')) return 'cat.content';
+  return 'cat.other';
 }
