@@ -6,6 +6,10 @@ Limites do Google: **nome do app ≤ 30 caracteres**, **descrição curta ≤ 80
 
 ## Recursos da ficha (já prontos)
 - **Ícone 512×512:** `store/icon-512.png`
+- **Feature graphic 1024×500:** `store/feature-graphics/feature-<idioma>.png` — um por idioma da ficha.
+  Gerados por `node scripts/make-feature-graphic.mjs` a partir de `store/feature-graphic.html`
+  (Chrome headless; PNG RGB sem alpha, como a Play exige). Para mudar texto ou visual,
+  edite o HTML e rode o script de novo.
 - **Screenshots do celular:** `store/screenshots/01-login.png`, `02-analise.png`, `03-ranking.png` (capturas reais do app em inglês, com dados de exemplo)
 - **Política de Privacidade (URL pública):** https://mbastida43.github.io/gmailcleanerbuddy/privacy.html
 - **App Bundle para upload:** `final_app/gmailcleanerbuddy.aab`
@@ -47,7 +51,7 @@ RECURSOS
 • Contagem exata de e-mails por remetente
 • Limpeza em massa com um toque
 • Categorias automáticas (redes sociais, compras, notícias e mais)
-• Interface em Português, Inglês, Espanhol e Francês
+• Interface em Português, Inglês, Espanhol, Francês, Italiano, Russo e Chinês
 
 Recupere o controle da sua caixa de entrada. Baixe o Gmail Cleaner Buddy.
 ```
@@ -89,7 +93,7 @@ FEATURES
 • Exact email count per sender
 • One-tap bulk cleanup
 • Automatic categories (social, shopping, news and more)
-• Interface in Portuguese, English, Spanish and French
+• Interface in Portuguese, English, Spanish, French, Italian, Russian and Chinese
 
 Take back control of your inbox. Download Gmail Cleaner Buddy.
 ```
@@ -131,7 +135,7 @@ FUNCIONES
 • Conteo exacto de correos por remitente
 • Limpieza masiva con un toque
 • Categorías automáticas (redes sociales, compras, noticias y más)
-• Interfaz en portugués, inglés, español y francés
+• Interfaz en portugués, inglés, español, francés, italiano, ruso y chino
 
 Recupera el control de tu bandeja de entrada. Descarga Gmail Cleaner Buddy.
 ```
@@ -173,7 +177,7 @@ FONCTIONNALITÉS
 • Comptage exact des e-mails par expéditeur
 • Nettoyage groupé en un appui
 • Catégories automatiques (réseaux sociaux, achats, actualités et plus)
-• Interface en portugais, anglais, espagnol et français
+• Interface en portugais, anglais, espagnol, français, italien, russe et chinois
 
 Reprenez le contrôle de votre boîte de réception. Téléchargez Gmail Cleaner Buddy.
 ```
