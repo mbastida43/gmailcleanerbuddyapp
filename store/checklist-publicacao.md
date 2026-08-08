@@ -74,25 +74,42 @@ Tudo pronto no repo:
 
 ## Fase 4 — O binário
 
-- ✅ AAB assinado: `final_app/gmailcleanerbuddy.aab` (chave `GCB`)
+> **Chave trocada em 2026-08-08.** A chave `GCB` original se perdeu — não estava em nenhuma
+> máquina. Como o app ainda não tinha sido publicado, gerar outra não custou nada; depois de
+> publicado, custaria o app inteiro. O AAB foi reconstruído e assinado com a chave nova.
+
+- ✅ AAB assinado: `final_app/gmailcleanerbuddy.aab` (chave `gcb-upload`)
 - ✅ `targetSdk 36` (`android/variables.gradle:4`) — atende a exigência atual
 - ✅ `versionCode 1` — correto para o primeiro envio
-- ⚠️ **`android/keystore.properties` não existe nesta máquina.** Sem ele, `npm run build:aab`
-      gera um AAB **sem assinatura**, que a Play recusa. Antes de rebuildar, recrie o arquivo:
-
-  ```properties
-  storeFile=caminho/para/seu.keystore
-  storePassword=...
-  keyAlias=...
-  keyPassword=...
-  ```
-
-- 🔴 **Faça backup do keystore agora, em dois lugares.** Se perder essa chave, você **nunca
-      mais** consegue atualizar o app — o Google não tem como recuperar, e a única saída é
-      publicar outro app com outro `applicationId`, perdendo instalações e avaliações.
-      (A menos que ative o Play App Signing, abaixo.)
+- ✅ Keystore em `C:\Users\marlo\.android-keys\gmailcleanerbuddy-upload.jks` (fora do repo,
+      de propósito: assim nem um `git add -f` nem um zip da pasta o expõem).
+      RSA 4096, validade 10.000 dias, alias `gcb-upload`.
+      **SHA-1: `93:98:15:F7:43:9F:D0:75:2C:98:A6:09:2D:88:27:E0:8E:C9:A3:8A`**
+- ✅ `android/keystore.properties` recriado (a senha está nele; coberto pelo `.gitignore`).
+      O `storeFile` usa barras normais — em arquivos `.properties` a contrabarra é escape e
+      um caminho `C:\Users\...` quebraria o build
+- ✅ Backup em pendrive, validado por teste de restauração real: a chave do backup abre com a
+      senha do backup e devolve o SHA-1 correto
+- ⬜ **Segunda cópia do backup fora do pendrive** (Drive) — pendrive é a mídia que mais some
+- ✅ SHA-1 novo cadastrado no client Android do Google Cloud
+      (*Gmail Cleaner Buddy (release)*), e o login nativo foi testado no aparelho: caixa de
+      contas, consentimento e ranking carregando
 - ⬜ Ativar **Play App Signing** no primeiro upload (recomendado) — o Google passa a guardar a
       chave de assinatura e você mantém só a chave de upload, que **é** recuperável se perdida
+- ⚠️ **Depois do primeiro upload, volte ao client Android e acrescente o SHA-1 do Play App
+      Signing.** O Google reassina o app com a chave dele, então o SHA-1 da versão publicada
+      não é o seu. Sem esse segundo cadastro o login funciona no APK que você instala e falha
+      para quem baixa da loja — sintoma que parece bug do app e não é.
+
+**Como buildar nesta máquina:** `JAVA_HOME` e `ANDROID_HOME` não estão definidos no sistema, e
+`npm run build:aab` falha porque o script chama `gradlew` sem extensão e o `cmd` não resolve.
+Rode direto:
+
+```powershell
+$env:JAVA_HOME   = "C:\Program Files\Android\Android Studio\jbr"
+$env:ANDROID_HOME = "C:\Users\marlo\AppData\Local\Android\Sdk"
+cd android; .\gradlew.bat bundleRelease   # ou assembleRelease para gerar APK de teste
+```
 
 ---
 

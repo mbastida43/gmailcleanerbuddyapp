@@ -50,6 +50,8 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'confirm.cleanAll': 'Mover TODOS os Top 10 para a lixeira?',
     'toast.cleaned': '✅ {n} emails movidos para a lixeira',
     'toast.cleanAllPartial': '⚠️ {removed} movidos; {failed} falharam',
+    'protected.tooltip': 'Sua própria conta — protegida contra limpeza',
+    'error.ownAddress': '🔒 Não é possível limpar o seu próprio endereço — isso moveria seus e-mails enviados para a lixeira',
     'cat.social': 'Rede Social',
     'cat.google': 'Google',
     'cat.devops': 'DevOps',
@@ -90,6 +92,8 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'confirm.cleanAll': 'Move ALL Top 10 to the trash?',
     'toast.cleaned': '✅ {n} emails moved to the trash',
     'toast.cleanAllPartial': '⚠️ {removed} moved; {failed} failed',
+    'protected.tooltip': 'Your own account — protected from cleaning',
+    'error.ownAddress': '🔒 You cannot clean your own address — that would move your sent mail to the trash',
     'cat.social': 'Social',
     'cat.google': 'Google',
     'cat.devops': 'DevOps',
@@ -130,6 +134,8 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'confirm.cleanAll': '¿Mover TODO el Top 10 a la papelera?',
     'toast.cleaned': '✅ {n} correos movidos a la papelera',
     'toast.cleanAllPartial': '⚠️ {removed} movidos; {failed} fallaron',
+    'protected.tooltip': 'Tu propia cuenta: protegida contra la limpieza',
+    'error.ownAddress': '🔒 No puedes limpiar tu propia dirección: eso movería tus correos enviados a la papelera',
     'cat.social': 'Red Social',
     'cat.google': 'Google',
     'cat.devops': 'DevOps',
@@ -170,6 +176,8 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'confirm.cleanAll': 'Déplacer TOUT le Top 10 vers la corbeille ?',
     'toast.cleaned': '✅ {n} e-mails déplacés vers la corbeille',
     'toast.cleanAllPartial': '⚠️ {removed} déplacés ; {failed} échoués',
+    'protected.tooltip': 'Votre propre compte — protégé du nettoyage',
+    'error.ownAddress': '🔒 Impossible de nettoyer votre propre adresse — cela déplacerait vos e-mails envoyés vers la corbeille',
     'cat.social': 'Réseau social',
     'cat.google': 'Google',
     'cat.devops': 'DevOps',
@@ -210,6 +218,8 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'confirm.cleanAll': 'Spostare TUTTA la Top 10 nel cestino?',
     'toast.cleaned': '✅ {n} email spostate nel cestino',
     'toast.cleanAllPartial': '⚠️ {removed} spostate; {failed} non riuscite',
+    'protected.tooltip': 'Il tuo account — protetto dalla pulizia',
+    'error.ownAddress': '🔒 Non puoi pulire il tuo indirizzo — sposteresti nel cestino le tue email inviate',
     'cat.social': 'Social',
     'cat.google': 'Google',
     'cat.devops': 'DevOps',
@@ -250,6 +260,8 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'confirm.cleanAll': 'Переместить ВЕСЬ Топ-10 в корзину?',
     'toast.cleaned': '✅ {n} писем перемещено в корзину',
     'toast.cleanAllPartial': '⚠️ {removed} перемещено; {failed} с ошибкой',
+    'protected.tooltip': 'Ваш собственный аккаунт — защищён от очистки',
+    'error.ownAddress': '🔒 Нельзя очистить собственный адрес — это переместит отправленные письма в корзину',
     'cat.social': 'Соцсети',
     'cat.google': 'Google',
     'cat.devops': 'DevOps',
@@ -290,6 +302,8 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'confirm.cleanAll': '将全部前 10 名的邮件移至垃圾箱？',
     'toast.cleaned': '✅ 已将 {n} 封邮件移至垃圾箱',
     'toast.cleanAllPartial': '⚠️ 已移动 {removed} 封；{failed} 封失败',
+    'protected.tooltip': '您自己的账户 — 已受保护，不会被清理',
+    'error.ownAddress': '🔒 无法清理您自己的地址 — 那会把已发送邮件移到垃圾箱',
     'cat.social': '社交媒体',
     'cat.google': 'Google',
     'cat.devops': 'DevOps',
@@ -491,6 +505,16 @@ function renderResults(data: AnalyzeData): void {
     const domainEl = document.createElement('div');
     domainEl.className = 'domain';
     domainEl.textContent = item.domain;
+    if (item.isProtected) {
+      // Cadeado depois do endereço: sinaliza "protegido", não "removido" —
+      // por isso um ícone, e não texto taxado.
+      const lock = document.createElement('span');
+      lock.className = 'lock';
+      lock.textContent = ' 🔒';
+      lock.title = t('protected.tooltip');
+      lock.setAttribute('aria-label', t('protected.tooltip'));
+      domainEl.appendChild(lock);
+    }
     const categoryEl = document.createElement('div');
     categoryEl.className = 'cat';
     categoryEl.textContent = t(item.category);
@@ -510,7 +534,13 @@ function renderResults(data: AnalyzeData): void {
     button.type = 'button';
     button.className = 'btn-clean-single';
     button.textContent = t('btn.clean');
-    button.addEventListener('click', () => cleanSender(item.domain));
+    if (item.isProtected) {
+      button.disabled = true;
+      button.title = t('protected.tooltip');
+      button.setAttribute('aria-disabled', 'true');
+    } else {
+      button.addEventListener('click', () => cleanSender(item.domain));
+    }
 
     row.appendChild(rank);
     row.appendChild(details);
@@ -532,6 +562,12 @@ async function cleanSender(sender: string): Promise<void> {
       handleUnauthorized();
       return;
     }
+    // A trava do próprio endereço não é falha técnica: merece a explicação
+    // traduzida, não o código cru que gmail.clean() lança.
+    if (error?.message === 'own_address') {
+      toast(t('error.ownAddress'));
+      return;
+    }
     console.error('Erro ao limpar:', error);
     toast(`❌ ${error.message}`);
   } finally {
@@ -547,8 +583,10 @@ async function cleanAll(): Promise<void> {
   let totalRemoved = 0;
   let totalFailed = 0;
 
-  // Cópia da lista: removeSenderLocally mexe no top10 durante o loop
-  const targets = [...currentData.top10];
+  // Cópia da lista: removeSenderLocally mexe no top10 durante o loop.
+  // A conta do próprio usuário fica de fora: clean() a recusaria e o
+  // "Limpar Top 10" acabaria reportando uma falha que não é falha.
+  const targets = currentData.top10.filter((o) => !o.isProtected);
   for (const item of targets) {
     try {
       const data = await gmail.clean(item.domain);

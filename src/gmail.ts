@@ -28,6 +28,7 @@ export interface Offender {
   sampleCount: number;
   size: number;
   category: string;
+  isProtected: boolean;
 }
 
 export interface AnalyzeData {
@@ -69,7 +70,28 @@ export async function getProfile(): Promise<{ email: string }> {
   return { email: data.emailAddress };
 }
 
+/**
+ * Endereço da conta logada, em minúsculas. Devolve '' se o perfil falhar —
+ * sem isso um erro transitório no /profile derrubaria a análise inteira.
+ * A trava real de limpeza está em clean(), que consulta o perfil de novo.
+ */
+async function getOwnEmail(): Promise<string> {
+  try {
+    const profile = await getProfile();
+    return profile.email.trim().toLowerCase();
+  } catch (err) {
+    if (err instanceof UnauthorizedError) throw err;
+    return '';
+  }
+}
+
 export async function analyze(): Promise<AnalyzeData> {
+  // A listagem abaixo não filtra por pasta, então traz também os enviados —
+  // por isso o próprio dono da conta costuma liderar a lista. Ele permanece
+  // visível (sumir sem explicação seria pior), mas marcado como isProtected
+  // para a interface desabilitar o botão de limpar.
+  const ownEmail = await getOwnEmail();
+
   // 1) Amostra: ids das mensagens mais recentes
   let ids: string[] = [];
   let pageToken: string | undefined;
@@ -132,7 +154,8 @@ export async function analyze(): Promise<AnalyzeData> {
     count: senderCounts[email],
     sampleCount: senderCounts[email],
     size: senderSizes[email] || 0,
-    category: senderCategories[email]
+    category: senderCategories[email],
+    isProtected: !!ownEmail && email === ownEmail
   }));
   offenders.sort((a, b) => b.count - a.count);
 
@@ -197,6 +220,15 @@ export async function clean(
 ): Promise<{ removed: number; failed: number }> {
   if (!validateSender(sender)) {
     throw new Error('invalid_sender');
+  }
+
+  // Trava de segurança: limpar o próprio endereço esvaziaria a pasta de
+  // enviados — incluindo e-mails que o usuário manda para si mesmo para
+  // guardar. A interface já desabilita o botão nessa linha; isto cobre o caso
+  // de a chamada chegar por outro caminho (tela em cache, ranking antigo).
+  const ownEmail = await getOwnEmail();
+  if (ownEmail && sender.trim().toLowerCase() === ownEmail) {
+    throw new Error('own_address');
   }
 
   // Coleta TODOS os ids (aspas na busca evitam injeção de operadores)
