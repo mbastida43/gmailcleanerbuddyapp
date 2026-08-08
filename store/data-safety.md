@@ -6,8 +6,8 @@ Respostas prontas para **Play Console → Política → Conteúdo do app → Seg
 > pode suspender a listagem. Cada resposta abaixo está justificada com o ponto do código
 > que a sustenta — se o código mudar, revise este arquivo antes de publicar de novo.
 
-**Ler antes de responder:** a pendência da seção [Antes de enviar](#antes-de-enviar) muda a
-resposta da pergunta 1. Resolva-a primeiro.
+**Status:** a pendência que afetava a pergunta 1 (CDNs externas) foi resolvida em 2026-08-08 —
+ver [Antes de enviar](#antes-de-enviar). As respostas abaixo podem ser usadas como estão.
 
 ---
 
@@ -94,25 +94,29 @@ Sem essa frase literal a verificação OAuth é reprovada.
 
 ## Antes de enviar
 
-**Pendência que precisa ser resolvida — ela afeta a resposta da Seção 1.**
+**✅ Resolvido em 2026-08-08.**
 
-O app empacotado carrega dois recursos externos em tempo de execução (`www/index.html:7-11`):
+A pendência era que o app buscava dois recursos externos em tempo de execução — a fonte Inter
+em `fonts.googleapis.com` e as bandeiras do seletor de idioma em `cdn.jsdelivr.net`. Toda
+abertura mandava o IP do usuário para essas CDNs, e sem rede a interface abria com fonte
+errada e sem bandeiras.
 
-- `fonts.googleapis.com` / `fonts.gstatic.com` — fonte Inter
-- `cdn.jsdelivr.net` — ícones de bandeira dos idiomas
+Ambos passaram para dentro do APK:
 
-Duas consequências:
+- `www/assets/fonts/` — Inter em woff2, subsets latino e cirílico, 5 pesos (327 KB)
+- `www/assets/flags/` — só as 7 bandeiras que o app usa, em vez da folha inteira do
+  flag-icons com centenas de países (99 KB)
+- `www/assets/local.css` — declara as duas coisas, preservando os `unicode-range` originais
+  para o cirílico só carregar quando a tela está em russo. Gerado por
+  `scripts/fetch-local-assets.ps1`; rode-o para atualizar a fonte ou incluir um idioma novo
 
-1. **Privacidade:** toda abertura do app envia o **IP do usuário** para essas CDNs, sem
-   que ele saiba. Isso enfraquece a resposta "Não coleta" e é exatamente o tipo de coisa
-   que um revisor atento levanta num app de acesso restrito ao Gmail.
-2. **Funcional:** sem internet — ou se a jsDelivr cair — a interface abre com fonte errada e
-   sem as bandeiras. Um app empacotado não deveria depender de CDN para renderizar.
+Custo: **+348 KB** no APK. Em troca, nenhuma chamada de rede para desenhar a interface —
+verificado nos assets empacotados, sem nenhuma URL externa restante em `index.html`,
+`style.css` ou `local.css`.
 
-**Correção:** baixar a fonte e o CSS de bandeiras para dentro de `www/` e referenciar
-localmente. Some a dependência de rede, o app fica correto offline e a declaração
-"Não coleta dados" passa a ser inatacável.
+Consequência para esta ficha: a resposta "Não coleta" da Seção 1 deixa de ter asterisco. As
+únicas conexões do app agora são `gmail.googleapis.com` e `oauth2.googleapis.com` — ambas
+para o provedor da própria conta do usuário.
 
-Enquanto isso não for feito, a resposta da Seção 1 continua defensável (IP para entrega de
-conteúdo não é, por si só, "coleta" na definição do Google), mas é uma aresta desnecessária
-num app que de resto tem uma história de privacidade impecável.
+> O chinês continua caindo na fonte do sistema: a Inter não tem glifos CJK, e incluí-los
+> multiplicaria o tamanho do APK. Já era assim antes, não é regressão.
