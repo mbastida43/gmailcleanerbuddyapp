@@ -12,7 +12,8 @@ Limites do Google: **nome do app ≤ 30 caracteres**, **descrição curta ≤ 80
   edite o HTML e rode o script de novo.
 - **Screenshots do celular:** `store/screenshots/01-login.png`, `02-analise.png`, `03-ranking.png` (capturas reais do app em inglês, com dados de exemplo)
 - **Política de Privacidade (URL pública):** https://mbastida43.github.io/gmailcleanerbuddy/privacy.html
-- **App Bundle para upload:** `final_app/gmailcleanerbuddy.aab`
+- **App Bundle para upload:** `android/app/build/outputs/bundle/release/app-release.aab`
+  (gerado por `npm run build:aab`; os `.apk`/`.aab` não são versionados)
 
 ---
 

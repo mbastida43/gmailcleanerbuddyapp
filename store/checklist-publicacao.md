@@ -78,18 +78,24 @@ Tudo pronto no repo:
 > máquina. Como o app ainda não tinha sido publicado, gerar outra não custou nada; depois de
 > publicado, custaria o app inteiro. O AAB foi reconstruído e assinado com a chave nova.
 
-- ✅ AAB assinado: `final_app/gmailcleanerbuddy.aab` (chave `gcb-upload`)
+> **Chave trocada de novo em 2026-08-11 — a terceira.** A `gcb-upload` descrita acima
+> também sumiu: não havia nada em `C:\Users\marlo\.android-keys\`, nem em C:, D: ou E:.
+> O backup em pendrive não estava acessível. De novo saiu barato, porque o app seguia
+> sem publicar — mas **duas chaves perdidas em quatro dias** é o padrão a quebrar antes
+> de ir para produção. Depois de publicado, perder a chave de upload custa uma espera de
+> 48h pelo reset do Google; perder a de assinatura, sem Play App Signing, custaria o app.
+
+- ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`)
 - ✅ `targetSdk 36` (`android/variables.gradle:4`) — atende a exigência atual
-- ✅ `versionCode 1` — correto para o primeiro envio
-- ✅ Keystore em `C:\Users\marlo\.android-keys\gmailcleanerbuddy-upload.jks` (fora do repo,
-      de propósito: assim nem um `git add -f` nem um zip da pasta o expõem).
-      RSA 4096, validade 10.000 dias, alias `gcb-upload`.
-      **SHA-1: `93:98:15:F7:43:9F:D0:75:2C:98:A6:09:2D:88:27:E0:8E:C9:A3:8A`**
+- ✅ `versionCode 2` / `versionName 1.1` — é o build que subiu no teste interno
+- ✅ Keystore em `android/gcb-release.keystore`. RSA 2048, validade 10.000 dias, alias `gcb`.
+      Fica dentro de `android/` mas **fora do git** (`.gitignore` cobre `*.keystore`).
+      **SHA-1: `66:00:EE:DC:91:33:71:C5:C6:66:73:5F:D4:15:AA:46:75:D4:53:27`**
 - ✅ `android/keystore.properties` recriado (a senha está nele; coberto pelo `.gitignore`).
-      O `storeFile` usa barras normais — em arquivos `.properties` a contrabarra é escape e
-      um caminho `C:\Users\...` quebraria o build
-- ✅ Backup em pendrive, validado por teste de restauração real: a chave do backup abre com a
-      senha do backup e devolve o SHA-1 correto
+      O `storeFile` usa só o nome do arquivo — o caminho é resolvido a partir de `android/`,
+      que é onde vive o `settings.gradle` e portanto o `rootProject` do Gradle
+- ❌ **SEM BACKUP.** A chave em uso existe em um único lugar no mundo. Copie para pelo menos
+      dois destinos independentes antes de qualquer coisa ir para produção.
 - ⬜ **Segunda cópia do backup fora do pendrive** (Drive) — pendrive é a mídia que mais some
 - ✅ SHA-1 novo cadastrado no client Android do Google Cloud
       (*Gmail Cleaner Buddy (release)*), e o login nativo foi testado no aparelho: caixa de
