@@ -57,11 +57,11 @@
   <div class="card results" id="resultsScreen">
     <div class="panel-head">
       <div>
-        <h2 data-i18n="results.title">🏆 Top 10 remetentes</h2>
+        <h2 data-i18n="results.title">🏆 Ranking de remetentes</h2>
         <p id="userEmail"></p>
       </div>
       <div class="actions">
-        <button id="cleanAllButton" class="btn danger" type="button" data-i18n="btn.cleanAll">🗑️ Limpar Top 10</button>
+        <button id="cleanAllButton" class="btn danger" type="button" data-i18n="btn.cleanAll">🗑️ Limpar Tudo</button>
         <button id="logoutButton" class="btn secondary" type="button" data-i18n="btn.logout">🚪 Sair</button>
       </div>
     </div>
@@ -97,6 +97,7 @@
 
 <div class="loading" id="loading">
   <div class="spinner"></div>
+  <div class="loading-status" id="loadingStatus" role="status" aria-live="polite"></div>
 </div>
 
 <div class="toast" id="toast"></div>

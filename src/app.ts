@@ -28,8 +28,10 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.desc': 'Autorize o acesso à sua conta Gmail para analisar os remetentes que mais lotam sua caixa e movê-los para a lixeira.',
     'auth.loginBtn': 'Entrar com Google',
     'auth.note': '🔐 Autenticação OAuth2 oficial do Google<br>🗑️ Permissão para ler e mover seus emails para a lixeira',
-    'results.title': '🏆 Top 10 remetentes',
-    'btn.cleanAll': '🗑️ Limpar Top 10',
+    'results.title': '🏆 Ranking de remetentes',
+    'loading.reading': '📖 Lendo emails… {done}/{total}',
+    'loading.waiting': '⏳ Aguarde…',
+    'btn.cleanAll': '🗑️ Limpar Tudo',
     'btn.logout': '🚪 Sair',
     'stat.analyzed': 'Emails analisados',
     'stat.space': 'Espaço total',
@@ -39,15 +41,19 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'btn.clean': 'Limpar',
     'toast.authSuccess': '✅ Autenticado com sucesso!',
     'toast.authError': '❌ Erro na autenticação. Tente novamente.',
+    'toast.authErrorDetail': '❌ Erro na autenticação: {detail}',
+    'toast.authCancelled': '⚠️ Login cancelado',
     'toast.sessionExpired': '🔒 Sessão expirada. Entre novamente.',
     'toast.logoutError': '❌ Erro ao desconectar',
     'toast.loadError': '❌ Erro ao carregar dados',
+    'toast.loadErrorDetail': '❌ Erro ao carregar dados: {detail}',
+    'toast.analyzeErrorDetail': '❌ Erro ao analisar: {detail}',
     'toast.analyzing': '🔍 Analisando caixa postal...',
     'toast.analyzePartial': '✅ Análise parcial: {ok} ok, {failed} falharam',
     'toast.analyzeDone': '✅ Análise concluída!',
     'toast.analyzeError': '❌ Erro ao analisar',
     'confirm.cleanSender': 'Mover emails de {sender} para a lixeira?',
-    'confirm.cleanAll': 'Mover TODOS os Top 10 para a lixeira?',
+    'confirm.cleanAll': 'Mover para a lixeira TODOS os {senders} remetentes da lista ({emails} emails)?',
     'toast.cleaned': '✅ {n} emails movidos para a lixeira',
     'toast.cleanAllPartial': '⚠️ {removed} movidos; {failed} falharam',
     'protected.tooltip': 'Sua própria conta — protegida contra limpeza',
@@ -70,8 +76,10 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.desc': 'Authorize access to your Gmail account to analyze the senders that clutter your inbox the most and move them to the trash.',
     'auth.loginBtn': 'Sign in with Google',
     'auth.note': '🔐 Official Google OAuth2 authentication<br>🗑️ Permission to read and move your emails to the trash',
-    'results.title': '🏆 Top 10 senders',
-    'btn.cleanAll': '🗑️ Clean Top 10',
+    'results.title': '🏆 Sender ranking',
+    'loading.reading': '📖 Reading emails… {done}/{total}',
+    'loading.waiting': '⏳ Please wait…',
+    'btn.cleanAll': '🗑️ Clean All',
     'btn.logout': '🚪 Sign out',
     'stat.analyzed': 'Emails analyzed',
     'stat.space': 'Total space',
@@ -81,15 +89,19 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'btn.clean': 'Clean',
     'toast.authSuccess': '✅ Successfully authenticated!',
     'toast.authError': '❌ Authentication error. Please try again.',
+    'toast.authErrorDetail': '❌ Authentication error: {detail}',
+    'toast.authCancelled': '⚠️ Sign-in cancelled',
     'toast.sessionExpired': '🔒 Session expired. Please sign in again.',
     'toast.logoutError': '❌ Error signing out',
     'toast.loadError': '❌ Error loading data',
+    'toast.loadErrorDetail': '❌ Error loading data: {detail}',
+    'toast.analyzeErrorDetail': '❌ Error analyzing: {detail}',
     'toast.analyzing': '🔍 Analyzing your mailbox...',
     'toast.analyzePartial': '✅ Partial analysis: {ok} ok, {failed} failed',
     'toast.analyzeDone': '✅ Analysis complete!',
     'toast.analyzeError': '❌ Error analyzing',
     'confirm.cleanSender': 'Move emails from {sender} to the trash?',
-    'confirm.cleanAll': 'Move ALL Top 10 to the trash?',
+    'confirm.cleanAll': 'Move ALL {senders} senders on the list to the trash ({emails} emails)?',
     'toast.cleaned': '✅ {n} emails moved to the trash',
     'toast.cleanAllPartial': '⚠️ {removed} moved; {failed} failed',
     'protected.tooltip': 'Your own account — protected from cleaning',
@@ -112,8 +124,10 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.desc': 'Autoriza el acceso a tu cuenta de Gmail para analizar los remitentes que más saturan tu bandeja y moverlos a la papelera.',
     'auth.loginBtn': 'Iniciar sesión con Google',
     'auth.note': '🔐 Autenticación OAuth2 oficial de Google<br>🗑️ Permiso para leer y mover tus correos a la papelera',
-    'results.title': '🏆 Top 10 remitentes',
-    'btn.cleanAll': '🗑️ Limpiar Top 10',
+    'results.title': '🏆 Ranking de remitentes',
+    'loading.reading': '📖 Leyendo correos… {done}/{total}',
+    'loading.waiting': '⏳ Espera…',
+    'btn.cleanAll': '🗑️ Limpiar Todo',
     'btn.logout': '🚪 Salir',
     'stat.analyzed': 'Correos analizados',
     'stat.space': 'Espacio total',
@@ -123,15 +137,19 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'btn.clean': 'Limpiar',
     'toast.authSuccess': '✅ ¡Autenticado correctamente!',
     'toast.authError': '❌ Error de autenticación. Inténtalo de nuevo.',
+    'toast.authErrorDetail': '❌ Error de autenticación: {detail}',
+    'toast.authCancelled': '⚠️ Inicio de sesión cancelado',
     'toast.sessionExpired': '🔒 Sesión expirada. Inicia sesión de nuevo.',
     'toast.logoutError': '❌ Error al cerrar sesión',
     'toast.loadError': '❌ Error al cargar los datos',
+    'toast.loadErrorDetail': '❌ Error al cargar los datos: {detail}',
+    'toast.analyzeErrorDetail': '❌ Error al analizar: {detail}',
     'toast.analyzing': '🔍 Analizando tu buzón...',
     'toast.analyzePartial': '✅ Análisis parcial: {ok} ok, {failed} fallaron',
     'toast.analyzeDone': '✅ ¡Análisis completado!',
     'toast.analyzeError': '❌ Error al analizar',
     'confirm.cleanSender': '¿Mover los correos de {sender} a la papelera?',
-    'confirm.cleanAll': '¿Mover TODO el Top 10 a la papelera?',
+    'confirm.cleanAll': '¿Mover a la papelera TODOS los {senders} remitentes de la lista ({emails} correos)?',
     'toast.cleaned': '✅ {n} correos movidos a la papelera',
     'toast.cleanAllPartial': '⚠️ {removed} movidos; {failed} fallaron',
     'protected.tooltip': 'Tu propia cuenta: protegida contra la limpieza',
@@ -154,8 +172,10 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.desc': 'Autorisez l’accès à votre compte Gmail pour analyser les expéditeurs qui encombrent le plus votre boîte et les déplacer vers la corbeille.',
     'auth.loginBtn': 'Se connecter avec Google',
     'auth.note': '🔐 Authentification OAuth2 officielle de Google<br>🗑️ Autorisation de lire et déplacer vos e-mails vers la corbeille',
-    'results.title': '🏆 Top 10 des expéditeurs',
-    'btn.cleanAll': '🗑️ Nettoyer le Top 10',
+    'results.title': '🏆 Classement des expéditeurs',
+    'loading.reading': '📖 Lecture des e-mails… {done}/{total}',
+    'loading.waiting': '⏳ Veuillez patienter…',
+    'btn.cleanAll': '🗑️ Tout nettoyer',
     'btn.logout': '🚪 Se déconnecter',
     'stat.analyzed': 'E-mails analysés',
     'stat.space': 'Espace total',
@@ -165,15 +185,19 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'btn.clean': 'Nettoyer',
     'toast.authSuccess': '✅ Authentification réussie !',
     'toast.authError': '❌ Erreur d’authentification. Veuillez réessayer.',
+    'toast.authErrorDetail': '❌ Erreur d’authentification : {detail}',
+    'toast.authCancelled': '⚠️ Connexion annulée',
     'toast.sessionExpired': '🔒 Session expirée. Veuillez vous reconnecter.',
     'toast.logoutError': '❌ Erreur lors de la déconnexion',
     'toast.loadError': '❌ Erreur lors du chargement des données',
+    'toast.loadErrorDetail': '❌ Erreur lors du chargement des données : {detail}',
+    'toast.analyzeErrorDetail': '❌ Erreur lors de l’analyse : {detail}',
     'toast.analyzing': '🔍 Analyse de votre boîte de réception...',
     'toast.analyzePartial': '✅ Analyse partielle : {ok} ok, {failed} échoués',
     'toast.analyzeDone': '✅ Analyse terminée !',
     'toast.analyzeError': '❌ Erreur lors de l’analyse',
     'confirm.cleanSender': 'Déplacer les e-mails de {sender} vers la corbeille ?',
-    'confirm.cleanAll': 'Déplacer TOUT le Top 10 vers la corbeille ?',
+    'confirm.cleanAll': 'Déplacer vers la corbeille TOUS les {senders} expéditeurs de la liste ({emails} e-mails) ?',
     'toast.cleaned': '✅ {n} e-mails déplacés vers la corbeille',
     'toast.cleanAllPartial': '⚠️ {removed} déplacés ; {failed} échoués',
     'protected.tooltip': 'Votre propre compte — protégé du nettoyage',
@@ -196,8 +220,10 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.desc': 'Autorizza l’accesso al tuo account Gmail per analizzare i mittenti che intasano di più la tua casella e spostarli nel cestino.',
     'auth.loginBtn': 'Accedi con Google',
     'auth.note': '🔐 Autenticazione OAuth2 ufficiale di Google<br>🗑️ Autorizzazione a leggere e spostare le tue email nel cestino',
-    'results.title': '🏆 Top 10 mittenti',
-    'btn.cleanAll': '🗑️ Pulisci la Top 10',
+    'results.title': '🏆 Classifica dei mittenti',
+    'loading.reading': '📖 Lettura delle email… {done}/{total}',
+    'loading.waiting': '⏳ Attendere…',
+    'btn.cleanAll': '🗑️ Pulisci tutto',
     'btn.logout': '🚪 Esci',
     'stat.analyzed': 'Email analizzate',
     'stat.space': 'Spazio totale',
@@ -207,15 +233,19 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'btn.clean': 'Pulisci',
     'toast.authSuccess': '✅ Autenticazione riuscita!',
     'toast.authError': '❌ Errore di autenticazione. Riprova.',
+    'toast.authErrorDetail': '❌ Errore di autenticazione: {detail}',
+    'toast.authCancelled': '⚠️ Accesso annullato',
     'toast.sessionExpired': '🔒 Sessione scaduta. Accedi di nuovo.',
     'toast.logoutError': '❌ Errore durante la disconnessione',
     'toast.loadError': '❌ Errore nel caricamento dei dati',
+    'toast.loadErrorDetail': '❌ Errore nel caricamento dei dati: {detail}',
+    'toast.analyzeErrorDetail': '❌ Errore durante l’analisi: {detail}',
     'toast.analyzing': '🔍 Analisi della casella in corso...',
     'toast.analyzePartial': '✅ Analisi parziale: {ok} ok, {failed} non riuscite',
     'toast.analyzeDone': '✅ Analisi completata!',
     'toast.analyzeError': '❌ Errore durante l’analisi',
     'confirm.cleanSender': 'Spostare le email di {sender} nel cestino?',
-    'confirm.cleanAll': 'Spostare TUTTA la Top 10 nel cestino?',
+    'confirm.cleanAll': 'Spostare nel cestino TUTTI i {senders} mittenti dell’elenco ({emails} email)?',
     'toast.cleaned': '✅ {n} email spostate nel cestino',
     'toast.cleanAllPartial': '⚠️ {removed} spostate; {failed} non riuscite',
     'protected.tooltip': 'Il tuo account — protetto dalla pulizia',
@@ -238,8 +268,10 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.desc': 'Разрешите доступ к вашему аккаунту Gmail, чтобы проанализировать отправителей, которые больше всего забивают ваш ящик, и переместить их письма в корзину.',
     'auth.loginBtn': 'Войти через Google',
     'auth.note': '🔐 Официальная аутентификация Google OAuth2<br>🗑️ Разрешение читать письма и перемещать их в корзину',
-    'results.title': '🏆 Топ-10 отправителей',
-    'btn.cleanAll': '🗑️ Очистить Топ-10',
+    'results.title': '🏆 Рейтинг отправителей',
+    'loading.reading': '📖 Чтение писем… {done}/{total}',
+    'loading.waiting': '⏳ Подождите…',
+    'btn.cleanAll': '🗑️ Очистить всё',
     'btn.logout': '🚪 Выйти',
     'stat.analyzed': 'Писем проанализировано',
     'stat.space': 'Всего места',
@@ -249,15 +281,19 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'btn.clean': 'Очистить',
     'toast.authSuccess': '✅ Вход выполнен успешно!',
     'toast.authError': '❌ Ошибка аутентификации. Попробуйте ещё раз.',
+    'toast.authErrorDetail': '❌ Ошибка аутентификации: {detail}',
+    'toast.authCancelled': '⚠️ Вход отменён',
     'toast.sessionExpired': '🔒 Сессия истекла. Войдите снова.',
     'toast.logoutError': '❌ Ошибка при выходе',
     'toast.loadError': '❌ Ошибка загрузки данных',
+    'toast.loadErrorDetail': '❌ Ошибка загрузки данных: {detail}',
+    'toast.analyzeErrorDetail': '❌ Ошибка при анализе: {detail}',
     'toast.analyzing': '🔍 Анализ почтового ящика...',
     'toast.analyzePartial': '✅ Частичный анализ: {ok} успешно, {failed} с ошибкой',
     'toast.analyzeDone': '✅ Анализ завершён!',
     'toast.analyzeError': '❌ Ошибка при анализе',
     'confirm.cleanSender': 'Переместить письма от {sender} в корзину?',
-    'confirm.cleanAll': 'Переместить ВЕСЬ Топ-10 в корзину?',
+    'confirm.cleanAll': 'Переместить в корзину ВСЕХ отправителей из списка — {senders} ({emails} писем)?',
     'toast.cleaned': '✅ {n} писем перемещено в корзину',
     'toast.cleanAllPartial': '⚠️ {removed} перемещено; {failed} с ошибкой',
     'protected.tooltip': 'Ваш собственный аккаунт — защищён от очистки',
@@ -280,8 +316,10 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.desc': '授权访问你的 Gmail 账号，以便分析最占用收件箱的发件人并将其邮件移至垃圾箱。',
     'auth.loginBtn': '使用 Google 登录',
     'auth.note': '🔐 官方 Google OAuth2 身份验证<br>🗑️ 读取邮件并将其移至垃圾箱的权限',
-    'results.title': '🏆 前 10 名发件人',
-    'btn.cleanAll': '🗑️ 清理前 10 名',
+    'results.title': '🏆 发件人排行',
+    'loading.reading': '📖 正在读取邮件… {done}/{total}',
+    'loading.waiting': '⏳ 请稍候…',
+    'btn.cleanAll': '🗑️ 全部清理',
     'btn.logout': '🚪 退出',
     'stat.analyzed': '已分析邮件',
     'stat.space': '总占用空间',
@@ -291,15 +329,19 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'btn.clean': '清理',
     'toast.authSuccess': '✅ 认证成功！',
     'toast.authError': '❌ 认证失败，请重试。',
+    'toast.authErrorDetail': '❌ 认证失败：{detail}',
+    'toast.authCancelled': '⚠️ 已取消登录',
     'toast.sessionExpired': '🔒 会话已过期，请重新登录。',
     'toast.logoutError': '❌ 退出时出错',
     'toast.loadError': '❌ 加载数据时出错',
+    'toast.loadErrorDetail': '❌ 加载数据时出错：{detail}',
+    'toast.analyzeErrorDetail': '❌ 分析时出错：{detail}',
     'toast.analyzing': '🔍 正在分析收件箱…',
     'toast.analyzePartial': '✅ 部分分析完成：{ok} 成功，{failed} 失败',
     'toast.analyzeDone': '✅ 分析完成！',
     'toast.analyzeError': '❌ 分析时出错',
     'confirm.cleanSender': '将来自 {sender} 的邮件移至垃圾箱？',
-    'confirm.cleanAll': '将全部前 10 名的邮件移至垃圾箱？',
+    'confirm.cleanAll': '将列表中全部 {senders} 位发件人的 {emails} 封邮件移至垃圾箱？',
     'toast.cleaned': '✅ 已将 {n} 封邮件移至垃圾箱',
     'toast.cleanAllPartial': '⚠️ 已移动 {removed} 封；{failed} 封失败',
     'protected.tooltip': '您自己的账户 — 已受保护，不会被清理',
@@ -322,7 +364,10 @@ function t(key: string, params: Record<string, string | number> = {}): string {
   const dict = TRANSLATIONS[currentLang] || TRANSLATIONS.pt;
   let str = dict[key] ?? TRANSLATIONS.pt[key] ?? key;
   for (const [k, v] of Object.entries(params)) {
-    str = str.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+    // Substituição por função: os valores agora incluem mensagens cruas de
+    // erro do Google, e um '$&' perdido no meio seria interpretado como
+    // padrão de replace se passássemos a string direto.
+    str = str.replace(new RegExp(`\\{${k}\\}`, 'g'), () => String(v));
   }
   return str;
 }
@@ -404,15 +449,35 @@ function handleUnauthorized(): void {
   showAuthScreen();
 }
 
+// O plugin nativo entrega o motivo real da falha ora em .message, ora em
+// .code (USER_CANCELLED, access_denied, 12501...). Sem olhar os dois, "conta
+// fora dos Test users" fica indistinguível de "usuário fechou a caixa".
+function describeError(error: any): string {
+  const raw = error?.message || error?.code || '';
+  return String(raw).trim();
+}
+
+function isCancellation(error: any): boolean {
+  const signal = `${error?.code ?? ''} ${error?.message ?? ''}`.toUpperCase();
+  return signal.includes('CANCEL');
+}
+
 async function loginGoogle(): Promise<void> {
   try {
     // Abre a caixa nativa do Android (contas do aparelho + consentimento)
     await auth.signIn();
     toast(t('toast.authSuccess'));
     await loadUserData();
-  } catch (error) {
+  } catch (error: any) {
     console.error('Erro no login:', error);
-    toast(t('toast.authError'));
+    // Fechar a caixa de contas não é falha: merece aviso neutro, não um
+    // erro vermelho pedindo para "tentar de novo".
+    if (isCancellation(error)) {
+      toast(t('toast.authCancelled'));
+      return;
+    }
+    const detail = describeError(error);
+    toast(detail ? t('toast.authErrorDetail', { detail }) : t('toast.authError'));
   }
 }
 
@@ -442,7 +507,8 @@ async function loadUserData(): Promise<void> {
       return;
     }
     console.error('Erro ao carregar dados:', error);
-    toast(t('toast.loadError'));
+    const detail = describeError(error);
+    toast(detail ? t('toast.loadErrorDetail', { detail }) : t('toast.loadError'));
   } finally {
     hideLoading();
   }
@@ -452,7 +518,7 @@ async function refreshAnalysis(): Promise<void> {
   showLoading();
   toast(t('toast.analyzing'));
   try {
-    const data: AnalyzeData = await gmail.analyze();
+    const data: AnalyzeData = await gmail.analyze(reportProgress);
     currentData = data;
     renderResults(data);
     if (data.failedMessages > 0) {
@@ -466,19 +532,29 @@ async function refreshAnalysis(): Promise<void> {
       return;
     }
     console.error('Erro na análise:', error);
-    toast(t('toast.analyzeError'));
+    const detail = describeError(error);
+    toast(detail ? t('toast.analyzeErrorDetail', { detail }) : t('toast.analyzeError'));
   } finally {
     hideLoading();
   }
 }
 
 // Atualização otimista: remove o remetente limpo da lista local e re-renderiza
-// na hora, sem pagar os ~25s de uma nova análise completa. O 11º colocado sobe
-// para o Top 10 (o servidor conta com exatidão os 25 primeiros justamente para
-// isso). Um F5 refaz a análise completa quando o usuário quiser re-verificar.
+// na hora, sem pagar a análise completa de novo (que agora leva ~1min, porque
+// conta exatamente TODOS os remetentes, não só os 25 primeiros). Reabrir o app
+// refaz a análise quando o usuário quiser re-verificar.
 function removeSenderLocally(sender: string): void {
-  if (!currentData) return;
-  currentData.offenders = currentData.offenders.filter((o) => o.domain !== sender);
+  removeSendersLocally([sender]);
+}
+
+/**
+ * Versão em lote: o "Limpar Tudo" remove centenas de remetentes, e chamar a
+ * versão de um em um redesenharia a lista inteira uma vez por remetente.
+ */
+function removeSendersLocally(senders: string[]): void {
+  if (!currentData || senders.length === 0) return;
+  const removed = new Set(senders);
+  currentData.offenders = currentData.offenders.filter((o) => !removed.has(o.sender));
   currentData.top10 = currentData.offenders.slice(0, 10);
   currentData.uniqueSenders = currentData.offenders.length;
   renderResults(currentData);
@@ -493,6 +569,12 @@ function renderResults(data: AnalyzeData): void {
   const list = document.getElementById('offendersList')!;
   list.innerHTML = '';
 
+  // Sempre os 10 maiores ofensores. A contagem exata roda para todos os
+  // remetentes descobertos (ver EXACT_COUNT_LIMIT em gmail.ts), mas isso serve
+  // para ACERTAR quem são os 10 — não para alongar a lista. Antes, com a
+  // contagem exata limitada aos 25 primeiros da amostra, um remetente com
+  // poucos e-mails recentes e muitos no total podia ficar de fora do pódio
+  // por engano.
   data.top10.forEach((item, i) => {
     const row = document.createElement('div');
     row.className = 'offender';
@@ -504,7 +586,7 @@ function renderResults(data: AnalyzeData): void {
     const details = document.createElement('div');
     const domainEl = document.createElement('div');
     domainEl.className = 'domain';
-    domainEl.textContent = item.domain;
+    domainEl.textContent = item.sender;
     if (item.isProtected) {
       // Cadeado depois do endereço: sinaliza "protegido", não "removido" —
       // por isso um ícone, e não texto taxado.
@@ -515,9 +597,11 @@ function renderResults(data: AnalyzeData): void {
       lock.setAttribute('aria-label', t('protected.tooltip'));
       domainEl.appendChild(lock);
     }
+    // Domínio ao lado da categoria: identifica de quem é o endereço sem
+    // esconder que cada remetente do mesmo domínio é uma linha separada.
     const categoryEl = document.createElement('div');
     categoryEl.className = 'cat';
-    categoryEl.textContent = t(item.category);
+    categoryEl.textContent = `${item.domain} · ${t(item.category)}`;
     details.appendChild(domainEl);
     details.appendChild(categoryEl);
 
@@ -539,7 +623,7 @@ function renderResults(data: AnalyzeData): void {
       button.title = t('protected.tooltip');
       button.setAttribute('aria-disabled', 'true');
     } else {
-      button.addEventListener('click', () => cleanSender(item.domain));
+      button.addEventListener('click', () => cleanSender(item.sender));
     }
 
     row.appendChild(rank);
@@ -577,30 +661,71 @@ async function cleanSender(sender: string): Promise<void> {
 
 async function cleanAll(): Promise<void> {
   if (!currentData?.top10?.length) return;
-  if (!confirm(t('confirm.cleanAll'))) return;
+
+  // "Limpar Tudo" = todos os e-mails dos 10 ofensores em tela, não a conta
+  // inteira. A conta do próprio usuário fica de fora: clean() a recusaria e o
+  // botão acabaria reportando uma falha que não é falha.
+  const targets = currentData.top10.filter((o) => !o.isProtected);
+  if (targets.length === 0) return;
+
+  // A confirmação mostra o tamanho do estrago antes de perguntar: são 10
+  // remetentes, mas podem somar milhares de e-mails.
+  const totals = {
+    senders: formatNumber(targets.length),
+    emails: formatNumber(targets.reduce((sum, o) => sum + o.count, 0))
+  };
+  if (!confirm(t('confirm.cleanAll', totals))) return;
 
   showLoading();
   let totalRemoved = 0;
   let totalFailed = 0;
+  let done = 0;
+  let unauthorized = false;
+  const cleaned: string[] = [];
 
-  // Cópia da lista: removeSenderLocally mexe no top10 durante o loop.
-  // A conta do próprio usuário fica de fora: clean() a recusaria e o
-  // "Limpar Top 10" acabaria reportando uma falha que não é falha.
-  const targets = currentData.top10.filter((o) => !o.isProtected);
-  for (const item of targets) {
-    try {
-      const data = await gmail.clean(item.domain);
-      totalRemoved += data.removed || 0;
-      totalFailed += data.failed || 0;
-      removeSenderLocally(item.domain);
-    } catch (error: any) {
-      if (error instanceof gmail.UnauthorizedError) {
-        hideLoading();
-        handleUnauthorized();
-        return;
-      }
-      totalFailed++;
+  // Em ondas, não um de cada vez. A cota do Gmail é de 250 unidades por
+  // segundo por usuário, e cada remetente custa ~55 (5 para listar + 50 para o
+  // batchModify). Quatro por vez com 700ms de pausa dá ~185 unidades/s —
+  // abaixo do teto. Com 10 remetentes que costumam somar milhares de e-mails,
+  // a diferença aparece na varredura de cada um.
+  const CONCURRENCY = 4;
+  const PAUSE_MS = 700;
+
+  for (let i = 0; i < targets.length && !unauthorized; i += CONCURRENCY) {
+    reportProgress('reading', done, targets.length);
+    const wave = targets.slice(i, i + CONCURRENCY);
+
+    await Promise.all(
+      wave.map(async (item) => {
+        try {
+          const data = await gmail.clean(item.sender);
+          totalRemoved += data.removed || 0;
+          totalFailed += data.failed || 0;
+          cleaned.push(item.sender);
+        } catch (error: any) {
+          // Não relança: uma rejeição aqui abortaria as outras da mesma onda
+          // sem contabilizar o que elas já fizeram.
+          if (error instanceof gmail.UnauthorizedError) unauthorized = true;
+          else totalFailed++;
+        } finally {
+          done++;
+        }
+      })
+    );
+
+    if (!unauthorized && i + CONCURRENCY < targets.length) {
+      reportProgress('waiting', done, targets.length);
+      await sleep(PAUSE_MS);
     }
+  }
+
+  // Um redesenho só, no fim, em vez de um por remetente.
+  removeSendersLocally(cleaned);
+  hideLoading();
+
+  if (unauthorized) {
+    handleUnauthorized();
+    return;
   }
 
   if (totalFailed > 0) {
@@ -608,11 +733,32 @@ async function cleanAll(): Promise<void> {
   } else {
     toast(t('toast.cleaned', { n: totalRemoved }));
   }
-  hideLoading();
 }
 
 function showLoading(): void { document.getElementById('loading')!.classList.add('show'); }
-function hideLoading(): void { document.getElementById('loading')!.classList.remove('show'); }
+
+function hideLoading(): void {
+  document.getElementById('loading')!.classList.remove('show');
+  setLoadingStatus('');
+}
+
+/** Texto sob o spinner. String vazia limpa. */
+function setLoadingStatus(text: string): void {
+  document.getElementById('loadingStatus')!.textContent = text;
+}
+
+/** Traduz o progresso de gmail.ts para o texto do overlay. */
+function reportProgress(phase: gmail.ProgressPhase, done: number, total: number): void {
+  setLoadingStatus(
+    phase === 'waiting'
+      ? t('loading.waiting')
+      : t('loading.reading', { done: formatNumber(done), total: formatNumber(total) })
+  );
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function toast(msg: string): void {
   const el = document.getElementById('toast')!;

@@ -13,7 +13,16 @@ import { getAccessToken } from './auth';
 const BASE = 'https://gmail.googleapis.com/gmail/v1/users/me';
 
 const MAX_ANALYZE = 1000;
-const EXACT_COUNT_LIMIT = 25;
+
+// Contagem exata para TODOS os remetentes descobertos, não só para os
+// campeões da amostra. A amostra são as 1000 mensagens mais recentes — algo
+// como 60 dias de caixa — então quem escreve uma vez por mês aparece ali com
+// contagem 1 e afundava para a centésima posição, mesmo tendo dezenas de
+// e-mails na conta inteira. Era o caso do groups-noreply@linkedin.com: 1 na
+// amostra, 17 no total. Com o limite em 25 ele nunca chegava a ser contado.
+// O teto abaixo é só uma trava contra caixas com milhares de remetentes
+// distintos, não um ranking.
+const EXACT_COUNT_LIMIT = 500;
 
 export class UnauthorizedError extends Error {
   constructor() {
@@ -22,14 +31,64 @@ export class UnauthorizedError extends Error {
   }
 }
 
+/** Falha da API do Gmail que NÃO se resolve refazendo o login. */
+export class GmailApiError extends Error {
+  status: number;
+  reason: string;
+  constructor(status: number, reason: string, message: string) {
+    super(message || reason || `gmail_api_${status}`);
+    this.name = 'GmailApiError';
+    this.status = status;
+    this.reason = reason;
+  }
+}
+
+// Únicos motivos de 403 que significam mesmo "credencial inválida". Os outros
+// 403 do Gmail — escopo não concedido (insufficientPermissions), API do Gmail
+// desativada no projeto (accessNotConfigured), quota estourada — não melhoram
+// com um login novo. Mandar reautenticar nesses casos cria um beco sem saída:
+// o usuário entra, toma 403 na primeira chamada e é chutado de volta.
+const AUTH_REASONS = new Set(['authError', 'unauthorized', 'invalidCredentials']);
+
+/** Extrai reason/message do corpo de erro padrão das APIs do Google. */
+async function readApiError(res: Response): Promise<{ reason: string; message: string }> {
+  try {
+    const body = await res.json();
+    const err = body?.error;
+    const first = Array.isArray(err?.errors) ? err.errors[0] : null;
+    return {
+      reason: String(first?.reason || err?.status || ''),
+      message: String(err?.message || '')
+    };
+  } catch {
+    return { reason: '', message: '' };
+  }
+}
+
 export interface Offender {
+  /** Endereço completo do remetente — a unidade de contagem e de limpeza. */
+  sender: string;
+  /** Só o host, para exibir ao lado. Remetentes NÃO são agrupados por ele:
+   *  o LinkedIn, por exemplo, escreve de groups-noreply@, jobs-noreply@,
+   *  messages-noreply@ e outros, e cada um é uma linha independente. */
   domain: string;
   count: number;
   sampleCount: number;
   size: number;
   category: string;
   isProtected: boolean;
+  /** true quando `count` veio da busca na conta inteira; false quando é só
+   *  a contagem da amostra (acontece se a contagem exata falhar). */
+  exact: boolean;
 }
+
+/**
+ * 'reading' = trabalhando; 'waiting' = parado de propósito, segurando o ritmo
+ * para não estourar a cota do Gmail. A interface precisa distinguir os dois,
+ * senão a pausa passa por travamento.
+ */
+export type ProgressPhase = 'reading' | 'waiting';
+export type ProgressFn = (phase: ProgressPhase, done: number, total: number) => void;
 
 export interface AnalyzeData {
   totalMessages: number;
@@ -55,14 +114,53 @@ async function gfetch(path: string, init: RequestInit = {}): Promise<any> {
       Authorization: `Bearer ${token}`
     }
   });
-  if (res.status === 401 || res.status === 403) throw new UnauthorizedError();
-  if (!res.ok) throw new Error(`gmail_api_${res.status}`);
+  if (!res.ok) {
+    const { reason, message } = await readApiError(res);
+    if (res.status === 401 || (res.status === 403 && AUTH_REASONS.has(reason))) {
+      throw new UnauthorizedError();
+    }
+    throw new GmailApiError(res.status, reason, message);
+  }
   if (res.status === 204) return null;
   return res.json();
 }
 
+const MAX_SENDER_PAGES = 50;
+
+/**
+ * A consulta por remetente — uma só, usada pela contagem E pela limpeza.
+ * Enquanto eram duas, divergiram: a contagem excluía Spam/Lixeira e a limpeza
+ * os incluía, então o app sempre movia mais do que tinha mostrado.
+ *
+ * Escopo: tudo, INCLUSIVE Spam — menos o que já está na Lixeira.
+ *
+ * O `includeSpamTrash` traz Spam junto, que é o que se quer varrer. Mas ele
+ * traria a Lixeira também, e aí um remetente já limpo continuaria pesando no
+ * ranking com o mesmo número — para sempre, já que suas mensagens seguem
+ * existindo na lixeira por 30 dias. O `-in:trash` corta essa parte: sobra
+ * exatamente o que ainda ocupa a caixa e o que o botão de limpar vai mover.
+ *
+ * Equivalente conferível na busca do Gmail: from:"..." in:anywhere -in:trash
+ *
+ * As aspas em volta do endereço evitam injeção de operadores de busca.
+ */
+function buildSenderQuery(sender: string, fields: string): URLSearchParams {
+  return new URLSearchParams({
+    q: `from:"${sender}" -in:trash`,
+    maxResults: '500',
+    includeSpamTrash: 'true',
+    fields
+  });
+}
+
 export function validateSender(sender: unknown): sender is string {
   return typeof sender === 'string' && /^[a-zA-Z0-9@._%+-]{3,254}$/.test(sender);
+}
+
+/** Host do endereço — só para exibição, nunca para agrupar. */
+function domainOf(email: string): string {
+  const at = email.lastIndexOf('@');
+  return at > 0 ? email.slice(at + 1) : email;
 }
 
 export async function getProfile(): Promise<{ email: string }> {
@@ -70,22 +168,39 @@ export async function getProfile(): Promise<{ email: string }> {
   return { email: data.emailAddress };
 }
 
+// Cache do endereço próprio, chaveado pelo token. clean() consulta o perfil a
+// cada chamada (é a trava que impede limpar a própria conta) — com o botão
+// "Limpar Tudo" percorrendo centenas de remetentes, isso virava centenas de
+// buscas do mesmo perfil, que não muda. Chavear pelo token faz o cache se
+// invalidar sozinho ao trocar de conta: token novo, perfil novo. Sem isso a
+// trava protegeria o endereço da conta ANTERIOR — falha de segurança, não só
+// de desempenho.
+let ownEmailCache: { token: string; email: string } | null = null;
+
 /**
  * Endereço da conta logada, em minúsculas. Devolve '' se o perfil falhar —
  * sem isso um erro transitório no /profile derrubaria a análise inteira.
- * A trava real de limpeza está em clean(), que consulta o perfil de novo.
+ * Falha não é cacheada: a próxima chamada tenta de novo.
  */
 async function getOwnEmail(): Promise<string> {
+  const token = getAccessToken();
+  if (!token) throw new UnauthorizedError();
+  if (ownEmailCache && ownEmailCache.token === token) return ownEmailCache.email;
+
   try {
     const profile = await getProfile();
-    return profile.email.trim().toLowerCase();
+    const email = profile.email.trim().toLowerCase();
+    ownEmailCache = { token, email };
+    return email;
   } catch (err) {
     if (err instanceof UnauthorizedError) throw err;
     return '';
   }
 }
 
-export async function analyze(): Promise<AnalyzeData> {
+export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
+  const report: ProgressFn = onProgress || (() => {});
+
   // A listagem abaixo não filtra por pasta, então traz também os enviados —
   // por isso o próprio dono da conta costuma liderar a lista. Ele permanece
   // visível (sumir sem explicação seria pior), mas marcado como isProtected
@@ -116,6 +231,7 @@ export async function analyze(): Promise<AnalyzeData> {
 
   const BATCH_SIZE = 25;
   for (let i = 0; i < toAnalyze.length; i += BATCH_SIZE) {
+    report('reading', i, toAnalyze.length);
     const batch = toAnalyze.slice(i, i + BATCH_SIZE);
     await Promise.all(
       batch.map(async (id) => {
@@ -150,25 +266,32 @@ export async function analyze(): Promise<AnalyzeData> {
   }
 
   const offenders: Offender[] = Object.keys(senderCounts).map((email) => ({
-    domain: email,
+    sender: email,
+    domain: domainOf(email),
     count: senderCounts[email],
     sampleCount: senderCounts[email],
     size: senderSizes[email] || 0,
     category: senderCategories[email],
-    isProtected: !!ownEmail && email === ownEmail
+    isProtected: !!ownEmail && email === ownEmail,
+    exact: false
   }));
   offenders.sort((a, b) => b.count - a.count);
 
-  // 3) Contagem exata (conta inteira) só para os top candidatos
+  // 3) Contagem exata (conta inteira) para todos os remetentes descobertos.
+  // Concorrência e pausa calibradas pela cota do Gmail (250 unidades por
+  // segundo por usuário; cada busca custa 5): ~20 req/s = ~100 unidades/s,
+  // com folga confortável.
   const toCount = offenders.slice(0, EXACT_COUNT_LIMIT);
-  const CONCURRENCY = 6;
-  const PAUSE_MS = 200;
+  const CONCURRENCY = 8;
+  const PAUSE_MS = 150;
   for (let i = 0; i < toCount.length; i += CONCURRENCY) {
+    report('reading', i, toCount.length);
     const batch = toCount.slice(i, i + CONCURRENCY);
     await Promise.all(
       batch.map(async (item) => {
         try {
-          item.count = await countThreadsFrom(item.domain);
+          item.count = await countMessagesFrom(item.sender);
+          item.exact = true;
         } catch (err) {
           if (err instanceof UnauthorizedError) throw err;
           // mantém a contagem da amostra como fallback
@@ -176,6 +299,7 @@ export async function analyze(): Promise<AnalyzeData> {
       })
     );
     if (i + CONCURRENCY < toCount.length) {
+      report('waiting', i + CONCURRENCY, toCount.length);
       await sleep(PAUSE_MS);
     }
   }
@@ -192,25 +316,30 @@ export async function analyze(): Promise<AnalyzeData> {
   };
 }
 
-// Mesma semântica do Gmail UI: conversas (threads), Spam/Lixeira excluídos.
-async function countThreadsFrom(sender: string): Promise<number> {
+/**
+ * Quantos EMAILS (mensagens) o remetente mandou.
+ *
+ * Contava conversas (/threads) antes, e isso desencontrava o número em dois
+ * lugares: uma conversa com cinco respostas aparecia como 1 na lista, e a
+ * limpeza depois relatava as 5 mensagens que de fato moveu. A interface fala
+ * em "emails" — então a unidade é a mensagem.
+ *
+ * Usa exatamente a mesma consulta de clean(), inclusive o escopo: o número
+ * ao lado do ofensor é a promessa do que o botão vai mover.
+ */
+async function countMessagesFrom(sender: string): Promise<number> {
   let total = 0;
   let pageToken: string | undefined;
   let pages = 0;
-  const MAX_COUNT_PAGES = 50;
 
   do {
-    const q = new URLSearchParams({
-      q: `from:"${sender}"`,
-      maxResults: '500',
-      fields: 'threads/id,nextPageToken'
-    });
+    const q = buildSenderQuery(sender, 'messages/id,nextPageToken');
     if (pageToken) q.set('pageToken', pageToken);
-    const resp = await gfetch(`/threads?${q.toString()}`);
-    total += (resp.threads || []).length;
+    const resp = await gfetch(`/messages?${q.toString()}`);
+    total += (resp.messages || []).length;
     pageToken = resp.nextPageToken;
     pages++;
-  } while (pageToken && pages < MAX_COUNT_PAGES);
+  } while (pageToken && pages < MAX_SENDER_PAGES);
 
   return total;
 }
@@ -231,19 +360,14 @@ export async function clean(
     throw new Error('own_address');
   }
 
-  // Coleta TODOS os ids (aspas na busca evitam injeção de operadores)
+  // Coleta TODOS os ids — mesma consulta de countMessagesFrom, para que o
+  // número mostrado ao lado do ofensor seja o número que sai daqui.
   let messageIds: string[] = [];
   let pageToken: string | undefined;
   let pages = 0;
-  const MAX_CLEAN_PAGES = 50;
 
   do {
-    const q = new URLSearchParams({
-      q: `from:"${sender}"`,
-      maxResults: '500',
-      fields: 'messages/id,nextPageToken',
-      includeSpamTrash: 'true'
-    });
+    const q = buildSenderQuery(sender, 'messages/id,nextPageToken');
     if (pageToken) q.set('pageToken', pageToken);
     const resp = await gfetch(`/messages?${q.toString()}`);
     messageIds = messageIds.concat(
@@ -251,7 +375,7 @@ export async function clean(
     );
     pageToken = resp.nextPageToken;
     pages++;
-  } while (pageToken && pages < MAX_CLEAN_PAGES);
+  } while (pageToken && pages < MAX_SENDER_PAGES);
 
   if (messageIds.length === 0) {
     return { removed: 0, failed: 0 };

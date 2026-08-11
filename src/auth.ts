@@ -34,11 +34,12 @@ export async function initAuth(): Promise<void> {
 export async function signIn(): Promise<void> {
   await initAuth();
 
+  // Sem forcePrompt: apesar do nome sugestivo, o plugin só honra essa opção
+  // no iOS — no Android quem manda no seletor de conta é o Credential Manager.
   const res: any = await SocialLogin.login({
     provider: 'google',
     options: {
-      scopes: [OAUTH_SCOPE],
-      forcePrompt: true
+      scopes: [OAUTH_SCOPE]
     }
   });
 
@@ -51,12 +52,46 @@ export async function signIn(): Promise<void> {
     throw new Error('no_access_token');
   }
 
+  await assertScopeGranted(raw);
+
   token = {
     accessToken: raw,
     // Access tokens do Google duram ~1h; 5min de folga para não usar um
     // token à beira de expirar no meio de uma limpeza
     expiresAt: Date.now() + 55 * 60 * 1000
   };
+}
+
+/**
+ * Confere com o Google quais escopos o token realmente carrega.
+ *
+ * O fluxo nativo pode devolver um token perfeitamente válido cujo
+ * consentimento cobre só os escopos básicos (email/profile/openid): a
+ * autorização de escopo mora num cache do Play Services separado do
+ * Credential Manager que o logout limpa, então ela pode ficar defasada. Sem
+ * esta conferência, o token só denuncia o problema lá na frente, como um 403
+ * na primeira chamada ao Gmail — que o app traduzia para "sessão expirada",
+ * mandando o usuário refazer um login que nunca ia resolver.
+ *
+ * Melhor-esforço: se a própria checagem falhar (rede, formato inesperado),
+ * seguimos com o login em vez de barrar por causa do diagnóstico.
+ */
+async function assertScopeGranted(accessToken: string): Promise<void> {
+  let granted = '';
+  try {
+    const res = await fetch(
+      `https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`
+    );
+    if (!res.ok) return;
+    const info = await res.json();
+    granted = typeof info?.scope === 'string' ? info.scope : '';
+  } catch {
+    return;
+  }
+
+  if (granted && !granted.split(/\s+/).includes(OAUTH_SCOPE)) {
+    throw new Error(`missing_scope: ${OAUTH_SCOPE} (concedidos: ${granted})`);
+  }
 }
 
 /** Access token válido, ou null se ausente/expirado. */
@@ -69,28 +104,24 @@ export function isAuthenticated(): boolean {
   return getAccessToken() !== null;
 }
 
-/** Encerra a sessão nativa e revoga o token no Google. */
+/**
+ * Encerra a sessão: descarta o token daqui e limpa o estado de credenciais
+ * do lado nativo.
+ *
+ * NÃO revoga o token no Google, de propósito. Revogar não encerra só a
+ * sessão — apaga a CONCESSÃO da conta neste client OAuth. Com o app em modo
+ * Testing, o login seguinte então teria de refazer a tela de consentimento
+ * inteira do escopo restrito `gmail.modify`, que só contas cadastradas em
+ * "Test users" conseguem aceitar — era isso que impedia de reentrar depois
+ * de clicar em Sair. Nada fica guardado no aparelho de qualquer forma: o
+ * token só existe nesta variável em memória e expira sozinho em ~1h.
+ */
 export async function signOut(): Promise<void> {
-  const current = token?.accessToken;
   token = null;
 
   try {
     await SocialLogin.logout({ provider: 'google' });
   } catch {
     /* logout nativo é melhor-esforço */
-  }
-
-  if (current) {
-    try {
-      await fetch(
-        `https://oauth2.googleapis.com/revoke?token=${encodeURIComponent(current)}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-        }
-      );
-    } catch {
-      /* revogação é melhor-esforço; o token expira sozinho em ~1h */
-    }
   }
 }
