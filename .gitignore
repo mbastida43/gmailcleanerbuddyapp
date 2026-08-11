@@ -5,6 +5,12 @@ node_modules/
 www/app.js
 www/app.js.map
 
+# Artefatos de build Android (gerados por npm run build:apk / build:aab).
+# Ficavam versionados e envelheciam: quem clonasse o repo instalaria um APK
+# com o código de meses atrás achando que era a versão atual.
+*.apk
+*.aab
+
 # Segredos — NUNCA versionar
 *.keystore
 *.jks

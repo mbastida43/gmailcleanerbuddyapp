@@ -176,16 +176,23 @@ Versão de produção/teste → enviar o bundle).
 ```
 src/
   config.ts   ← Web Client ID + escopo OAuth
-  auth.ts     ← login nativo (caixa do Android), token em memória, revogação
+  auth.ts     ← login nativo (caixa do Android), token só em memória
   gmail.ts    ← Gmail REST API: análise, contagem exata, limpeza batchModify
-  app.ts      ← UI (i18n PT/EN/ES/FR, Top 10, toasts) — mesma do app web
+  app.ts      ← UI (i18n em 7 idiomas, Top 10, toasts)
 www/          ← index.html, style.css e o bundle app.js (gerado)
 android/      ← projeto nativo (gerado pelo Capacitor, versionado)
               ← keystore.properties + *.keystore ficam aqui (fora do git)
-scripts/      ← set-client-id.mjs (npm run configure)
+scripts/      ← set-client-id.mjs (configure) e gradle.mjs (builds)
 store/        ← icon-512.png para a ficha da Play Store
-final_app/    ← gmailcleanerbuddy.apk (instalar direto) + .aab (Play Store)
+apk/          ← APKs soltos, FORA do git (veja abaixo)
+final_app/    ← idem
 ```
+
+> Os `.apk`/`.aab` **não são versionados** (`.gitignore`). Artefato de build
+> envelhece: um APK commitado vira, em poucas semanas, uma armadilha para
+> quem clona o repo e instala achando que é a versão atual. Gere o seu com
+> os comandos da tabela acima — o caminho de saída é sempre
+> `android/app/build/outputs/`.
 
 ## ⚠️ Gotchas conhecidos
 
