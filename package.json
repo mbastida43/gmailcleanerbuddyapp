@@ -9,9 +9,10 @@
     "sync": "npm run typecheck && npm run build:web && cap sync android",
     "configure": "node scripts/set-client-id.mjs",
     "android:studio": "cap open android",
-    "build:apk": "npm run sync && cd android && gradlew assembleRelease",
-    "build:apk:debug": "npm run sync && cd android && gradlew assembleDebug",
-    "build:aab": "npm run sync && cd android && gradlew bundleRelease"
+    "build:apk": "npm run sync && node scripts/gradle.mjs assembleRelease",
+    "build:apk:debug": "npm run sync && node scripts/gradle.mjs assembleDebug",
+    "build:aab": "npm run sync && node scripts/gradle.mjs bundleRelease",
+    "signing-report": "node scripts/gradle.mjs signingReport"
   },
   "keywords": [
     "gmail",

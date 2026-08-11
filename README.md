@@ -46,8 +46,7 @@ O login nativo exige **dois** clients OAuth no mesmo projeto:
    - **Impressão digital SHA-1**: obtenha com o app compilável (após instalar
      o Android Studio):
      ```bash
-     cd android
-     gradlew signingReport
+     npm run signing-report
      ```
      Copie o `SHA1` da variante `debug` (e depois o do seu keystore de
      produção, quando criar — pode cadastrar os dois no mesmo client).
