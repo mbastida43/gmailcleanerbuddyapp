@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Screenshot frame</title>
+<!-- O Chrome tem largura minima de janela (~506px de CSS): pedir
+     --window-size=393 nao encolhe o viewport, so recorta a captura, e o
+     layout sai montado para uma tela maior do que a que aparece na imagem.
+
+     Dentro de um iframe as media queries valem o viewport DO IFRAME. Entao a
+     janela fica no minimo do Chrome e a tela do celular e o iframe, encostado
+     no canto superior esquerdo — que e exatamente a regiao capturada. -->
+<style>
+  html,body{margin:0;padding:0;overflow:hidden;background:#f4f7fb;}
+  iframe{display:block;border:0;width:393px;height:852px;}
+</style>
+</head>
+<body>
+<iframe id="phone" title="App screen"></iframe>
+<script>
+  document.getElementById('phone').src = 'screenshot.html' + location.search;
+</script>
+</body>
+</html>

@@ -30,14 +30,17 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.note': '🔐 Autenticação OAuth2 oficial do Google<br>🗑️ Permissão para ler e mover seus emails para a lixeira',
     'results.title': '🏆 Ranking de remetentes',
     'loading.reading': '📖 Lendo emails… {done}/{total}',
+    'loading.readingStart': '📖 Lendo a caixa postal…',
     'loading.waiting': '⏳ Aguarde…',
+    'loading.readDone': '✅ Leitura concluída — {total} emails',
+    'loading.ranking': '⏳ Aguarde… montando o ranking',
     'btn.cleanAll': '🗑️ Limpar Tudo',
     'btn.logout': '🚪 Sair',
     'stat.analyzed': 'Emails analisados',
     'stat.space': 'Espaço total',
     'stat.senders': 'Remetentes únicos',
     'stat.top10': 'Top 10 (emails)',
-    'list.title': '📬 Remetentes com mais emails',
+    'list.title': '📬 Top 10 Ofensores',
     'btn.clean': 'Limpar',
     'toast.authSuccess': '✅ Autenticado com sucesso!',
     'toast.authError': '❌ Erro na autenticação. Tente novamente.',
@@ -78,14 +81,17 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.note': '🔐 Official Google OAuth2 authentication<br>🗑️ Permission to read and move your emails to the trash',
     'results.title': '🏆 Sender ranking',
     'loading.reading': '📖 Reading emails… {done}/{total}',
+    'loading.readingStart': '📖 Reading your mailbox…',
     'loading.waiting': '⏳ Please wait…',
+    'loading.readDone': '✅ Reading complete — {total} emails',
+    'loading.ranking': '⏳ Please wait… building the ranking',
     'btn.cleanAll': '🗑️ Clean All',
     'btn.logout': '🚪 Sign out',
     'stat.analyzed': 'Emails analyzed',
     'stat.space': 'Total space',
     'stat.senders': 'Unique senders',
     'stat.top10': 'Top 10 (emails)',
-    'list.title': '📬 Senders with the most emails',
+    'list.title': '📬 Top 10 Offenders',
     'btn.clean': 'Clean',
     'toast.authSuccess': '✅ Successfully authenticated!',
     'toast.authError': '❌ Authentication error. Please try again.',
@@ -126,14 +132,17 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.note': '🔐 Autenticación OAuth2 oficial de Google<br>🗑️ Permiso para leer y mover tus correos a la papelera',
     'results.title': '🏆 Ranking de remitentes',
     'loading.reading': '📖 Leyendo correos… {done}/{total}',
+    'loading.readingStart': '📖 Leyendo tu buzón…',
     'loading.waiting': '⏳ Espera…',
+    'loading.readDone': '✅ Lectura completada — {total} correos',
+    'loading.ranking': '⏳ Espera… armando el ranking',
     'btn.cleanAll': '🗑️ Limpiar Todo',
     'btn.logout': '🚪 Salir',
     'stat.analyzed': 'Correos analizados',
     'stat.space': 'Espacio total',
     'stat.senders': 'Remitentes únicos',
     'stat.top10': 'Top 10 (correos)',
-    'list.title': '📬 Remitentes con más correos',
+    'list.title': '📬 Top 10 Infractores',
     'btn.clean': 'Limpiar',
     'toast.authSuccess': '✅ ¡Autenticado correctamente!',
     'toast.authError': '❌ Error de autenticación. Inténtalo de nuevo.',
@@ -174,14 +183,17 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.note': '🔐 Authentification OAuth2 officielle de Google<br>🗑️ Autorisation de lire et déplacer vos e-mails vers la corbeille',
     'results.title': '🏆 Classement des expéditeurs',
     'loading.reading': '📖 Lecture des e-mails… {done}/{total}',
+    'loading.readingStart': '📖 Lecture de votre boîte…',
     'loading.waiting': '⏳ Veuillez patienter…',
+    'loading.readDone': '✅ Lecture terminée — {total} e-mails',
+    'loading.ranking': '⏳ Veuillez patienter… constitution du classement',
     'btn.cleanAll': '🗑️ Tout nettoyer',
     'btn.logout': '🚪 Se déconnecter',
     'stat.analyzed': 'E-mails analysés',
     'stat.space': 'Espace total',
     'stat.senders': 'Expéditeurs uniques',
     'stat.top10': 'Top 10 (e-mails)',
-    'list.title': '📬 Expéditeurs avec le plus d’e-mails',
+    'list.title': '📬 Top 10 des Indésirables',
     'btn.clean': 'Nettoyer',
     'toast.authSuccess': '✅ Authentification réussie !',
     'toast.authError': '❌ Erreur d’authentification. Veuillez réessayer.',
@@ -222,14 +234,17 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.note': '🔐 Autenticazione OAuth2 ufficiale di Google<br>🗑️ Autorizzazione a leggere e spostare le tue email nel cestino',
     'results.title': '🏆 Classifica dei mittenti',
     'loading.reading': '📖 Lettura delle email… {done}/{total}',
+    'loading.readingStart': '📖 Lettura della casella…',
     'loading.waiting': '⏳ Attendere…',
+    'loading.readDone': '✅ Lettura completata — {total} email',
+    'loading.ranking': '⏳ Attendere… creazione della classifica',
     'btn.cleanAll': '🗑️ Pulisci tutto',
     'btn.logout': '🚪 Esci',
     'stat.analyzed': 'Email analizzate',
     'stat.space': 'Spazio totale',
     'stat.senders': 'Mittenti unici',
     'stat.top10': 'Top 10 (email)',
-    'list.title': '📬 Mittenti con più email',
+    'list.title': '📬 Top 10 Responsabili',
     'btn.clean': 'Pulisci',
     'toast.authSuccess': '✅ Autenticazione riuscita!',
     'toast.authError': '❌ Errore di autenticazione. Riprova.',
@@ -270,14 +285,17 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.note': '🔐 Официальная аутентификация Google OAuth2<br>🗑️ Разрешение читать письма и перемещать их в корзину',
     'results.title': '🏆 Рейтинг отправителей',
     'loading.reading': '📖 Чтение писем… {done}/{total}',
+    'loading.readingStart': '📖 Читаем почтовый ящик…',
     'loading.waiting': '⏳ Подождите…',
+    'loading.readDone': '✅ Чтение завершено — писем: {total}',
+    'loading.ranking': '⏳ Подождите… составляем рейтинг',
     'btn.cleanAll': '🗑️ Очистить всё',
     'btn.logout': '🚪 Выйти',
     'stat.analyzed': 'Писем проанализировано',
     'stat.space': 'Всего места',
     'stat.senders': 'Уникальных отправителей',
     'stat.top10': 'Топ-10 (письма)',
-    'list.title': '📬 Отправители с наибольшим числом писем',
+    'list.title': '📬 Топ-10 нарушителей',
     'btn.clean': 'Очистить',
     'toast.authSuccess': '✅ Вход выполнен успешно!',
     'toast.authError': '❌ Ошибка аутентификации. Попробуйте ещё раз.',
@@ -318,14 +336,17 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.note': '🔐 官方 Google OAuth2 身份验证<br>🗑️ 读取邮件并将其移至垃圾箱的权限',
     'results.title': '🏆 发件人排行',
     'loading.reading': '📖 正在读取邮件… {done}/{total}',
+    'loading.readingStart': '📖 正在读取收件箱…',
     'loading.waiting': '⏳ 请稍候…',
+    'loading.readDone': '✅ 读取完成 — 共 {total} 封邮件',
+    'loading.ranking': '⏳ 请稍候… 正在生成排行',
     'btn.cleanAll': '🗑️ 全部清理',
     'btn.logout': '🚪 退出',
     'stat.analyzed': '已分析邮件',
     'stat.space': '总占用空间',
     'stat.senders': '独立发件人',
     'stat.top10': '前 10 名（邮件数）',
-    'list.title': '📬 邮件最多的发件人',
+    'list.title': '📬 前 10 名骚扰发件人',
     'btn.clean': '清理',
     'toast.authSuccess': '✅ 认证成功！',
     'toast.authError': '❌ 认证失败，请重试。',
@@ -740,6 +761,9 @@ function showLoading(): void { document.getElementById('loading')!.classList.add
 function hideLoading(): void {
   document.getElementById('loading')!.classList.remove('show');
   setLoadingStatus('');
+  // Zera a fase anunciada: sem isso, uma segunda análise comecaria na mesma
+  // fase da anterior e o leitor de tela nao anunciaria nada.
+  announcePhase('', '');
 }
 
 /** Texto sob o spinner. String vazia limpa. */
@@ -747,13 +771,30 @@ function setLoadingStatus(text: string): void {
   document.getElementById('loadingStatus')!.textContent = text;
 }
 
+/**
+ * Anúncio para leitor de tela. Só é escrito quando a FASE muda: o texto visível
+ * muda uma vez por e-mail e, se isso fosse para a região viva, o leitor falaria
+ * ininterruptamente durante os ~30s da leitura.
+ */
+let announcedPhase: gmail.ProgressPhase | '' = '';
+function announcePhase(phase: gmail.ProgressPhase | '', text: string): void {
+  if (phase === announcedPhase) return;
+  announcedPhase = phase;
+  document.getElementById('loadingAnnounce')!.textContent = text;
+}
+
 /** Traduz o progresso de gmail.ts para o texto do overlay. */
 function reportProgress(phase: gmail.ProgressPhase, done: number, total: number): void {
-  setLoadingStatus(
-    phase === 'waiting'
-      ? t('loading.waiting')
-      : t('loading.reading', { done: formatNumber(done), total: formatNumber(total) })
-  );
+  const text =
+    phase === 'waiting' ? t('loading.waiting')
+    : phase === 'ranking' ? t('loading.ranking')
+    : phase === 'readDone' ? t('loading.readDone', { total: formatNumber(total) })
+    : t('loading.reading', { done: formatNumber(done), total: formatNumber(total) });
+
+  setLoadingStatus(text);
+  // Na leitura, anuncia só a entrada na fase — sem o contador, que e o que
+  // mudava a cada mensagem. As demais fases sao uma frase fixa cada.
+  announcePhase(phase, phase === 'reading' ? t('loading.readingStart') : text);
 }
 
 function sleep(ms: number): Promise<void> {

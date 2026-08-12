@@ -10,7 +10,10 @@ Limites do Google: **nome do app ≤ 30 caracteres**, **descrição curta ≤ 80
   Gerados por `node scripts/make-feature-graphic.mjs` a partir de `store/feature-graphic.html`
   (Chrome headless; PNG RGB sem alpha, como a Play exige). Para mudar texto ou visual,
   edite o HTML e rode o script de novo.
-- **Screenshots do celular:** `store/screenshots/01-login.png`, `02-analise.png`, `03-ranking.png` (capturas reais do app em inglês, com dados de exemplo)
+- **Screenshots do celular:** `store/screenshots/01-login.png`, `02-analise.png`, `03-ranking.png` — 1179×2556 (tela de celular), em inglês.
+  Gerados por `node scripts/make-screenshots.mjs` a partir de `store/screenshot.html`, que monta as telas
+  do app com o CSS de produção (`www/style.css`) e **dados de exemplo** — não são capturas de uma conta real.
+  A Play cobra que a imagem represente o app de verdade: ao mudar layout ou textos da interface, rode o script de novo.
 - **Política de Privacidade (URL pública):** https://mbastida43.github.io/gmailcleanerbuddy/privacy.html
 - **App Bundle para upload:** `android/app/build/outputs/bundle/release/app-release.aab`
   (gerado por `npm run build:aab`; os `.apk`/`.aab` não são versionados)

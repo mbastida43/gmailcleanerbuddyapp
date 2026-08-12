@@ -86,8 +86,14 @@ export interface Offender {
  * 'reading' = trabalhando; 'waiting' = parado de propósito, segurando o ritmo
  * para não estourar a cota do Gmail. A interface precisa distinguir os dois,
  * senão a pausa passa por travamento.
+ *
+ * 'readDone' = a leitura da caixa fechou em N/N; 'ranking' = fase final, SEM
+ * números. A contagem N/1000 é a leitura da caixa e só ela: quando
+ * reiniciávamos o contador aqui com o total de remetentes (0/342 logo depois
+ * de 1000/1000), quem esperava lia como "a análise recomeçou". Um número só,
+ * uma vez, até o fim — e um aviso explícito de que ele acabou.
  */
-export type ProgressPhase = 'reading' | 'waiting';
+export type ProgressPhase = 'reading' | 'waiting' | 'readDone' | 'ranking';
 export type ProgressFn = (phase: ProgressPhase, done: number, total: number) => void;
 
 export interface AnalyzeData {
@@ -229,9 +235,15 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
   const senderCategories: Record<string, string> = {};
   let failedMessages = 0;
 
+  // Um passo por E-MAIL, não por lote de 25. O contador é o número real de
+  // mensagens já lidas: sobe uma a uma conforme cada resposta chega, e o
+  // último incremento escreve 1000. Antes ele era reportado ANTES do lote, ia
+  // de 0 a 975 aos pulos e a fase terminava sem nunca escrever 1000 — o
+  // usuário esperava por um número que não vinha.
   const BATCH_SIZE = 25;
+  let read = 0;
+  report('reading', 0, toAnalyze.length);
   for (let i = 0; i < toAnalyze.length; i += BATCH_SIZE) {
-    report('reading', i, toAnalyze.length);
     const batch = toAnalyze.slice(i, i + BATCH_SIZE);
     await Promise.all(
       batch.map(async (id) => {
@@ -260,10 +272,22 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
         } catch (err) {
           if (err instanceof UnauthorizedError) throw err;
           failedMessages++;
+        } finally {
+          // No finally: os `return` acima (sem cabeçalho From, remetente
+          // inválido) também são mensagens lidas. Fora daqui, elas sumiriam
+          // da contagem e o total nunca fecharia.
+          report('reading', ++read, toAnalyze.length);
         }
       })
     );
   }
+
+  // Batida de "acabou" antes de sair da fase: sem ela, o 1000/1000 é
+  // substituído no mesmo quadro pela fase seguinte e ninguém vê a leitura
+  // terminar — que é justamente o momento que o usuário está esperando.
+  // Um segundo parado dentro de uma análise de ~1min paga esse aviso.
+  report('readDone', toAnalyze.length, toAnalyze.length);
+  await sleep(1000);
 
   const offenders: Offender[] = Object.keys(senderCounts).map((email) => ({
     sender: email,
@@ -284,8 +308,11 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
   const toCount = offenders.slice(0, EXACT_COUNT_LIMIT);
   const CONCURRENCY = 8;
   const PAUSE_MS = 150;
+  // Uma mensagem fixa para a fase inteira, sem contador e sem alternar com
+  // 'waiting': o texto piscando entre dois estados é a mesma confusão que os
+  // números reiniciados.
+  if (toCount.length > 0) report('ranking', 0, 0);
   for (let i = 0; i < toCount.length; i += CONCURRENCY) {
-    report('reading', i, toCount.length);
     const batch = toCount.slice(i, i + CONCURRENCY);
     await Promise.all(
       batch.map(async (item) => {
@@ -299,7 +326,6 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
       })
     );
     if (i + CONCURRENCY < toCount.length) {
-      report('waiting', i + CONCURRENCY, toCount.length);
       await sleep(PAUSE_MS);
     }
   }

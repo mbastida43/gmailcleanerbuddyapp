@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- Mesma meta do app. Sem ela o Chrome monta a pagina num viewport largo, as
+     media queries de celular do style.css nao entram e a captura sai com o
+     layout de desktop espremido e cortado. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App screenshots</title>
+<!-- Telas do app para a Play Store e para a pagina do GitHub Pages.
+     Renderizado por scripts/make-screenshots.mjs num viewport de celular.
+
+     Usa o CSS DE VERDADE do app (../www/style.css) — so os dados sao de
+     exemplo. Assim a captura acompanha qualquer mudanca de layout sozinha,
+     em vez de virar uma copia que envelhece.
+
+     ?screen=login | reading | ranking      ?scroll=<px> (rolagem inicial) -->
+<link rel="stylesheet" href="../www/assets/local.css">
+<link rel="stylesheet" href="../www/style.css">
+<style>
+  .container{padding:18px 14px;}
+  /* Spinner parado: a captura pegaria um angulo aleatorio a cada execucao e
+     os arquivos mudariam sem nada ter mudado. */
+  .spinner{animation:none;transform:rotate(120deg);}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">G</div>
+      <div>
+        <h1>Gmail Cleaner Buddy</h1>
+        <div class="subtitle">🔐 Connected to Gmail via OAuth2</div>
+      </div>
+    </div>
+    <div class="lang-wrapper">
+      <button class="lang-btn" type="button">
+        <span class="fi fi-us"></span>
+        <span>EN</span>
+        <span class="lang-chevron">▾</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- AUTH -->
+  <div class="card auth" id="authScreen">
+    <h2>🔒 Connect to Gmail</h2>
+    <p>Authorize access to your Gmail account to analyze the senders that clutter your inbox the most and move them to the trash.</p>
+    <button class="btn btn-google" type="button">
+      <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgiIGhlaWdodD0iMTgiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJNMTcuNiA5LjJsLS4xLTEuOEg5djMuNGg0LjhDMTMuNiAxMiAxMyAxMyAxMiAxMy42djIuMmgzYTguOCA4LjggMCAwIDAgMi42LTYuNnoiIGZpbGw9IiM0Mjg1RjQiIGZpbGwtcnVsZT0ibm9uemVybyIvPjxwYXRoIGQ9Ik05IDE4YzIuNCAwIDQuNS0uOCA2LTIuMmwtMy0yLjJhNS40IDUuNCAwIDAgMS04LTIuOUgxVjEzYTkgOSAwIDAgMCA4IDV6IiBmaWxsPSIjMzRBODUzIiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNNCAxMC43YTUuNCA1LjQgMCAwIDEgMC0zLjRWNUgxYTkgOSAwIDAgMCAwIDhsMy0yLjN6IiBmaWxsPSIjRkJCQzA1IiBmaWxsLXJ1bGU9Im5vbnplcm8iLz48cGF0aCBkPSJNOSAzLjZjMS4zIDAgMi41LjQgMy40IDEuM0wxNSAyLjNBOSA5IDAgMCAwIDEgNWwzIDIuNGE1LjQgNS40IDAgMCAxIDUtMy43eiIgZmlsbD0iI0VBNDMzNSIgZmlsbC1ydWxlPSJub256ZXJvIi8+PHBhdGggZD0iTTAgMGgxOHYxOEgweiIvPjwvZz48L3N2Zz4=" alt="Google">
+      <span>Sign in with Google</span>
+    </button>
+    <p class="auth-note">
+      🔐 Official Google OAuth2 authentication<br>
+      🗑️ Permission to read and move your emails to the trash
+    </p>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="card results" id="resultsScreen">
+    <div class="panel-head">
+      <div>
+        <h2>🏆 Sender ranking</h2>
+        <p>📧 you@gmail.com</p>
+      </div>
+      <div class="actions">
+        <button class="btn danger" type="button">🗑️ Clean All</button>
+        <button class="btn secondary" type="button">🚪 Sign out</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><strong>1,000</strong><span>Emails analyzed</span></div>
+      <div class="stat"><strong>1.6 GB</strong><span>Total space</span></div>
+      <div class="stat"><strong>187</strong><span>Unique senders</span></div>
+      <div class="stat"><strong>6,059</strong><span>Top 10 (emails)</span></div>
+    </div>
+
+    <div class="content">
+      <div class="list">
+        <div class="list-title">📬 Top 10 Offenders</div>
+        <div id="offendersList"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <div class="loading-status" id="loadingStatus"></div>
+</div>
+
+<script>
+  var OFFENDERS = [
+    ['news.linkedin.com',           'linkedin.com',      'Social Media',   '1,243', '512 KB'],
+    ['no-reply@medium.com',         'medium.com',        'Content',          '892', '210 KB'],
+    ['notifications@github.com',    'github.com',        'DevOps',           '764', '180 KB'],
+    ['promo@amazon.com',            'amazon.com',        'Shopping',         '611', '340 KB'],
+    ['news@nytimes.com',            'nytimes.com',       'News',             '588', '275 KB'],
+    ['updates@slack.com',           'slack.com',         'Collaboration',    '502',  '96 KB'],
+    ['no-reply@accounts.google.com','accounts.google.com','Google',          '431',  '60 KB'],
+    ['hello@figma.com',             'figma.com',         'Design',           '378',  '88 KB'],
+    ['noreply@cloudflare.com',      'cloudflare.com',    'Infrastructure',   '349',  '54 KB'],
+    ['deals@ifood.com.br',          'ifood.com.br',      'Delivery',         '301', '130 KB']
+  ];
+
+  document.getElementById('offendersList').innerHTML = OFFENDERS.map(function (o, i) {
+    var medal = i === 0 ? ' r1' : i === 1 ? ' r2' : i === 2 ? ' r3' : '';
+    return '<div class="offender">' +
+      '<div class="rank' + medal + '">' + (i + 1) + '</div>' +
+      '<div><div class="domain">' + o[0] + '</div>' +
+           '<div class="cat">' + o[1] + ' · ' + o[2] + '</div></div>' +
+      '<div class="count"><span>' + o[3] + '</span><small>' + o[4] + '</small></div>' +
+      '<button type="button" class="btn-clean-single">Clean</button>' +
+    '</div>';
+  }).join('');
+
+  var q = new URLSearchParams(location.search);
+  var screen = q.get('screen') || 'login';
+
+  if (screen !== 'login') {
+    document.getElementById('authScreen').style.display = 'none';
+    document.getElementById('resultsScreen').style.display = 'block';
+  }
+
+  if (screen === 'reading') {
+    // A tela que o usuario mais olha: o contador real de e-mails lidos.
+    document.getElementById('loadingStatus').textContent = '📖 Reading emails… 620/1,000';
+    document.getElementById('loading').classList.add('show');
+  }
+
+  // Rolagem: a terceira captura mostra a lista, e numa tela de celular ela so
+  // aparece depois do cabecalho e dos numeros — como aconteceria no aparelho.
+  var scroll = Number(q.get('scroll') || 0);
+  if (scroll) window.scrollTo(0, scroll);
+</script>
+</body>
+</html>

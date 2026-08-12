@@ -87,7 +87,7 @@
 
     <div class="content">
       <div class="list">
-        <div class="list-title" data-i18n="list.title">📬 Remetentes com mais emails</div>
+        <div class="list-title" data-i18n="list.title">📬 Top 10 Ofensores</div>
         <div id="offendersList"></div>
       </div>
     </div>
@@ -97,7 +97,12 @@
 
 <div class="loading" id="loading">
   <div class="spinner"></div>
-  <div class="loading-status" id="loadingStatus" role="status" aria-live="polite"></div>
+  <!-- O contador muda uma vez por e-mail lido (~25 vezes por segundo). Como
+       região viva ele fazia o leitor de tela falar sem parar durante toda a
+       análise, e a fila continuava depois de acabar. O número fica mudo; quem
+       anuncia é o #loadingAnnounce abaixo, e só quando a FASE muda. -->
+  <div class="loading-status" id="loadingStatus" aria-hidden="true"></div>
+  <div class="sr-only" id="loadingAnnounce" role="status" aria-live="polite"></div>
 </div>
 
 <div class="toast" id="toast"></div>
