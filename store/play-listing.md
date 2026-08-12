@@ -188,6 +188,48 @@ Reprenez le contrôle de votre boîte de réception. Téléchargez Gmail Cleaner
 
 ---
 
+## 🇮🇹 Italiano (it-IT)
+
+**Nome dell'app** (≤30)
+```
+Gmail Cleaner Buddy
+```
+
+**Descrizione breve** (≤80)
+```
+Scopri chi intasa di più il tuo Gmail e sposta quei mittenti nel cestino.
+```
+
+**Descrizione completa** (≤4000)
+```
+Gmail Cleaner Buddy trova i mittenti che intasano di più la tua casella di posta e ti permette di ripulirli con un solo tocco.
+
+Stanco di migliaia di newsletter, promozioni e notifiche? L'app analizza il tuo account, crea la classifica "Top 10 Responsabili" — gli indirizzi che ti inviano più email ripetute — e sposta tutte le loro email nel cestino in una volta sola.
+
+COME FUNZIONA
+• Collega il tuo account con l'accesso ufficiale Google (OAuth2).
+• L'app analizza la casella e conta con precisione quante email ha inviato ciascun mittente.
+• Guarda il Top 10 Responsabili, con categoria e volume.
+• Tocca per spostare nel cestino tutte le email di un mittente — o pulisci l'intero Top 10 in un colpo solo.
+
+LA PRIVACY AL PRIMO POSTO
+• Accesso ufficiale Google: l'app non vede mai la tua password.
+• Nessuna credenziale viene salvata sul dispositivo: l'accesso vive solo in memoria e scade dopo circa 1 ora.
+• Le email vengono spostate nel Cestino di Gmail (recuperabili per 30 giorni): niente viene eliminato definitivamente.
+• L'app non legge il contenuto dei messaggi: per creare la classifica viene usato solo l'indirizzo del mittente.
+
+FUNZIONALITÀ
+• Top 10 Responsabili: i mittenti che intasano di più la casella
+• Conteggio esatto delle email per mittente
+• Pulizia in blocco con un tocco
+• Categorie automatiche (social, acquisti, notizie e altro)
+• Interfaccia in portoghese, inglese, spagnolo, francese, italiano, russo e cinese
+
+Riprendi il controllo della tua casella di posta. Scarica Gmail Cleaner Buddy.
+```
+
+---
+
 ## 🇷🇺 Русский (ru-RU)
 
 **Название приложения** (≤30)
