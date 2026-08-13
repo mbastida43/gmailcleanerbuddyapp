@@ -53,10 +53,19 @@ Projeto: `509052485005` (`src/config.ts:17`)
 
 - ⬜ Criar conta — **US$ 25**, taxa única
 - ⬜ Verificação de identidade (documento). Leva de horas a alguns dias
-- ⚠️ **Se for conta pessoal criada depois de nov/2023:** exige **12 testadores rodando um
-      teste fechado por 14 dias seguidos** antes de liberar produção. Comece a recrutar os
-      12 agora — na prática essa costuma ser a etapa mais lenta de todas.
-      Conta de organização não tem essa exigência.
+- ⚠️ **Conta pessoal — confirmado em 2026-08-13.** Logo, a exigência dos
+      **12 testadores inscritos num teste fechado por 14 dias seguidos** se aplica: qualquer
+      conta aberta hoje é posterior a nov/2023. Só conta de organização escapa, e isso exige
+      pessoa jurídica com D-U-N-S.
+- ⬜ **Recrutar os testadores — comece por aqui, é o caminho crítico.** Os 14 dias só começam
+      a contar quando houver 12 inscritos, e se o número cair de 12 no meio, o relógio
+      reinicia. Recrute ~15 para ter folga.
+- ⚠️ **Cada testador precisa entrar em DUAS listas, em consoles diferentes**, com o mesmo
+      endereço Gmail:
+      1. **Play Console → Teste fechado** — é o que faz os 14 dias contarem
+      2. **Google Cloud → Tela de permissão OAuth → Test users** (Fase 1) — sem isso a pessoa
+         instala, abre e trava no login com `403 access_denied`
+      Faltando a 1ª, o prazo não anda; faltando a 2ª, o app não funciona para ela.
 
 ---
 
@@ -177,6 +186,7 @@ Ordem que a Play cobra:
 | Verificação OAuth reprovada por vídeo incompleto | Alta | Mostrar a tela de consentimento inteira, sem corte |
 | Rejeição por falta de credenciais de teste | Alta | Fase 5, item 6 |
 | Custo/prazo do CASA inviabilizar produção aberta | Alta | Validar em teste fechado primeiro |
+| Não juntar 12 testadores por 14 dias seguidos | Alta | Conta pessoal, exigência obrigatória. Recrutar ~15 e começar cedo (Fase 2) |
 | Perda do keystore | Crítica | 3 backups da chave (feito) + Play App Signing |
 | Perda da senha do keystore | Média | Duas cópias, uma delas na nuvem (não depende de hardware desta mesa) |
 | Invasão da conta da nuvem | Alta | Lá estão chave e senha juntas. Verificação em duas etapas + Play App Signing |
