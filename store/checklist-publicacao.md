@@ -113,10 +113,9 @@ Tudo pronto no repo:
       para uma pasta sincronizada.
       Basta guardar o campo `storePassword` de `android/keystore.properties`, anotando
       alias `gcb` e o SHA-1 da chave. **Faça antes do primeiro upload.**
-- ⬜ **Esvaziar a lixeira da nuvem.** A `keystore.properties` chegou a ficar na pasta
-      sincronizada e foi apagada de lá, mas o serviço retém excluídos por ~30 dias — até
-      limpar, a senha continua recuperável e a separação de chave e senha ainda não vale
-      de fato.
+- ✅ **Lixeira da nuvem conferida em 2026-08-13: vazia.** A `keystore.properties` chegou a
+      ficar na pasta sincronizada, e o serviço retém excluídos por ~30 dias — mas não há
+      nada a recuperar lá. A senha saiu da nuvem de fato, não só da pasta local.
 - ✅ SHA-1 novo cadastrado no client Android do Google Cloud
       (*Gmail Cleaner Buddy (release)*), e o login nativo foi testado no aparelho: caixa de
       contas, consentimento e ranking carregando
