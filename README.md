@@ -1,215 +1,262 @@
-# 📱 Gmail Cleaner Buddy — App Android (Capacitor)
+<h1 align="center">📱 Gmail Cleaner Buddy</h1>
 
-Versão Android nativa do [Gmail Cleaner Buddy](https://github.com/mbastida43/gmailcleanerbuddy):
-analisa os remetentes que mais lotam sua caixa do Gmail e move os emails
-deles para a lixeira — direto do celular.
+<p align="center">
+  <em>Descubra quem mais lota a sua caixa do Gmail — e limpe com um toque.</em><br>
+  <em>Find out who floods your Gmail the most — and clean it out with one tap.</em>
+</p>
 
-## 🏗️ Arquitetura (o que mudou em relação ao app web)
+<p align="center">
+  <img src="store/screenshots/01-login.png" width="220" alt="Tela de login">
+  <img src="store/screenshots/02-analise.png" width="220" alt="Análise da caixa de entrada">
+  <img src="store/screenshots/03-ranking.png" width="220" alt="Ranking dos remetentes">
+</p>
 
-| | App web | Este app Android |
-|---|---|---|
-| Servidor Node/Express | ✅ obrigatório | ❌ **não existe** — o celular fala direto com a API do Gmail |
-| Login | Redirect OAuth no navegador | **Caixa nativa do Android** (Credential Manager + Authorization API do Google Play Services, via plugin `@capgo/capacitor-social-login`) |
-| Segredo OAuth | `client_secret` no `.env` do servidor | **Nenhum segredo no APK** — apps instalados usam o fluxo para apps nativos, sem client_secret |
-| Lógica de análise/limpeza | `src/server.ts` | portada para `src/gmail.ts` (mesma semântica: amostra de 1000, contagem exata dos top 25, limpeza via `batchModify`) |
+<p align="center">
+  <a href="#pt">🇧🇷 Português</a> ·
+  <a href="#en">🇺🇸 English</a> ·
+  <a href="#es">🇪🇸 Español</a> ·
+  <a href="#fr">🇫🇷 Français</a> ·
+  <a href="#it">🇮🇹 Italiano</a> ·
+  <a href="#ru">🇷🇺 Русский</a> ·
+  <a href="#zh">🇨🇳 中文</a>
+</p>
 
-O token de acesso vive **somente em memória** (~1h) — nada é persistido no
-aparelho.
+> 🛠️ **Como compilar, assinar e publicar:** [`INSTRUCTIONS.md`](INSTRUCTIONS.md)
+> 🔒 **Política de privacidade:** https://mbastida43.github.io/gmailcleanerbuddy/privacy.html
 
-## 📋 Pré-requisitos
+---
 
-- **Node.js 18+**
-- **Android Studio** (traz o Android SDK e o JDK juntos) — necessário
-  apenas para compilar o APK: https://developer.android.com/studio
-- Conta Google e o projeto no **Google Cloud Console** (o mesmo do app web)
+<a id="pt"></a>
 
-## 🚀 Passo 1 — Instalar dependências
+## 🇧🇷 Português
 
-```bash
-npm install
-```
+App Android que encontra os remetentes que mais lotam a sua caixa de entrada do
+Gmail e deixa você limpá-los com um toque. Cansado de milhares de newsletters,
+promoções e notificações? O app analisa a sua conta, monta o ranking
+**Top 10 Ofensores** — os endereços que mais enviam e-mails repetidos para você —
+e move todos os e-mails deles para a lixeira de uma vez.
 
-## 🔑 Passo 2 — Google Cloud Console (uma vez só)
+**Como funciona**
+- Conecte sua conta com o login oficial do Google (OAuth2).
+- O app analisa a sua caixa e conta com precisão quantos e-mails cada remetente enviou.
+- Veja o Top 10 Ofensores, com categoria e volume.
+- Toque para mandar todos os e-mails de um remetente para a lixeira — ou limpe o Top 10 de uma vez.
 
-O login nativo exige **dois** clients OAuth no mesmo projeto:
+**Privacidade em primeiro lugar**
+- Login oficial do Google — o app nunca vê a sua senha.
+- Nenhuma credencial fica salva no aparelho: o acesso vive só na memória e expira em cerca de 1 hora.
+- Os e-mails vão para a Lixeira do próprio Gmail (recuperáveis por 30 dias) — **nada é apagado permanentemente**.
+- O app não lê o conteúdo das suas mensagens: só o endereço do remetente é usado para montar o ranking.
+- Sem servidor próprio: o celular fala direto com a API do Gmail.
 
-1. **Client "Aplicativo da Web"** — já existe (é o mesmo do app web) e o ID
-   já está preenchido em `src/config.ts`. Se usar outro projeto, atualize com:
-   ```bash
-   npm run configure -- SEU_CLIENT_ID.apps.googleusercontent.com
-   ```
+**Recursos**
+- Top 10 Ofensores: os remetentes que mais lotam a sua caixa
+- Contagem exata de e-mails por remetente
+- Limpeza em massa com um toque
+- Categorias automáticas (redes sociais, compras, notícias e mais)
+- Interface em 7 idiomas
 
-2. **Client "Android"** — é ele que autoriza SEU aparelho/assinatura:
-   - **APIs e serviços → Credenciais → + Criar credenciais → ID do cliente OAuth**
-   - Tipo de aplicativo: **Android**
-   - Nome do pacote: `com.mbastida.gmailcleanerbuddy`
-   - **Impressão digital SHA-1**: obtenha com o app compilável (após instalar
-     o Android Studio):
-     ```bash
-     npm run signing-report
-     ```
-     Copie o `SHA1` da variante `debug` (e depois o do seu keystore de
-     produção, quando criar — pode cadastrar os dois no mesmo client).
-   - Criar. (Client Android não tem secret nem redirect URI — a validação é
-     pelo par pacote+assinatura.)
+---
 
-3. **Test users**: como o app está em modo "Testing", cada conta que for
-   logar precisa estar em **Tela de permissão OAuth → Test users**.
+<a id="en"></a>
 
-## ▶️ Passo 3 — Compilar e rodar
+## 🇺🇸 English
 
-```bash
-npm run sync            # typecheck + bundle web + sincroniza com o Android
-npm run android:studio  # abre o projeto no Android Studio (Run ▶ no emulador/celular)
-```
+An Android app that finds the senders flooding your Gmail inbox and lets you
+clean them out with a single tap. Tired of thousands of newsletters, promotions
+and notifications? The app scans your account, builds the **Top 10 Offenders**
+ranking — the addresses that send you the most repeated emails — and moves all
+of their emails to the trash at once.
 
-### Gerar o APK pela linha de comando
+**How it works**
+- Connect your account with the official Google sign-in (OAuth2).
+- The app scans your inbox and counts exactly how many emails each sender sent.
+- See the Top 10 Offenders, with category and volume.
+- Tap to send every email from a sender to the trash — or clean the whole Top 10 at once.
 
-```bash
-npm run build:apk:debug   # APK de desenvolvimento (assinado com a chave debug)
-npm run build:apk         # APK de produção (release, precisa de assinatura — abaixo)
-```
+**Privacy first**
+- Official Google sign-in — the app never sees your password.
+- No credentials are stored on your device: access lives only in memory and expires in about 1 hour.
+- Emails are moved to Gmail's own Trash (recoverable for 30 days) — **nothing is permanently deleted**.
+- The app does not read the content of your messages: only the sender address is used to build the ranking.
+- No backend of our own: the phone talks straight to the Gmail API.
 
-Onde os artefatos são gerados:
+**Features**
+- Top 10 Offenders: the senders flooding your inbox
+- Exact email count per sender
+- One-tap bulk cleanup
+- Automatic categories (social, shopping, news and more)
+- Interface in 7 languages
 
-| Comando | Arquivo |
-|---|---|
-| `build:apk:debug` | `android/app/build/outputs/apk/debug/app-debug.apk` |
-| `build:apk` | `android/app/build/outputs/apk/release/app-release.apk` (assinado se houver `keystore.properties`; senão, `app-release-unsigned.apk`) |
-| `build:aab` | `android/app/build/outputs/bundle/release/app-release.aab` (App Bundle assinado — **é este que sobe na Play Store**) |
+---
 
-### Assinar o APK de produção
+<a id="es"></a>
 
-O `build.gradle` assina o release **automaticamente** quando existe o
-arquivo `android/keystore.properties` com as credenciais do seu keystore.
-Sem esse arquivo, o release sai sem assinatura (`app-release-unsigned.apk`)
-e o Android não instala.
+## 🇪🇸 Español
 
-Configure uma única vez:
+Una app de Android que encuentra los remitentes que más llenan tu bandeja de
+entrada de Gmail y te permite limpiarlos con un solo toque. ¿Cansado de miles de
+boletines, promociones y notificaciones? La app analiza tu cuenta, arma el
+ranking **Top 10 Infractores** —las direcciones que más correos repetidos te
+envían— y mueve todos sus correos a la papelera de una vez.
 
-**1. Crie o keystore** (na pasta `android/`, uma vez só):
+**Cómo funciona**
+- Conecta tu cuenta con el inicio de sesión oficial de Google (OAuth2).
+- La app analiza tu bandeja y cuenta con precisión cuántos correos envió cada remitente.
+- Mira el Top 10 Infractores, con categoría y volumen.
+- Toca para enviar todos los correos de un remitente a la papelera, o limpia el Top 10 de una vez.
 
-```bash
-cd android
-keytool -genkeypair -v -keystore gcb-release.keystore -alias gcb \
-  -keyalg RSA -keysize 2048 -validity 10000
-```
+**La privacidad primero**
+- Inicio de sesión oficial de Google: la app nunca ve tu contraseña.
+- No se guardan credenciales en el dispositivo: el acceso vive solo en memoria y caduca en aproximadamente 1 hora.
+- Los correos se mueven a la Papelera del propio Gmail (recuperables durante 30 días); **nada se elimina de forma permanente**.
+- La app no lee el contenido de tus mensajes: solo se usa la dirección del remitente para armar el ranking.
+- Sin servidor propio: el teléfono habla directamente con la API de Gmail.
 
-O `keytool` pede uma senha — escolha uma forte e **guarde-a**. Se não tiver
-o `keytool` no PATH, ele vem junto com o Android Studio:
-`"%ProgramFiles%\Android\Android Studio\jbr\bin\keytool"`.
+**Funciones**
+- Top 10 Infractores: los remitentes que más llenan tu bandeja
+- Conteo exacto de correos por remitente
+- Limpieza masiva con un toque
+- Categorías automáticas (redes sociales, compras, noticias y más)
+- Interfaz en 7 idiomas
 
-**2. Crie `android/keystore.properties`** apontando para o keystore:
+---
 
-```properties
-storeFile=gcb-release.keystore
-storePassword=SUA_SENHA
-keyAlias=gcb
-keyPassword=SUA_SENHA
-```
+<a id="fr"></a>
 
-**3. Compile** — agora o APK sai assinado:
+## 🇫🇷 Français
 
-```bash
-npm run build:apk    # → android/app/build/outputs/apk/release/app-release.apk
-```
+Une appli Android qui identifie les expéditeurs qui encombrent le plus votre
+boîte de réception Gmail et vous laisse les nettoyer d'un simple appui. Fatigué
+de milliers de newsletters, promotions et notifications ? L'appli analyse votre
+compte, établit le classement **Top 10 des Indésirables** — les adresses qui vous
+envoient le plus d'e-mails répétés — et déplace tous leurs e-mails vers la
+corbeille en une fois.
 
-**4. (Opcional) Confira a assinatura e pegue o SHA-1** para cadastrar no
-Google Cloud (Passo 2):
+**Comment ça marche**
+- Connectez votre compte avec la connexion officielle Google (OAuth2).
+- L'appli analyse votre boîte et compte précisément combien d'e-mails chaque expéditeur a envoyés.
+- Consultez le Top 10 des Indésirables, avec catégorie et volume.
+- Appuyez pour envoyer tous les e-mails d'un expéditeur à la corbeille, ou nettoyez tout le Top 10 d'un coup.
 
-```bash
-"%ANDROID_HOME%\build-tools\<versão>\apksigner" verify --print-certs \
-  android/app/build/outputs/apk/release/app-release.apk
-```
+**La confidentialité d'abord**
+- Connexion officielle Google : l'appli ne voit jamais votre mot de passe.
+- Aucun identifiant n'est stocké sur l'appareil : l'accès ne vit qu'en mémoire et expire au bout d'environ 1 heure.
+- Les e-mails sont déplacés vers la Corbeille de Gmail (récupérables pendant 30 jours) ; **rien n'est supprimé définitivement**.
+- L'appli ne lit pas le contenu de vos messages : seule l'adresse de l'expéditeur sert à établir le classement.
+- Aucun serveur de notre côté : le téléphone parle directement à l'API Gmail.
 
-> ⚠️ **Guarde o keystore E a senha com carinho.** Tanto o
-> `gcb-release.keystore` quanto o `keystore.properties` ficam **fora do
-> git** (já cobertos pelo `.gitignore` via `*.keystore` e
-> `keystore.properties`) — então existem só na sua máquina. Perder o
-> keystore **ou** a senha = não conseguir mais publicar atualizações do app.
-> Faça backup dos dois num lugar seguro (ex.: gerenciador de senhas).
->
-> ⚠️ O APK de release tem um **SHA-1 diferente** do debug — cadastre o SHA-1
-> do keystore de release no client Android do Google Cloud (Passo 2), senão
-> o login falha com `403 access_denied` nesse APK.
+**Fonctionnalités**
+- Top 10 des Indésirables : les expéditeurs qui encombrent votre boîte
+- Comptage exact des e-mails par expéditeur
+- Nettoyage groupé en un appui
+- Catégories automatiques (réseaux sociaux, achats, actualités et plus)
+- Interface en 7 langues
 
-## 🏬 Publicar na Play Store
+---
 
-A Play Store **não aceita APK** para apps novos — ela exige um **Android App
-Bundle (`.aab`)**. Gere o bundle assinado:
+<a id="it"></a>
 
-```bash
-npm run build:aab   # → android/app/build/outputs/bundle/release/app-release.aab
-```
+## 🇮🇹 Italiano
 
-É esse `.aab` que você faz upload no **Google Play Console** (Criar app →
-Versão de produção/teste → enviar o bundle).
+Un'app Android che trova i mittenti che intasano di più la tua casella di posta
+Gmail e ti permette di ripulirli con un solo tocco. Stanco di migliaia di
+newsletter, promozioni e notifiche? L'app analizza il tuo account, crea la
+classifica **Top 10 Responsabili** — gli indirizzi che ti inviano più email
+ripetute — e sposta tutte le loro email nel cestino in una volta sola.
 
-> ⚠️ **Play App Signing (leia antes de configurar o login):** ao subir o
-> bundle, o Google gera e guarda a **chave de assinatura do app**; o seu
-> `gcb-release.keystore` passa a ser apenas a **chave de upload**. Isso quer
-> dizer que o APK que os usuários baixam da Play é assinado com uma chave
-> **diferente** da nossa — com **outro SHA-1**.
->
-> Consequência para o login Google: o SHA-1 do keystore de release (que já
-> cadastramos) só vale para o APK instalado direto. Para a versão distribuída
-> pela Play, pegue o **SHA-1 do "App signing key"** em
-> **Play Console → Test and release → App integrity** e cadastre-o também no
-> client Android do Google Cloud (Passo 2). Sem isso, o login falha
-> (`403 access_denied`) para quem instalar pela loja.
+**Come funziona**
+- Collega il tuo account con l'accesso ufficiale Google (OAuth2).
+- L'app analizza la casella e conta con precisione quante email ha inviato ciascun mittente.
+- Guarda il Top 10 Responsabili, con categoria e volume.
+- Tocca per spostare nel cestino tutte le email di un mittente — o pulisci l'intero Top 10 in un colpo solo.
 
-## 🧰 Scripts disponíveis
+**La privacy al primo posto**
+- Accesso ufficiale Google: l'app non vede mai la tua password.
+- Nessuna credenziale viene salvata sul dispositivo: l'accesso vive solo in memoria e scade dopo circa 1 ora.
+- Le email vengono spostate nel Cestino di Gmail (recuperabili per 30 giorni): **niente viene eliminato definitivamente**.
+- L'app non legge il contenuto dei messaggi: per creare la classifica viene usato solo l'indirizzo del mittente.
+- Nessun server nostro: il telefono parla direttamente con l'API di Gmail.
 
-| Script | O que faz |
-|---|---|
-| `npm run typecheck` | Verifica os tipos TypeScript |
-| `npm run build:web` | Gera o bundle `www/app.js` (esbuild) |
-| `npm run sync` | typecheck + bundle + `cap sync android` |
-| `npm run configure -- <id>` | Grava o Web Client ID em `src/config.ts` |
-| `npm run android:studio` | Abre o projeto nativo no Android Studio |
-| `npm run build:apk:debug` | APK debug instalável |
-| `npm run build:apk` | APK release (assinado se houver `keystore.properties`) |
-| `npm run build:aab` | App Bundle release assinado (para a Play Store) |
+**Funzionalità**
+- Top 10 Responsabili: i mittenti che intasano di più la casella
+- Conteggio esatto delle email per mittente
+- Pulizia in blocco con un tocco
+- Categorie automatiche (social, acquisti, notizie e altro)
+- Interfaccia in 7 lingue
 
-## 📁 Estrutura
+---
 
-```
-src/
-  config.ts   ← Web Client ID + escopo OAuth
-  auth.ts     ← login nativo (caixa do Android), token só em memória
-  gmail.ts    ← Gmail REST API: análise, contagem exata, limpeza batchModify
-  app.ts      ← UI (i18n em 7 idiomas, Top 10, toasts)
-www/          ← index.html, style.css e o bundle app.js (gerado)
-android/      ← projeto nativo (gerado pelo Capacitor, versionado)
-              ← keystore.properties + *.keystore ficam aqui (fora do git)
-scripts/      ← set-client-id.mjs (configure) e gradle.mjs (builds)
-store/        ← icon-512.png para a ficha da Play Store
-apk/          ← APKs soltos, FORA do git (veja abaixo)
-final_app/    ← idem
-```
+<a id="ru"></a>
 
-> Os `.apk`/`.aab` **não são versionados** (`.gitignore`). Artefato de build
-> envelhece: um APK commitado vira, em poucas semanas, uma armadilha para
-> quem clona o repo e instala achando que é a versão atual. Gere o seu com
-> os comandos da tabela acima — o caminho de saída é sempre
-> `android/app/build/outputs/`.
+## 🇷🇺 Русский
 
-## ⚠️ Gotchas conhecidos
+Android-приложение, которое находит отправителей, больше всего забивающих ваш
+почтовый ящик Gmail, и позволяет очистить их одним касанием. Устали от тысяч
+рассылок, промоакций и уведомлений? Приложение анализирует ваш аккаунт,
+составляет рейтинг **«Топ-10 нарушителей»** — адреса, которые чаще всего
+присылают вам повторяющиеся письма, — и разом перемещает все их письма в корзину.
 
-- **Login exige Google Play Services** no aparelho (celulares sem Google,
-  como Huawei antigos, não suportam a caixa nativa).
-- **`Erro 403: access_denied` / caixa fecha sozinha** → a conta não está em
-  **Test users** no Google Cloud (Passo 2.3), ou o SHA-1 cadastrado não bate
-  com a assinatura do APK instalado (debug vs release têm SHA-1 diferentes!).
-- **Token dura ~1h** — depois disso o app volta para a tela de login (por
-  design: nenhuma credencial fica salva no aparelho).
-- Editou código em `src/`? Rode `npm run sync` antes de compilar de novo,
-  senão o APK sai com o bundle antigo.
-- O escopo `gmail.modify` é **restrito**: o Google mostra a tela de
-  consentimento ("app não verificado" em modo Testing) dentro do fluxo
-  nativo — normal, é só confirmar.
+**Как это работает**
+- Подключите аккаунт через официальный вход Google (OAuth2).
+- Приложение анализирует ящик и точно подсчитывает, сколько писем отправил каждый отправитель.
+- Посмотрите Топ-10 нарушителей с категорией и объёмом.
+- Коснитесь, чтобы отправить в корзину все письма одного отправителя — или весь Топ-10 сразу.
 
+**Конфиденциальность прежде всего**
+- Официальный вход Google — приложение никогда не видит ваш пароль.
+- На устройстве не сохраняются учётные данные: доступ живёт только в памяти и истекает примерно через 1 час.
+- Письма перемещаются в собственную Корзину Gmail (восстановимы 30 дней) — **ничего не удаляется навсегда**.
+- Приложение не читает содержимое сообщений: для рейтинга используется только адрес отправителя.
+- Никакого своего сервера: телефон обращается напрямую к API Gmail.
 
-  ## License
+**Возможности**
+- Топ-10 нарушителей: отправители, забивающие ваш ящик
+- Точный подсчёт писем по каждому отправителю
+- Массовая очистка одним касанием
+- Автоматические категории (соцсети, покупки, новости и другое)
+- Интерфейс на 7 языках
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE.md) file for details.
+---
+
+<a id="zh"></a>
+
+## 🇨🇳 中文
+
+一款 Android 应用，找出最占用你 Gmail 收件箱的发件人，让你一键清理。厌倦了成千上万的
+订阅邮件、促销和通知？应用会分析你的账号，生成**「前 10 名骚扰发件人」**排行榜——那些
+反复给你发信最多的地址——并一次性把他们的所有邮件移入垃圾箱。
+
+**工作原理**
+- 使用官方 Google 登录（OAuth2）连接你的账号。
+- 应用分析你的收件箱，精确统计每个发件人发送了多少封邮件。
+- 查看前 10 名骚扰发件人，附带分类和容量。
+- 轻点即可将某个发件人的全部邮件移入垃圾箱——或一次清理整个前 10 名。
+
+**隐私优先**
+- 官方 Google 登录——应用绝不会看到你的密码。
+- 设备上不保存任何凭据：访问令牌只存在于内存中，约 1 小时后过期。
+- 邮件会移入 Gmail 自己的垃圾箱（30 天内可恢复）——**不会永久删除任何内容**。
+- 应用不会读取邮件内容：排行榜只使用发件人地址。
+- 没有自建服务器：手机直接与 Gmail API 通信。
+
+**功能**
+- 前 10 名骚扰发件人：最占用你收件箱的发件人
+- 按发件人精确统计邮件数量
+- 一键批量清理
+- 自动分类（社交媒体、购物、新闻等）
+- 支持 7 种语言界面
+
+---
+
+## 🛠️ Tech stack
+
+TypeScript · [Capacitor](https://capacitorjs.com/) · Gmail REST API ·
+[`@capgo/capacitor-social-login`](https://github.com/Cap-go/capacitor-social-login)
+(Credential Manager + Google Play Services Authorization API)
+
+Web version: [mbastida43/gmailcleanerbuddy](https://github.com/mbastida43/gmailcleanerbuddy)
+
+## License
+
+This project is licensed under the MIT License — see the [LICENSE](LICENSE.md) file for details.

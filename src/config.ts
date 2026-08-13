@@ -8,7 +8,7 @@
 //
 // ALÉM disso é preciso existir no MESMO projeto do Google Cloud um client
 // do tipo "Android" com o package com.mbastida.gmailcleanerbuddy e o
-// SHA-1 do seu keystore (veja o README, passo 2) — é ele que autoriza o
+// SHA-1 do seu keystore (veja o INSTRUCTIONS.md, passo 2) — é ele que autoriza o
 // aparelho a mostrar a caixa nativa de login. Sem secret no APK: apps
 // instalados nunca embutem client_secret.
 // ============================================================
