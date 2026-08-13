@@ -176,7 +176,60 @@ Ordem que a Play cobra:
 
 ---
 
-## Fase 6 — Depois do envio
+## Fase 6 — Como o app chega até os testadores
+
+### APK e AAB não são a mesma coisa
+
+| | O que é | Serve para |
+|---|---|---|
+| **APK** | Arquivo instalável | Mandar direto para alguém (WhatsApp, Drive). A pessoa instala na mão |
+| **AAB** | Pacote de *upload* | Só subir no Play Console. **Não instala** se você mandar para alguém |
+
+O AAB não é um APK melhor, é outra coisa: você entrega ao Google e **ele** monta um APK sob
+medida para o aparelho de cada pessoa, entregue pela Play Store.
+
+### ⚠️ Mandar APK não conta os 14 dias
+
+A exigência dos 12 testadores (Fase 2) só é cumprida por uma trilha do Play Console. Distribuir
+APK por conta própria é **invisível** para o Google — o relógio não anda. Duas semanas mandando
+arquivo por WhatsApp terminam com a contagem ainda em zero.
+
+E dentro do Console as trilhas têm nomes parecidos, com consequências diferentes:
+
+| Trilha | Testadores | Conta para os 14 dias? |
+|---|---|---|
+| **Teste interno** | até 100, disponível quase na hora | ❌ **não** |
+| **Teste fechado** | é a que a exigência pede | ✅ sim |
+
+Confirme os nomes na tela do seu Console — o Google já renomeou essas trilhas antes.
+
+### O caminho
+
+- ⬜ Criar a **trilha de teste fechado** e, dentro dela, uma lista de e-mails com os 12+
+      testadores
+- ⬜ Subir `android/app/build/outputs/bundle/release/app-release.aab` nessa trilha, marcando
+      **Play App Signing** neste primeiro upload
+- ⬜ Copiar o **link de opt-in** que o Console gera
+      (`play.google.com/apps/testing/com.mbastida.gmailcleanerbuddy`) e mandar aos testadores
+- ⬜ Cadastrar cada um como **Test user** no Google Cloud (a segunda lista — Fase 2). Sem isso
+      a pessoa instala, abre e toma `403` no login
+- ⬜ Conferir que o SHA-1 do *App signing key* foi para o client Android (Fase 4). Sem ele o
+      login falha **só** para quem instalou pela loja
+- ⬜ Acompanhar a contagem: 12 inscritos, sem cair, por 14 dias corridos
+
+**O que o testador faz:** abre o link → aceita ser testador → instala pela Play Store como
+qualquer app. Sem "fonte desconhecida", sem APK solto.
+
+### O APK ainda serve
+
+Não jogue fora: mande para uma ou duas pessoas de confiança **antes** de montar o Console, para
+caçar bug grosseiro enquanto isso. É teste de verdade, só não conta prazo. Ele está em
+`UTEIS\GMAIL CLEANER BUDDY` no OneDrive, pasta separada da chave de propósito — junto vai um
+`LEIA-ME.txt` com o que avisar a quem instalar.
+
+---
+
+## Fase 7 — Depois do envio
 
 - ⬜ Ler o **Relatório de pré-lançamento** — a Play roda o app em aparelhos reais e reporta
       travamentos que você não viu
@@ -194,6 +247,7 @@ Ordem que a Play cobra:
 | Rejeição por falta de credenciais de teste | Alta | Fase 5, item 6 |
 | Custo/prazo do CASA inviabilizar produção aberta | Alta | Validar em teste fechado primeiro |
 | Não juntar 12 testadores por 14 dias seguidos | Alta | Conta pessoal, exigência obrigatória. Recrutar ~15 e começar cedo (Fase 2) |
+| Perder 14 dias distribuindo APK, ou usando teste interno no lugar do fechado | Alta | Só a trilha de **teste fechado** conta. Ver Fase 6 |
 | Perda do keystore | Crítica | 3 backups da chave (feito) + Play App Signing |
 | Perda da senha do keystore | Média | Duas cópias, uma delas na nuvem (não depende de hardware desta mesa) |
 | Invasão da conta da nuvem | Alta | Lá estão chave e senha juntas. Verificação em duas etapas + Play App Signing |
