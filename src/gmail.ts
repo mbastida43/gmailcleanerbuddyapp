@@ -184,22 +184,33 @@ export async function getProfile(): Promise<{ email: string }> {
 let ownEmailCache: { token: string; email: string } | null = null;
 
 /**
- * Endereço da conta logada, em minúsculas. Devolve '' se o perfil falhar —
- * sem isso um erro transitório no /profile derrubaria a análise inteira.
- * Falha não é cacheada: a próxima chamada tenta de novo.
+ * Endereço da conta logada, em minúsculas. Falha não é cacheada: a próxima
+ * chamada tenta de novo.
+ *
+ * `required` decide o que fazer quando o /profile falha, e a diferença importa:
+ *
+ * - análise (`false`): devolve '' e segue. Um erro transitório aqui não pode
+ *   derrubar a leitura inteira da caixa; o custo é só o cadeado não aparecer.
+ * - limpeza (`true`): lança. Ali o endereço é a trava que impede o usuário de
+ *   mandar a própria caixa de enviados para a lixeira, e trava que não sabe o
+ *   que proteger tem de recusar, nunca liberar.
  */
-async function getOwnEmail(): Promise<string> {
+async function getOwnEmail(required = false): Promise<string> {
   const token = getAccessToken();
   if (!token) throw new UnauthorizedError();
   if (ownEmailCache && ownEmailCache.token === token) return ownEmailCache.email;
 
   try {
     const profile = await getProfile();
-    const email = profile.email.trim().toLowerCase();
+    const email = (profile.email || '').trim().toLowerCase();
+    // Perfil sem endereço é resposta inesperada, não conta como sucesso: sem
+    // isso o '' seria cacheado e desligaria a trava por uma hora inteira.
+    if (!email) throw new Error('empty_profile_email');
     ownEmailCache = { token, email };
     return email;
   } catch (err) {
     if (err instanceof UnauthorizedError) throw err;
+    if (required) throw new Error('own_address_unknown');
     return '';
   }
 }
@@ -381,8 +392,15 @@ export async function clean(
   // enviados — incluindo e-mails que o usuário manda para si mesmo para
   // guardar. A interface já desabilita o botão nessa linha; isto cobre o caso
   // de a chamada chegar por outro caminho (tela em cache, ranking antigo).
-  const ownEmail = await getOwnEmail();
-  if (ownEmail && sender.trim().toLowerCase() === ownEmail) {
+  //
+  // `required: true` faz a trava falhar FECHADA. Antes, um /profile com erro
+  // devolvia '' e a comparação abaixo virava sempre falsa — a trava sumia
+  // exatamente quando não dava para saber o que proteger. Como a análise lista
+  // os enviados, o endereço do próprio usuário costuma liderar o ranking: uma
+  // falha passageira de rede bastava para "Limpar Tudo" varrer a caixa de
+  // enviados dele.
+  const ownEmail = await getOwnEmail(true);
+  if (sender.trim().toLowerCase() === ownEmail) {
     throw new Error('own_address');
   }
 

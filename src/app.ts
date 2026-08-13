@@ -61,6 +61,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'toast.cleanAllPartial': '⚠️ {removed} movidos; {failed} falharam',
     'protected.tooltip': 'Sua própria conta — protegida contra limpeza',
     'error.ownAddress': '🔒 Não é possível limpar o seu próprio endereço — isso moveria seus e-mails enviados para a lixeira',
+    'error.ownAddressUnknown': '⚠️ Não deu para confirmar qual é a sua conta — limpeza cancelada por segurança. Tente de novo',
     'cat.social': 'Rede Social',
     'cat.google': 'Google',
     'cat.devops': 'DevOps',
@@ -112,6 +113,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'toast.cleanAllPartial': '⚠️ {removed} moved; {failed} failed',
     'protected.tooltip': 'Your own account — protected from cleaning',
     'error.ownAddress': '🔒 You cannot clean your own address — that would move your sent mail to the trash',
+    'error.ownAddressUnknown': '⚠️ Could not confirm which account is yours — cleanup cancelled for safety. Try again',
     'cat.social': 'Social',
     'cat.google': 'Google',
     'cat.devops': 'DevOps',
@@ -163,6 +165,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'toast.cleanAllPartial': '⚠️ {removed} movidos; {failed} fallaron',
     'protected.tooltip': 'Tu propia cuenta: protegida contra la limpieza',
     'error.ownAddress': '🔒 No puedes limpiar tu propia dirección: eso movería tus correos enviados a la papelera',
+    'error.ownAddressUnknown': '⚠️ No se pudo confirmar cuál es tu cuenta: limpieza cancelada por seguridad. Inténtalo de nuevo',
     'cat.social': 'Red Social',
     'cat.google': 'Google',
     'cat.devops': 'DevOps',
@@ -214,6 +217,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'toast.cleanAllPartial': '⚠️ {removed} déplacés ; {failed} échoués',
     'protected.tooltip': 'Votre propre compte — protégé du nettoyage',
     'error.ownAddress': '🔒 Impossible de nettoyer votre propre adresse — cela déplacerait vos e-mails envoyés vers la corbeille',
+    'error.ownAddressUnknown': '⚠️ Impossible de confirmer votre compte — nettoyage annulé par sécurité. Réessayez',
     'cat.social': 'Réseau social',
     'cat.google': 'Google',
     'cat.devops': 'DevOps',
@@ -265,6 +269,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'toast.cleanAllPartial': '⚠️ {removed} spostate; {failed} non riuscite',
     'protected.tooltip': 'Il tuo account — protetto dalla pulizia',
     'error.ownAddress': '🔒 Non puoi pulire il tuo indirizzo — sposteresti nel cestino le tue email inviate',
+    'error.ownAddressUnknown': '⚠️ Non è stato possibile confermare il tuo account — pulizia annullata per sicurezza. Riprova',
     'cat.social': 'Social',
     'cat.google': 'Google',
     'cat.devops': 'DevOps',
@@ -316,6 +321,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'toast.cleanAllPartial': '⚠️ {removed} перемещено; {failed} с ошибкой',
     'protected.tooltip': 'Ваш собственный аккаунт — защищён от очистки',
     'error.ownAddress': '🔒 Нельзя очистить собственный адрес — это переместит отправленные письма в корзину',
+    'error.ownAddressUnknown': '⚠️ Не удалось подтвердить, какой аккаунт ваш — очистка отменена в целях безопасности. Попробуйте снова',
     'cat.social': 'Соцсети',
     'cat.google': 'Google',
     'cat.devops': 'DevOps',
@@ -367,6 +373,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'toast.cleanAllPartial': '⚠️ 已移动 {removed} 封；{failed} 封失败',
     'protected.tooltip': '您自己的账户 — 已受保护，不会被清理',
     'error.ownAddress': '🔒 无法清理您自己的地址 — 那会把已发送邮件移到垃圾箱',
+    'error.ownAddressUnknown': '⚠️ 无法确认哪个是您的账号 — 出于安全考虑已取消清理。请重试',
     'cat.social': '社交媒体',
     'cat.google': 'Google',
     'cat.devops': 'DevOps',
@@ -673,6 +680,13 @@ async function cleanSender(sender: string): Promise<void> {
       toast(t('error.ownAddress'));
       return;
     }
+    // A trava do próprio endereço não conseguiu descobrir qual conta proteger e
+    // recusou por segurança — nada foi movido. Merece texto próprio: dizer
+    // "falhou" sem mais nada faria o usuário tentar de novo achando que é bug.
+    if (error?.message === 'own_address_unknown') {
+      toast(t('error.ownAddressUnknown'));
+      return;
+    }
     console.error('Erro ao limpar:', error);
     toast(`❌ ${error.message}`);
   } finally {
@@ -702,6 +716,10 @@ async function cleanAll(): Promise<void> {
   let totalFailed = 0;
   let done = 0;
   let unauthorized = false;
+  // Quando o /profile não responde, TODOS os remetentes são recusados pela
+  // trava. Contá-los como falha genérica mostraria "0 movidos; 10 falharam"
+  // sem dizer por quê — e o usuário tentaria de novo achando que é bug.
+  let ownAddressUnknown = false;
   const cleaned: string[] = [];
 
   // Em ondas, não um de cada vez. A cota do Gmail é de 250 unidades por
@@ -727,6 +745,7 @@ async function cleanAll(): Promise<void> {
           // Não relança: uma rejeição aqui abortaria as outras da mesma onda
           // sem contabilizar o que elas já fizeram.
           if (error instanceof gmail.UnauthorizedError) unauthorized = true;
+          else if (error?.message === 'own_address_unknown') ownAddressUnknown = true;
           else totalFailed++;
         } finally {
           done++;
@@ -749,7 +768,9 @@ async function cleanAll(): Promise<void> {
     return;
   }
 
-  if (totalFailed > 0) {
+  if (ownAddressUnknown) {
+    toast(t('error.ownAddressUnknown'));
+  } else if (totalFailed > 0) {
     toast(t('toast.cleanAllPartial', { removed: totalRemoved, failed: totalFailed }));
   } else {
     toast(t('toast.cleaned', { n: totalRemoved }));
