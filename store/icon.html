@@ -1,0 +1,58 @@
+<!doctype html>
+<!--
+  Molde dos ícones do app. Renderizado pelo scripts/make-icons.mjs em Chrome
+  headless, um screenshot por tamanho. A arte vem de store/icon-art.svg.
+
+  ?mode= decide a camada:
+    legacy  quadrado colorido + arte     → ic_launcher.png (Android < 8)
+    round   círculo colorido + arte      → ic_launcher_round.png
+    fg      arte menor, fundo transparente → ic_launcher_foreground.png
+    bg      só o fundo colorido          → ic_launcher_background.png
+
+  O "fg" usa a arte pequena de propósito: no ícone adaptativo o Android corta a
+  borda para encaixar na máscara do launcher (círculo, squircle, gota...). Só os
+  66% centrais são garantidos, então a arte fica dentro dessa zona.
+
+  BRAND precisa ser o mesmo tom usado nos vincos do icon-art.svg.
+-->
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<style>
+  :root { --brand: #12596B; }
+  html, body { margin: 0; padding: 0; background: transparent; overflow: hidden; }
+  #canvas {
+    width: 100vw; height: 100vh;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #canvas.square { background: var(--brand); }
+  #canvas.circle { background: var(--brand); border-radius: 50%; }
+  img { display: block; object-fit: contain; }
+</style>
+</head>
+<body>
+  <div id="canvas"><img id="art" src="icon-art.svg" alt=""></div>
+  <script>
+    // Quanto do quadrado a arte ocupa, por camada.
+    const SCALE = { legacy: 0.78, round: 0.66, fg: 0.55, bg: 0 };
+
+    const mode = new URLSearchParams(location.search).get('mode') || 'legacy';
+    const scale = SCALE[mode];
+    if (scale === undefined) throw new Error('mode desconhecido: ' + mode);
+
+    const canvas = document.getElementById('canvas');
+    const art = document.getElementById('art');
+
+    // O foreground do adaptativo é composto sobre o background, entao vai
+    // transparente: quem pinta o fundo é a outra camada.
+    canvas.className = mode === 'round' ? 'circle' : (mode === 'fg' ? '' : 'square');
+
+    if (scale === 0) {
+      art.remove();
+    } else {
+      art.style.width = scale * 100 + '%';
+      art.style.height = scale * 100 + '%';
+    }
+  </script>
+</body>
+</html>

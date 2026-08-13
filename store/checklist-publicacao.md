@@ -73,7 +73,14 @@ Projeto: `509052485005` (`src/config.ts:17`)
 
 Tudo pronto no repo:
 
-- ✅ **Ícone 512×512** — `store/icon-512.png`
+- ✅ **Ícone 512×512** — `store/icon-512.png`, e os 20 mipmaps do app, gerados de
+      `store/icon-art.svg` por `node scripts/make-icons.mjs`
+- ⚠️ **Não troque o ícone pelo "M" do Gmail.** A tentação vai voltar, porque fica bonito. Mas
+      é marca registrada com as cores do Google: as diretrizes proíbem terceiros de usar logos
+      de produtos Google no ícone, e isso é conferido na revisão da Play (política de
+      *impersonation*) **e** na verificação OAuth, que já será criteriosa pelo escopo restrito.
+      O envelope com vassoura foi desenhado justamente para dizer a mesma coisa sem usar marca
+      de ninguém — a paleta petróleo/âmbar evita o vermelho/amarelo/verde/azul de propósito.
 - ✅ **Feature graphic 1024×500** — `store/feature-graphics/feature-<idioma>.png` (7 idiomas)
 - ✅ **Screenshots** — `store/screenshots/` (3 capturas de celular, 1179×2556; mínimo do Google é 2)
 - ✅ **Textos PT/EN/ES/FR/IT/RU/ZH** — `store/play-listing.md` (os 7 idiomas da interface)

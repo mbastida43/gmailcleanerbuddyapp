@@ -1,0 +1,43 @@
+<!--
+  Arte do ícone: envelope sendo varrido. Desenho próprio — nenhuma marca de
+  terceiros. A paleta evita de propósito o conjunto vermelho/amarelo/verde/azul
+  do Google, para não haver semelhança com o logo do Gmail.
+
+  O fundo petróleo (#12596B) é pintado pelo store/icon.html, não aqui: este
+  arquivo é só o glifo. O mesmo tom aparece abaixo no vinco do envelope, que
+  simula recorte sobre esse fundo.
+
+  Formas grandes e poucos elementos de propósito: o ícone precisa ser legível
+  em 48x48, onde detalhe fino vira sujeira.
+
+  Para trocar o ícone do app, edite este arquivo e rode:
+    node scripts/make-icons.mjs
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <!-- envelope -->
+  <rect x="44" y="168" width="380" height="236" rx="34" fill="#FFFFFF"/>
+
+  <!-- vinco da aba: pintado na cor do fundo, vira recorte no composto -->
+  <path d="M62 192 L234 316 L406 192"
+        fill="none" stroke="#12596B" stroke-width="30"
+        stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- vassoura: desenhada na vertical e girada para varrer da direita -->
+  <g transform="translate(366,286) rotate(28)">
+    <!-- cabo -->
+    <rect x="-16" y="-232" width="32" height="248" rx="16" fill="#F0A03C"/>
+    <!-- amarração -->
+    <rect x="-52" y="6" width="104" height="34" rx="14" fill="#C9761F"/>
+    <!-- cerdas: quatro tufos largos, folga estreita entre eles -->
+    <g fill="#FFC978">
+      <path d="M-58 44 L-31 44 L-45 168 L-82 168 Z"/>
+      <path d="M-27 44 L-2 44 L-6 168 L-38 168 Z"/>
+      <path d="M2 44 L27 44 L38 168 L6 168 Z"/>
+      <path d="M31 44 L58 44 L82 168 L45 168 Z"/>
+    </g>
+  </g>
+
+  <!-- brilho de "limpo", longe do cabo para não virar borrão -->
+  <path d="M108 96 L120 130 L154 142 L120 154 L108 188 L96 154 L62 142 L96 130 Z"
+        fill="#FFC978"/>
+</svg>
