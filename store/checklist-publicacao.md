@@ -65,9 +65,9 @@ Projeto: `509052485005` (`src/config.ts:17`)
 Tudo pronto no repo:
 
 - ✅ **Ícone 512×512** — `store/icon-512.png`
-- ✅ **Feature graphic 1024×500** — `store/feature-graphics/feature-<idioma>.png` (4 idiomas)
-- ✅ **Screenshots** — `store/screenshots/` (3 capturas; mínimo do Google é 2)
-- ✅ **Textos PT/EN/ES/FR** — `store/play-listing.md`
+- ✅ **Feature graphic 1024×500** — `store/feature-graphics/feature-<idioma>.png` (7 idiomas)
+- ✅ **Screenshots** — `store/screenshots/` (3 capturas de celular, 1179×2556; mínimo do Google é 2)
+- ✅ **Textos PT/EN/ES/FR/IT/RU/ZH** — `store/play-listing.md` (os 7 idiomas da interface)
 - ✅ **Política de privacidade no ar** — `https://mbastida43.github.io/gmailcleanerbuddy/privacy.html`
 
 ---
@@ -87,16 +87,36 @@ Tudo pronto no repo:
 
 - ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`)
 - ✅ `targetSdk 36` (`android/variables.gradle:4`) — atende a exigência atual
-- ✅ `versionCode 2` / `versionName 1.1` — é o build que subiu no teste interno
+- ✅ `versionCode 3` / `versionName 1.2` — build atual, já com a contagem real de leitura e
+      o rótulo "Top 10 Ofensores". O AAB no disco é deste build (`versionCode 2` foi o que
+      subiu no teste interno; a Play recusa reenvio do mesmo `versionCode`)
 - ✅ Keystore em `android/gcb-release.keystore`. RSA 2048, validade 10.000 dias, alias `gcb`.
       Fica dentro de `android/` mas **fora do git** (`.gitignore` cobre `*.keystore`).
       **SHA-1: `66:00:EE:DC:91:33:71:C5:C6:66:73:5F:D4:15:AA:46:75:D4:53:27`**
 - ✅ `android/keystore.properties` recriado (a senha está nele; coberto pelo `.gitignore`).
       O `storeFile` usa só o nome do arquivo — o caminho é resolvido a partir de `android/`,
       que é onde vive o `settings.gradle` e portanto o `rootProject` do Gradle
-- ❌ **SEM BACKUP.** A chave em uso existe em um único lugar no mundo. Copie para pelo menos
-      dois destinos independentes antes de qualquer coisa ir para produção.
-- ⬜ **Segunda cópia do backup fora do pendrive** (Drive) — pendrive é a mídia que mais some
+- ✅ **Backup feito em 2026-08-13, chave e senha separadas.** Cada pasta tem um `LEIA-ME.txt`
+      dizendo onde está a outra metade.
+      - **Chave** (`gcb-release.keystore`) em três destinos: uma nuvem e dois volumes locais
+      - **Senha** (`keystore.properties`) **só** num pendrive e na cópia de trabalho em
+        `android/` — nunca em pasta sincronizada
+      - Restauração testada de verdade: chave tirada do backup na nuvem + senha tirada do
+        pendrive abrem no `keytool` e devolvem o SHA-1 esperado
+      - **Caminhos exatos e hashes de conferência: `store/backup-local.md`**, que fica fora
+        do git (este repo é público — um mapa de onde está a chave não entra nele)
+- ⬜ **Guardar a senha do keystore num gerenciador de senhas.** Hoje ela existe em dois
+      lugares só, o pendrive e a cópia de trabalho — as duas em hardware da mesma mesa.
+      Perder os dois transforma os três backups da chave em arquivos que não abrem, e
+      pendrive foi exatamente a mídia que sumiu com as duas chaves anteriores. O gerenciador
+      não é arquivo e não some com hardware, então quebra a dependência sem devolver a senha
+      para uma pasta sincronizada.
+      Basta guardar o campo `storePassword` de `android/keystore.properties`, anotando
+      alias `gcb` e o SHA-1 da chave. **Faça antes do primeiro upload.**
+- ⬜ **Esvaziar a lixeira da nuvem.** A `keystore.properties` chegou a ficar na pasta
+      sincronizada e foi apagada de lá, mas o serviço retém excluídos por ~30 dias — até
+      limpar, a senha continua recuperável e a separação de chave e senha ainda não vale
+      de fato.
 - ✅ SHA-1 novo cadastrado no client Android do Google Cloud
       (*Gmail Cleaner Buddy (release)*), e o login nativo foi testado no aparelho: caixa de
       contas, consentimento e ranking carregando
@@ -156,6 +176,9 @@ Ordem que a Play cobra:
 | Verificação OAuth reprovada por vídeo incompleto | Alta | Mostrar a tela de consentimento inteira, sem corte |
 | Rejeição por falta de credenciais de teste | Alta | Fase 5, item 6 |
 | Custo/prazo do CASA inviabilizar produção aberta | Alta | Validar em teste fechado primeiro |
-| Perda do keystore | Crítica | Backup duplo + Play App Signing |
-| CDNs externas em `www/index.html` | Média | Ver "Antes de enviar" em [`data-safety.md`](data-safety.md) |
-| Falta a frase de Limited Use na privacy policy | Média | Verificar antes de enviar a Fase 1 |
+| Perda do keystore | Crítica | 3 backups da chave (feito) + Play App Signing |
+| Perda da senha do keystore | Crítica | Só existe no pendrive e em `android/`. Pendência aberta na Fase 4: copiar para um gerenciador de senhas |
+
+Resolvidos: CDNs externas em `www/` (fonte e bandeiras agora empacotadas — ver "Antes de
+enviar" em [`data-safety.md`](data-safety.md)) e a frase de Limited Use na privacy policy
+(verificada, Fase 1).

@@ -16,6 +16,11 @@ www/app.js.map
 *.jks
 keystore.properties
 
+# Onde ficam os backups da chave. Não é segredo em si, mas o repo é público e
+# isto é um mapa de onde pegar a chave. O checklist versionado só diz "nuvem +
+# dois volumes locais".
+store/backup-local.md
+
 # SO / editores
 .DS_Store
 Thumbs.db
