@@ -127,6 +127,13 @@ h1{font-size:34px;font-weight:900;}
 .list{background:white;border:1px solid var(--line);border-radius:22px;overflow:hidden;}
 .list-title{padding:18px;border-bottom:1px solid var(--line);font-weight:900;font-size:14px;}
 
+/* Nota de rodapé da lista: explica por que o número daqui diverge da busca do
+   Gmail. Fica discreta — é para quem foi conferir, não para quem só quer limpar. */
+.list-note{
+  padding:14px 18px;border-top:1px solid var(--line);
+  font-size:12px;line-height:1.5;color:var(--muted);
+}
+
 .offender{
   padding:16px 18px;border-bottom:1px solid #f2f4f7;
   display:grid;grid-template-columns:50px 1fr 140px 80px;gap:14px;align-items:center;

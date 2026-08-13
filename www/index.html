@@ -89,6 +89,15 @@
       <div class="list">
         <div class="list-title" data-i18n="list.title">📬 Top 10 Ofensores</div>
         <div id="offendersList"></div>
+        <!-- Por que este número diverge do que o Gmail mostra: aqui a unidade é
+             o e-mail, na busca do Gmail é a conversa. Um remetente que dispara
+             três avisos com o mesmo assunto vira 1 linha lá e 3 e-mails aqui.
+             Sem esta nota, quem confere acha que o app conta errado. -->
+        <div class="list-note" data-i18n="list.note">
+          Contamos e-mails, um a um. A busca do Gmail agrupa e-mails do mesmo
+          assunto em conversas, então o número dela costuma ser menor. É o
+          número daqui que vai para a lixeira.
+        </div>
       </div>
     </div>
   </div>
