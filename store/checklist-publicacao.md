@@ -96,23 +96,25 @@ Tudo pronto no repo:
 - ✅ `android/keystore.properties` recriado (a senha está nele; coberto pelo `.gitignore`).
       O `storeFile` usa só o nome do arquivo — o caminho é resolvido a partir de `android/`,
       que é onde vive o `settings.gradle` e portanto o `rootProject` do Gradle
-- ✅ **Backup feito em 2026-08-13, chave e senha separadas.** Cada pasta tem um `LEIA-ME.txt`
-      dizendo onde está a outra metade.
-      - **Chave** (`gcb-release.keystore`) em três destinos: uma nuvem e dois volumes locais
-      - **Senha** (`keystore.properties`) **só** num pendrive e na cópia de trabalho em
-        `android/` — nunca em pasta sincronizada
-      - Restauração testada de verdade: chave tirada do backup na nuvem + senha tirada do
-        pendrive abrem no `keytool` e devolvem o SHA-1 esperado
+- ✅ **Backup feito em 2026-08-13, reorganizado no mesmo dia.** Cada pasta tem um
+      `LEIA-ME.txt` explicando que são dois arquivos e para que serve cada um — os nomes
+      enganam (`keystore.properties` é a **senha**, não a chave).
+      - **Chave** (`gcb-release.keystore`) em quatro destinos: uma nuvem, dois volumes
+        locais e um pendrive
+      - **Senha** (`keystore.properties`) em dois: a mesma pasta da nuvem e a cópia de
+        trabalho em `android/`
+      - Restauração testada de verdade: chave e senha abrem no `keytool` e devolvem o
+        SHA-1 esperado
       - **Caminhos exatos e hashes de conferência: `store/backup-local.md`**, que fica fora
         do git (este repo é público — um mapa de onde está a chave não entra nele)
-- ⬜ **Guardar a senha do keystore num gerenciador de senhas.** Hoje ela existe em dois
-      lugares só, o pendrive e a cópia de trabalho — as duas em hardware da mesma mesa.
-      Perder os dois transforma os três backups da chave em arquivos que não abrem, e
-      pendrive foi exatamente a mídia que sumiu com as duas chaves anteriores. O gerenciador
-      não é arquivo e não some com hardware, então quebra a dependência sem devolver a senha
-      para uma pasta sincronizada.
-      Basta guardar o campo `storePassword` de `android/keystore.properties`, anotando
-      alias `gcb` e o SHA-1 da chave. **Faça antes do primeiro upload.**
+- ⚠️ **Chave e senha convivem na pasta da nuvem.** Decisão consciente de 2026-08-13: vale
+      mais não depender de um pendrive só do que manter as metades separadas. O custo é que
+      quem entrar na conta da nuvem tem o par completo e consegue assinar app no seu nome.
+      As duas mitigações que sobram:
+      - ⬜ **Verificação em duas etapas ligada na conta Microsoft** — é o que separa uma
+        senha vazada do controle da sua chave de assinatura
+      - ⬜ **Play App Signing no primeiro upload** (item mais abaixo) — com ele, mesmo o
+        pior caso vira reset de chave de upload, não perda do app
 - ✅ **Lixeira da nuvem conferida em 2026-08-13: vazia.** A `keystore.properties` chegou a
       ficar na pasta sincronizada, e o serviço retém excluídos por ~30 dias — mas não há
       nada a recuperar lá. A senha saiu da nuvem de fato, não só da pasta local.
@@ -176,7 +178,8 @@ Ordem que a Play cobra:
 | Rejeição por falta de credenciais de teste | Alta | Fase 5, item 6 |
 | Custo/prazo do CASA inviabilizar produção aberta | Alta | Validar em teste fechado primeiro |
 | Perda do keystore | Crítica | 3 backups da chave (feito) + Play App Signing |
-| Perda da senha do keystore | Crítica | Só existe no pendrive e em `android/`. Pendência aberta na Fase 4: copiar para um gerenciador de senhas |
+| Perda da senha do keystore | Média | Duas cópias, uma delas na nuvem (não depende de hardware desta mesa) |
+| Invasão da conta da nuvem | Alta | Lá estão chave e senha juntas. Verificação em duas etapas + Play App Signing |
 
 Resolvidos: CDNs externas em `www/` (fonte e bandeiras agora empacotadas — ver "Antes de
 enviar" em [`data-safety.md`](data-safety.md)) e a frase de Limited Use na privacy policy
