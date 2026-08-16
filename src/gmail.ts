@@ -260,7 +260,9 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
   // lá jamais era descoberto, embora fosse contado e limpo normalmente se
   // chegasse à lista por outro caminho.
   report('scanning', 0, 0);
-  let allIds: string[] = [];
+  // Set, não array: a paginação do Gmail repete ids na virada de página, e id
+  // repetido aqui vira mensagem contada duas vezes — caixa maior do que é.
+  const seenIds = new Set<string>();
   let pageToken: string | undefined;
   let scanned = 0;
   do {
@@ -272,13 +274,14 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
     });
     if (pageToken) q.set('pageToken', pageToken);
     const resp = await gfetch(`/messages?${q.toString()}`);
-    allIds = allIds.concat((resp.messages || []).map((m: { id: string }) => m.id));
+    for (const m of (resp.messages || []) as Array<{ id: string }>) seenIds.add(m.id);
     pageToken = resp.nextPageToken;
     scanned++;
   } while (pageToken && scanned < MAX_SCAN_PAGES);
 
   // Sobrou pageToken = paramos no teto, não no fim da caixa.
   const mailboxCapped = !!pageToken;
+  const allIds = [...seenIds];
 
   // 2) Amostra ESPALHADA pela caixa toda, não as 1000 mais recentes.
   //
@@ -381,10 +384,13 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
   const toCount = offenders.slice(0, EXACT_COUNT_LIMIT);
   const CONCURRENCY = 8;
   const PAUSE_MS = 150;
-  // Uma mensagem fixa para a fase inteira, sem contador e sem alternar com
-  // 'waiting': o texto piscando entre dois estados é a mesma confusão que os
-  // números reiniciados.
-  if (toCount.length > 0) report('ranking', 0, 0);
+  // PERCENTUAL, não um segundo contador. O total daqui (remetentes) é conhecido
+  // desde o início, então esconder o progresso era esconder informação que
+  // existia. O que não podia voltar era o CONTADOR: 0/342 logo depois de
+  // 1000/1000 lia-se como "a análise recomeçou". 0% → 100% não se confunde com
+  // a contagem de e-mails, é outra unidade na tela.
+  let counted = 0;
+  if (toCount.length > 0) report('ranking', 0, toCount.length);
   for (let i = 0; i < toCount.length; i += CONCURRENCY) {
     const batch = toCount.slice(i, i + CONCURRENCY);
     await Promise.all(
@@ -395,9 +401,14 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
         } catch (err) {
           if (err instanceof UnauthorizedError) throw err;
           // mantém a contagem da amostra como fallback
+        } finally {
+          // No finally: remetente que falhou também já foi tentado. Fora daqui,
+          // a barra pararia antes de 100% sempre que uma contagem falhasse.
+          counted++;
         }
       })
     );
+    report('ranking', counted, toCount.length);
     if (i + CONCURRENCY < toCount.length) {
       await sleep(PAUSE_MS);
     }
@@ -429,7 +440,23 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
  * ao lado do ofensor é a promessa do que o botão vai mover.
  */
 async function countMessagesFrom(sender: string): Promise<number> {
-  let total = 0;
+  return (await listSenderIds(sender)).length;
+}
+
+/**
+ * Ids das mensagens do remetente, sem repetição — a lista que a contagem mede e
+ * que a limpeza move. Uma função só para os dois: enquanto eram dois laços
+ * iguais, um contava e o outro movia, e nada garantia que fossem o mesmo
+ * conjunto.
+ *
+ * O Set é a correção de um erro real: `total += página.length` somava o mesmo
+ * id duas vezes quando a paginação do Gmail o devolvia em duas páginas — e ela
+ * devolve, na virada de página de resultados grandes. Só aparecia acima de 500
+ * mensagens (a primeira página), que é exatamente onde os números na tela
+ * ficavam maiores do que a busca do Gmail mostrava.
+ */
+async function listSenderIds(sender: string): Promise<string[]> {
+  const ids = new Set<string>();
   let pageToken: string | undefined;
   let pages = 0;
 
@@ -437,12 +464,12 @@ async function countMessagesFrom(sender: string): Promise<number> {
     const q = buildSenderQuery(sender, 'messages/id,nextPageToken');
     if (pageToken) q.set('pageToken', pageToken);
     const resp = await gfetch(`/messages?${q.toString()}`);
-    total += (resp.messages || []).length;
+    for (const m of (resp.messages || []) as Array<{ id: string }>) ids.add(m.id);
     pageToken = resp.nextPageToken;
     pages++;
   } while (pageToken && pages < MAX_SENDER_PAGES);
 
-  return total;
+  return [...ids];
 }
 
 export async function clean(
@@ -468,22 +495,9 @@ export async function clean(
     throw new Error('own_address');
   }
 
-  // Coleta TODOS os ids — mesma consulta de countMessagesFrom, para que o
-  // número mostrado ao lado do ofensor seja o número que sai daqui.
-  let messageIds: string[] = [];
-  let pageToken: string | undefined;
-  let pages = 0;
-
-  do {
-    const q = buildSenderQuery(sender, 'messages/id,nextPageToken');
-    if (pageToken) q.set('pageToken', pageToken);
-    const resp = await gfetch(`/messages?${q.toString()}`);
-    messageIds = messageIds.concat(
-      (resp.messages || []).map((m: { id: string }) => m.id)
-    );
-    pageToken = resp.nextPageToken;
-    pages++;
-  } while (pageToken && pages < MAX_SENDER_PAGES);
+  // Mesma lista que a contagem mediu — o número ao lado do ofensor é a promessa
+  // do que sai daqui. Sem repetição: id repetido inflava o `removed` relatado.
+  const messageIds = await listSenderIds(sender);
 
   if (messageIds.length === 0) {
     return { removed: 0, failed: 0 };

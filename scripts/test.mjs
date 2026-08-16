@@ -12,7 +12,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 // Um bundle por teste, importado em sequencia. Separados de proposito: cada um
 // tem sua propria instancia dos modulos, entao o cache de modulo de um (o
 // endereco da conta, por exemplo) nao vaza para o outro.
-const TESTS = ['progress', 'own-address'];
+const TESTS = ['progress', 'own-address', 'duplicate-ids'];
 
 for (const name of TESTS) {
   const out = resolve(root, `node_modules/.cache/${name}.test.mjs`);
