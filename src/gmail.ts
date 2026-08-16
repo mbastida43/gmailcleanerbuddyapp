@@ -277,6 +277,11 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
     for (const m of (resp.messages || []) as Array<{ id: string }>) seenIds.add(m.id);
     pageToken = resp.nextPageToken;
     scanned++;
+    // Número CRESCENTE, sem denominador — o denominador é o que esta fase está
+    // descobrindo. É a fase mais longa da análise (até 100 páginas em série) e
+    // era a única sem número nenhum: meio minuto de texto parado é a cara de um
+    // app travado. Um total que sobe a cada página prova que algo acontece.
+    report('scanning', seenIds.size, 0);
   } while (pageToken && scanned < MAX_SCAN_PAGES);
 
   // Sobrou pageToken = paramos no teto, não no fim da caixa.

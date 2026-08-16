@@ -86,28 +86,35 @@ const after = seen.slice(seen.indexOf(reading[reading.length - 1]!) + 1);
 assert.equal(after[0]?.phase, 'readDone', 'depois do último e-mail vem o aviso de leitura concluída');
 assert.equal(after[0]?.done, TOTAL);
 
-// 4) A fase final e anunciada — e sem numeros. O `every` sozinho passava com
-// a lista vazia: apagar o report('ranking') de gmail.ts deixava o teste verde.
-assert.ok(
-  seen.some((s) => s.phase === 'ranking'),
-  'a fase de ranking precisa ser reportada'
-);
+// 4) A fase final e anunciada, e caminha ate o fim: a tela mostra dela um
+// PERCENTUAL, entao o ultimo report tem de ser 100%. O `every` sozinho passava
+// com a lista vazia: apagar o report('ranking') de gmail.ts deixava o teste
+// verde.
+const ranking = seen.filter((s) => s.phase === 'ranking');
+assert.ok(ranking.length > 0, 'a fase de ranking precisa ser reportada');
 assert.ok(
   after.slice(1).every((s) => s.phase === 'ranking'),
-  'depois da leitura só entram fases sem contador'
+  'depois da leitura só entra o ranking'
 );
+const last = ranking[ranking.length - 1]!;
+assert.equal(last.done, last.total, 'o ranking precisa fechar em 100%');
+assert.equal(last.total, data.uniqueSenders, 'o denominador do ranking são os remetentes');
 
 // 5) A mensagem quebrada é contabilizada como falha, não sumiu da conta.
 assert.equal(data.failedMessages, 1);
 assert.equal(data.totalMessages, TOTAL);
 assert.equal(data.top10.length, 10);
 
-// 6) A varredura vem antes de tudo e não mostra número: é ela que descobre o
-// denominador, então não teria o que mostrar.
+// 6) A varredura vem antes de tudo e mostra o que já achou — número crescente,
+// SEM denominador: é ela que descobre o total, e inventar um seria mentira.
+// É a fase mais longa da análise; sem número nenhum ela parecia app travado.
 assert.equal(seen[0]?.phase, 'scanning', 'a varredura é a primeira fase anunciada');
-assert.ok(
-  seen.filter((s) => s.phase === 'scanning').every((s) => s.done === 0 && s.total === 0),
-  'a varredura não reporta contador'
+const scan = seen.filter((s) => s.phase === 'scanning');
+assert.ok(scan.every((s) => s.total === 0), 'a varredura não pode inventar denominador');
+assert.deepEqual(
+  scan.map((s) => s.done),
+  [0, PAGE, PAGE * 2, MAILBOX],
+  'a varredura reporta o total encontrado a cada página, sempre crescendo'
 );
 
 // 7) O remetente que só tem e-mails ANTIGOS aparece. Era o buraco: a amostra

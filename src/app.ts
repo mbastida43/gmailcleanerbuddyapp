@@ -31,6 +31,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'results.title': '🏆 Ranking de remetentes',
     'loading.reading': '📖 Lendo emails… {done}/{total}',
     'loading.readingStart': '📖 Lendo a caixa postal…',
+    'loading.scanning': '📖 Lendo a caixa postal… {done} emails encontrados',
     'loading.waiting': '⏳ Aguarde…',
     'loading.readDone': '✅ Leitura concluída — {total} emails',
     'loading.ranking': '⏳ Aguarde… montando o ranking ({pct}%)',
@@ -84,6 +85,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'results.title': '🏆 Sender ranking',
     'loading.reading': '📖 Reading emails… {done}/{total}',
     'loading.readingStart': '📖 Reading your mailbox…',
+    'loading.scanning': '📖 Reading your mailbox… {done} emails found',
     'loading.waiting': '⏳ Please wait…',
     'loading.readDone': '✅ Reading complete — {total} emails',
     'loading.ranking': '⏳ Please wait… building the ranking ({pct}%)',
@@ -137,6 +139,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'results.title': '🏆 Ranking de remitentes',
     'loading.reading': '📖 Leyendo correos… {done}/{total}',
     'loading.readingStart': '📖 Leyendo tu buzón…',
+    'loading.scanning': '📖 Leyendo tu buzón… {done} correos encontrados',
     'loading.waiting': '⏳ Espera…',
     'loading.readDone': '✅ Lectura completada — {total} correos',
     'loading.ranking': '⏳ Espera… armando el ranking ({pct}%)',
@@ -190,6 +193,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'results.title': '🏆 Classement des expéditeurs',
     'loading.reading': '📖 Lecture des e-mails… {done}/{total}',
     'loading.readingStart': '📖 Lecture de votre boîte…',
+    'loading.scanning': '📖 Lecture de votre boîte… {done} e-mails trouvés',
     'loading.waiting': '⏳ Veuillez patienter…',
     'loading.readDone': '✅ Lecture terminée — {total} e-mails',
     'loading.ranking': '⏳ Veuillez patienter… constitution du classement ({pct}%)',
@@ -243,6 +247,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'results.title': '🏆 Classifica dei mittenti',
     'loading.reading': '📖 Lettura delle email… {done}/{total}',
     'loading.readingStart': '📖 Lettura della casella…',
+    'loading.scanning': '📖 Lettura della casella… {done} email trovate',
     'loading.waiting': '⏳ Attendere…',
     'loading.readDone': '✅ Lettura completata — {total} email',
     'loading.ranking': '⏳ Attendere… creazione della classifica ({pct}%)',
@@ -296,6 +301,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'results.title': '🏆 Рейтинг отправителей',
     'loading.reading': '📖 Чтение писем… {done}/{total}',
     'loading.readingStart': '📖 Читаем почтовый ящик…',
+    'loading.scanning': '📖 Читаем почтовый ящик… найдено писем: {done}',
     'loading.waiting': '⏳ Подождите…',
     'loading.readDone': '✅ Чтение завершено — писем: {total}',
     'loading.ranking': '⏳ Подождите… составляем рейтинг ({pct}%)',
@@ -349,6 +355,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'results.title': '🏆 发件人排行',
     'loading.reading': '📖 正在读取邮件… {done}/{total}',
     'loading.readingStart': '📖 正在读取收件箱…',
+    'loading.scanning': '📖 正在读取收件箱… 已找到 {done} 封邮件',
     'loading.waiting': '⏳ 请稍候…',
     'loading.readDone': '✅ 读取完成 — 共 {total} 封邮件',
     'loading.ranking': '⏳ 请稍候… 正在生成排行（{pct}%）',
@@ -816,11 +823,14 @@ function announcePhase(phase: gmail.ProgressPhase | '', text: string): void {
 
 /** Traduz o progresso de gmail.ts para o texto do overlay. */
 function reportProgress(phase: gmail.ProgressPhase, done: number, total: number): void {
-  // 'scanning' reaproveita o texto de entrada da leitura: "Lendo a caixa
-  // postal…", sem número. É o que ela é — e a fase não tem denominador para
-  // mostrar, porque é ela que vai descobri-lo.
+  // 'scanning' mostra quantas mensagens já achou, sem denominador: é ela que
+  // vai descobrir o total, então inventar um seria mentira. O número sobe a
+  // cada página — a primeira chamada ainda vem com 0 e usa o texto sem número.
   const text =
-    phase === 'scanning' ? t('loading.readingStart')
+    phase === 'scanning'
+      ? done > 0
+        ? t('loading.scanning', { done: formatNumber(done) })
+        : t('loading.readingStart')
     : phase === 'waiting' ? t('loading.waiting')
     : phase === 'ranking'
       ? t('loading.ranking', { pct: String(total ? Math.floor((done / total) * 100) : 0) })
