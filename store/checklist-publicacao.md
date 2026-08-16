@@ -7,6 +7,39 @@ Legenda: ✅ pronto no repo · ⬜ depende de você · ⚠️ atenção
 
 ---
 
+## O que falta para subir — resumo
+
+Do lado do repo não falta nada: binário, assets, textos da ficha e notas da versão estão
+prontos e conferidos. Tudo que resta acontece em consoles do Google, na sua conta, e por
+isso nenhuma parte disso pode ser automatizada daqui. Três perguntas diferentes, três
+respostas diferentes — misturá-las é o que faz a pessoa achar que está travada:
+
+**1. O que falta para o upload acontecer**
+- ⬜ **Conta no Play Console verificada** (Fase 2). É o único bloqueador do upload em si.
+      US$ 25 + verificação de identidade, que leva de horas a dias. Sem ela não existe
+      tela onde soltar o arquivo.
+
+**2. O que falta para o app FUNCIONAR na mão do testador** — some do radar se você só
+pensar no upload, e o sintoma parece bug do app:
+- ⬜ Cada testador cadastrado como **Test user** no Google Cloud (Fase 1). Sem isso ele
+      instala, abre e toma `403 access_denied` no login.
+- ⬜ **SHA-1 do Play App Signing** no client Android, cadastrado **depois** do primeiro
+      upload (Fase 4). O Google reassina o app com a chave dele, então quem baixa da loja
+      tem outro SHA-1. Sem isso o login funciona no APK que você instala na mão e falha
+      exatamente para quem veio da Play.
+- ⬜ **Conta Gmail de teste** com e-mails dentro, entregue à revisão (Fase 5, item 6).
+
+**3. O que falta para o relógio dos 14 dias andar**
+- ⬜ **12+ testadores inscritos na trilha de teste fechado** (Fase 2 e Fase 6). É o caminho
+      crítico de verdade: o prazo só começa quando os 12 estão dentro, e reinicia se cair
+      de 12. Comece a recrutar antes de ter conta, não depois.
+
+**Não existe automação de upload neste repo** — sem service account, sem API do Play, sem
+fastlane. O AAB sobe à mão pelo Console. Se um dia isso incomodar, o caminho é uma service
+account com a Google Play Android Developer API; aí vira um comando.
+
+---
+
 ## Fase 0 — Entender o bloqueador principal
 
 O app usa `https://www.googleapis.com/auth/gmail.modify` (`src/config.ts:19`), classificado
@@ -84,6 +117,9 @@ Tudo pronto no repo:
 - ✅ **Feature graphic 1024×500** — `store/feature-graphics/feature-<idioma>.png` (7 idiomas)
 - ✅ **Screenshots** — `store/screenshots/` (3 capturas de celular, 1179×2556; mínimo do Google é 2)
 - ✅ **Textos PT/EN/ES/FR/IT/RU/ZH** — `store/play-listing.md` (os 7 idiomas da interface)
+- ✅ **Notas da versão 1.3** — `store/release-notes.md`, nos mesmos 7 idiomas, dentro do
+      limite de 500 caracteres. É campo da versão, preenchido no formulário de release
+      (Fase 5), não na ficha
 - ✅ **Política de privacidade no ar** — `https://mbastida43.github.io/gmailcleanerbuddy/privacy.html`
 
 ---
@@ -101,7 +137,12 @@ Tudo pronto no repo:
 > de ir para produção. Depois de publicado, perder a chave de upload custa uma espera de
 > 48h pelo reset do Google; perder a de assinatura, sem Play App Signing, custaria o app.
 
-- ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`)
+- ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`, 5,6 MB)
+      e APK de mão em `.../apk/release/app-release.apk` (5,9 MB), ambos do build 4 / 1.3.
+      Conferido **no artefato**, não só no log do Gradle: `aapt2 dump badging` devolve
+      `versionCode='4' versionName='1.3'`, o `apksigner verify --print-certs` devolve o SHA-1
+      esperado, e o `app.js` empacotado contém o código novo — build de cache passa despercebido
+      justamente por sair verde no Gradle
 - ✅ `targetSdk 36` (`android/variables.gradle:4`) — atende a exigência atual
 - ✅ `versionCode 4` / `versionName 1.3` — build atual: análise varre a caixa inteira e
       sorteia a amostra por toda ela (antes eram as 1.000 mais recentes), fase "Lendo a caixa
@@ -175,8 +216,11 @@ Ordem que a Play cobra:
       mostrar, **adicione-a como Test user na tela de consentimento OAuth** (senão o revisor
       trava no aviso de app não verificado) e informe usuário e senha aqui.
 7. ⬜ Subir o AAB na trilha desejada (**Teste fechado** primeiro)
-8. ⬜ Países de distribuição
-9. ⬜ Enviar para revisão
+8. ⬜ **Notas da versão** → colar os textos de [`release-notes.md`](release-notes.md) (7 idiomas).
+      Campo da *versão*, não da ficha: some da vista porque aparece no fim do formulário de
+      release, e fica em branco com facilidade
+9. ⬜ Países de distribuição
+10. ⬜ Enviar para revisão
 
 ---
 
