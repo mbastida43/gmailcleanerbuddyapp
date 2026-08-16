@@ -17,6 +17,9 @@ Limites do Google: **nome do app ≤ 30 caracteres**, **descrição curta ≤ 80
 - **Política de Privacidade (URL pública):** https://mbastida43.github.io/gmailcleanerbuddy/privacy.html
 - **App Bundle para upload:** `android/app/build/outputs/bundle/release/app-release.aab`
   (gerado por `npm run build:aab`; os `.apk`/`.aab` não são versionados)
+- **Notas da versão:** `store/release-notes.md` — nos mesmos 7 idiomas, uma seção por versão.
+  Campo diferente do desta ficha: este arquivo descreve o app, aquele descreve o que mudou
+  na versão que está subindo, e o limite lá é 500 caracteres, não 4000.
 
 ---
 
