@@ -81,19 +81,21 @@ assert.deepEqual(
 // 2) O denominador é sempre o mesmo número: nada de trocar de total no meio.
 assert.ok(reading.every((s) => s.total === TOTAL), 'o total não pode mudar durante a leitura');
 
-// 3) A leitura termina anunciando que terminou, no total cheio.
+// 3) A leitura fecha no total cheio e a fase seguinte entra direto: não há mais
+// batida de "leitura concluída". A tela mostra UM percentual do começo ao fim, e
+// um aviso com outro número no meio dele era o segundo contador que confundia.
 const after = seen.slice(seen.indexOf(reading[reading.length - 1]!) + 1);
-assert.equal(after[0]?.phase, 'readDone', 'depois do último e-mail vem o aviso de leitura concluída');
-assert.equal(after[0]?.done, TOTAL);
+assert.equal(reading[reading.length - 1]?.done, TOTAL, 'a leitura fecha no total');
+assert.equal(after[0]?.phase, 'ranking', 'depois da leitura entra o ranking, sem escala');
 
-// 4) A fase final e anunciada, e caminha ate o fim: a tela mostra dela um
-// PERCENTUAL, entao o ultimo report tem de ser 100%. O `every` sozinho passava
-// com a lista vazia: apagar o report('ranking') de gmail.ts deixava o teste
-// verde.
+// 4) A fase final e anunciada, e caminha ate o fim: ela ocupa o ultimo pedaço do
+// percentual, entao o ultimo report tem de ser 100% dela. O `every` sozinho
+// passava com a lista vazia: apagar o report('ranking') de gmail.ts deixava o
+// teste verde.
 const ranking = seen.filter((s) => s.phase === 'ranking');
 assert.ok(ranking.length > 0, 'a fase de ranking precisa ser reportada');
 assert.ok(
-  after.slice(1).every((s) => s.phase === 'ranking'),
+  after.every((s) => s.phase === 'ranking'),
   'depois da leitura só entra o ranking'
 );
 const last = ranking[ranking.length - 1]!;

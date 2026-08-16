@@ -102,13 +102,14 @@ export interface Offender {
  * para não estourar a cota do Gmail. A interface precisa distinguir os dois,
  * senão a pausa passa por travamento.
  *
- * 'readDone' = a leitura da caixa fechou em N/N; 'ranking' = fase final, SEM
- * números. A contagem N/1000 é a leitura da caixa e só ela: quando
- * reiniciávamos o contador aqui com o total de remetentes (0/342 logo depois
- * de 1000/1000), quem esperava lia como "a análise recomeçou". Um número só,
- * uma vez, até o fim — e um aviso explícito de que ele acabou.
+ * 'ranking' = contagem exata de cada remetente na conta inteira.
+ *
+ * Cada fase manda done/total no seu próprio universo (ids varridos, e-mails da
+ * amostra, remetentes contados). Quem transforma isso num percentual ÚNICO de
+ * 0 a 100 é a interface: três contadores em sequência, cada um recomeçando do
+ * zero, é o que fazia a análise parecer que tinha reiniciado.
  */
-export type ProgressPhase = 'scanning' | 'reading' | 'waiting' | 'readDone' | 'ranking';
+export type ProgressPhase = 'scanning' | 'reading' | 'waiting' | 'ranking';
 export type ProgressFn = (phase: ProgressPhase, done: number, total: number) => void;
 
 export interface AnalyzeData {
@@ -369,13 +370,6 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
       })
     );
   }
-
-  // Batida de "acabou" antes de sair da fase: sem ela, o 1000/1000 é
-  // substituído no mesmo quadro pela fase seguinte e ninguém vê a leitura
-  // terminar — que é justamente o momento que o usuário está esperando.
-  // Um segundo parado dentro de uma análise de ~1min paga esse aviso.
-  report('readDone', toAnalyze.length, toAnalyze.length);
-  await sleep(1000);
 
   const offenders: Offender[] = Object.keys(senderCounts).map((email) => ({
     sender: email,

@@ -29,12 +29,10 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.loginBtn': 'Entrar com Google',
     'auth.note': '🔐 Autenticação OAuth2 oficial do Google<br>🗑️ Permissão para ler e mover seus emails para a lixeira',
     'results.title': '🏆 Ranking de remetentes',
-    'loading.reading': '📖 Lendo emails… {done}/{total}',
+    'loading.progress': '📖 Lendo emails… {pct}%',
     'loading.readingStart': '📖 Lendo a caixa postal…',
-    'loading.scanning': '📖 Lendo a caixa postal… {done} emails encontrados',
-    'loading.waiting': '⏳ Aguarde…',
-    'loading.readDone': '✅ Leitura concluída — {total} emails',
-    'loading.ranking': '⏳ Aguarde… montando o ranking ({pct}%)',
+    'loading.waiting': '⏳ Aguarde… {pct}%',
+    'loading.cleaning': '🗑️ Limpando… {pct}%',
     'btn.cleanAll': '🗑️ Limpar Tudo',
     'btn.logout': '🚪 Sair',
     'stat.analyzed': 'Emails na conta',
@@ -83,12 +81,10 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.loginBtn': 'Sign in with Google',
     'auth.note': '🔐 Official Google OAuth2 authentication<br>🗑️ Permission to read and move your emails to the trash',
     'results.title': '🏆 Sender ranking',
-    'loading.reading': '📖 Reading emails… {done}/{total}',
+    'loading.progress': '📖 Reading emails… {pct}%',
     'loading.readingStart': '📖 Reading your mailbox…',
-    'loading.scanning': '📖 Reading your mailbox… {done} emails found',
-    'loading.waiting': '⏳ Please wait…',
-    'loading.readDone': '✅ Reading complete — {total} emails',
-    'loading.ranking': '⏳ Please wait… building the ranking ({pct}%)',
+    'loading.waiting': '⏳ Please wait… {pct}%',
+    'loading.cleaning': '🗑️ Cleaning… {pct}%',
     'btn.cleanAll': '🗑️ Clean All',
     'btn.logout': '🚪 Sign out',
     'stat.analyzed': 'Account emails',
@@ -137,12 +133,10 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.loginBtn': 'Iniciar sesión con Google',
     'auth.note': '🔐 Autenticación OAuth2 oficial de Google<br>🗑️ Permiso para leer y mover tus correos a la papelera',
     'results.title': '🏆 Ranking de remitentes',
-    'loading.reading': '📖 Leyendo correos… {done}/{total}',
+    'loading.progress': '📖 Leyendo correos… {pct}%',
     'loading.readingStart': '📖 Leyendo tu buzón…',
-    'loading.scanning': '📖 Leyendo tu buzón… {done} correos encontrados',
-    'loading.waiting': '⏳ Espera…',
-    'loading.readDone': '✅ Lectura completada — {total} correos',
-    'loading.ranking': '⏳ Espera… armando el ranking ({pct}%)',
+    'loading.waiting': '⏳ Espera… {pct}%',
+    'loading.cleaning': '🗑️ Limpiando… {pct}%',
     'btn.cleanAll': '🗑️ Limpiar Todo',
     'btn.logout': '🚪 Salir',
     'stat.analyzed': 'Correos en la cuenta',
@@ -191,12 +185,10 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.loginBtn': 'Se connecter avec Google',
     'auth.note': '🔐 Authentification OAuth2 officielle de Google<br>🗑️ Autorisation de lire et déplacer vos e-mails vers la corbeille',
     'results.title': '🏆 Classement des expéditeurs',
-    'loading.reading': '📖 Lecture des e-mails… {done}/{total}',
+    'loading.progress': '📖 Lecture des e-mails… {pct}%',
     'loading.readingStart': '📖 Lecture de votre boîte…',
-    'loading.scanning': '📖 Lecture de votre boîte… {done} e-mails trouvés',
-    'loading.waiting': '⏳ Veuillez patienter…',
-    'loading.readDone': '✅ Lecture terminée — {total} e-mails',
-    'loading.ranking': '⏳ Veuillez patienter… constitution du classement ({pct}%)',
+    'loading.waiting': '⏳ Veuillez patienter… {pct}%',
+    'loading.cleaning': '🗑️ Nettoyage… {pct}%',
     'btn.cleanAll': '🗑️ Tout nettoyer',
     'btn.logout': '🚪 Se déconnecter',
     'stat.analyzed': 'E-mails du compte',
@@ -245,12 +237,10 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.loginBtn': 'Accedi con Google',
     'auth.note': '🔐 Autenticazione OAuth2 ufficiale di Google<br>🗑️ Autorizzazione a leggere e spostare le tue email nel cestino',
     'results.title': '🏆 Classifica dei mittenti',
-    'loading.reading': '📖 Lettura delle email… {done}/{total}',
+    'loading.progress': '📖 Lettura delle email… {pct}%',
     'loading.readingStart': '📖 Lettura della casella…',
-    'loading.scanning': '📖 Lettura della casella… {done} email trovate',
-    'loading.waiting': '⏳ Attendere…',
-    'loading.readDone': '✅ Lettura completata — {total} email',
-    'loading.ranking': '⏳ Attendere… creazione della classifica ({pct}%)',
+    'loading.waiting': '⏳ Attendere… {pct}%',
+    'loading.cleaning': '🗑️ Pulizia… {pct}%',
     'btn.cleanAll': '🗑️ Pulisci tutto',
     'btn.logout': '🚪 Esci',
     'stat.analyzed': 'Email nell’account',
@@ -299,12 +289,10 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.loginBtn': 'Войти через Google',
     'auth.note': '🔐 Официальная аутентификация Google OAuth2<br>🗑️ Разрешение читать письма и перемещать их в корзину',
     'results.title': '🏆 Рейтинг отправителей',
-    'loading.reading': '📖 Чтение писем… {done}/{total}',
+    'loading.progress': '📖 Чтение писем… {pct}%',
     'loading.readingStart': '📖 Читаем почтовый ящик…',
-    'loading.scanning': '📖 Читаем почтовый ящик… найдено писем: {done}',
-    'loading.waiting': '⏳ Подождите…',
-    'loading.readDone': '✅ Чтение завершено — писем: {total}',
-    'loading.ranking': '⏳ Подождите… составляем рейтинг ({pct}%)',
+    'loading.waiting': '⏳ Подождите… {pct}%',
+    'loading.cleaning': '🗑️ Очистка… {pct}%',
     'btn.cleanAll': '🗑️ Очистить всё',
     'btn.logout': '🚪 Выйти',
     'stat.analyzed': 'Писем в аккаунте',
@@ -353,12 +341,10 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'auth.loginBtn': '使用 Google 登录',
     'auth.note': '🔐 官方 Google OAuth2 身份验证<br>🗑️ 读取邮件并将其移至垃圾箱的权限',
     'results.title': '🏆 发件人排行',
-    'loading.reading': '📖 正在读取邮件… {done}/{total}',
+    'loading.progress': '📖 正在读取邮件… {pct}%',
     'loading.readingStart': '📖 正在读取收件箱…',
-    'loading.scanning': '📖 正在读取收件箱… 已找到 {done} 封邮件',
-    'loading.waiting': '⏳ 请稍候…',
-    'loading.readDone': '✅ 读取完成 — 共 {total} 封邮件',
-    'loading.ranking': '⏳ 请稍候… 正在生成排行（{pct}%）',
+    'loading.waiting': '⏳ 请稍候… {pct}%',
+    'loading.cleaning': '🗑️ 正在清理… {pct}%',
     'btn.cleanAll': '🗑️ 全部清理',
     'btn.logout': '🚪 退出',
     'stat.analyzed': '账户邮件数',
@@ -748,7 +734,7 @@ async function cleanAll(): Promise<void> {
   const PAUSE_MS = 700;
 
   for (let i = 0; i < targets.length && !unauthorized; i += CONCURRENCY) {
-    reportProgress('reading', done, targets.length);
+    reportCleanProgress(done, targets.length);
     const wave = targets.slice(i, i + CONCURRENCY);
 
     await Promise.all(
@@ -771,7 +757,7 @@ async function cleanAll(): Promise<void> {
     );
 
     if (!unauthorized && i + CONCURRENCY < targets.length) {
-      reportProgress('waiting', done, targets.length);
+      reportCleanProgress(done, targets.length, true);
       await sleep(PAUSE_MS);
     }
   }
@@ -821,26 +807,55 @@ function announcePhase(phase: gmail.ProgressPhase | '', text: string): void {
   document.getElementById('loadingAnnounce')!.textContent = text;
 }
 
+// Um percentual só, do começo ao fim da análise. Antes eram três contadores em
+// sequência — "12.500 encontrados", "1000/1000", "43%" — e cada troca de fase
+// lia-se como recomeço. Agora é um número que sai de 0 e chega a 100.
+//
+// As fatias são fixas porque a varredura não tem denominador: é ela que
+// descobre o tamanho da caixa. O percentual dela vem do TETO da varredura
+// (100 páginas × 500 ids), então numa caixa pequena o número anda pouco e
+// salta para 10% quando ela acaba. Salto para frente é aceitável; voltar
+// atrás não é, e é isso que o Math.max garante.
+const SCAN_END = 10;
+const READ_END = 60;
+const SCAN_CEILING = 500 * 100;
+
+let lastPct = 0;
+
+function overallPct(phase: gmail.ProgressPhase, done: number, total: number): number {
+  const frac = total > 0 ? done / total : 0;
+  if (phase === 'scanning') return Math.min(SCAN_END, (done / SCAN_CEILING) * SCAN_END);
+  if (phase === 'reading') return SCAN_END + frac * (READ_END - SCAN_END);
+  if (phase === 'ranking') return READ_END + frac * (100 - READ_END);
+  return lastPct; // 'waiting': parado de propósito, o número segura onde está
+}
+
 /** Traduz o progresso de gmail.ts para o texto do overlay. */
 function reportProgress(phase: gmail.ProgressPhase, done: number, total: number): void {
-  // 'scanning' mostra quantas mensagens já achou, sem denominador: é ela que
-  // vai descobrir o total, então inventar um seria mentira. O número sobe a
-  // cada página — a primeira chamada ainda vem com 0 e usa o texto sem número.
-  const text =
-    phase === 'scanning'
-      ? done > 0
-        ? t('loading.scanning', { done: formatNumber(done) })
-        : t('loading.readingStart')
-    : phase === 'waiting' ? t('loading.waiting')
-    : phase === 'ranking'
-      ? t('loading.ranking', { pct: String(total ? Math.floor((done / total) * 100) : 0) })
-    : phase === 'readDone' ? t('loading.readDone', { total: formatNumber(total) })
-    : t('loading.reading', { done: formatNumber(done), total: formatNumber(total) });
+  // Análise nova zera o percentual. Sem isto, a segunda análise da sessão
+  // começaria em 100% — o Math.max abaixo nunca deixaria descer.
+  if (phase === 'scanning' && done === 0) lastPct = 0;
+  lastPct = Math.max(lastPct, overallPct(phase, done, total));
+  const pct = String(Math.floor(lastPct));
+
+  const text = phase === 'waiting'
+    ? t('loading.waiting', { pct })
+    : t('loading.progress', { pct });
 
   setLoadingStatus(text);
-  // Na leitura, anuncia só a entrada na fase — sem o contador, que e o que
-  // mudava a cada mensagem. As demais fases sao uma frase fixa cada.
-  announcePhase(phase, phase === 'reading' ? t('loading.readingStart') : text);
+  // Para o leitor de tela, só a entrada na fase — o texto visível muda a cada
+  // e-mail, e ler isso em voz alta seria um zumbido de meio minuto.
+  announcePhase(phase, phase === 'waiting' ? text : t('loading.readingStart'));
+}
+
+/**
+ * Progresso da limpeza. Percentual próprio, e texto próprio: enquanto ela
+ * reaproveitava o "Lendo emails…" da análise, o app dizia que estava lendo
+ * justamente quando estava movendo e-mail para a lixeira.
+ */
+function reportCleanProgress(done: number, total: number, paused = false): void {
+  const pct = String(total > 0 ? Math.floor((done / total) * 100) : 0);
+  setLoadingStatus(t(paused ? 'loading.waiting' : 'loading.cleaning', { pct }));
 }
 
 function sleep(ms: number): Promise<void> {
