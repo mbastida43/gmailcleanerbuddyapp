@@ -117,7 +117,7 @@ Tudo pronto no repo:
 - ✅ **Feature graphic 1024×500** — `store/feature-graphics/feature-<idioma>.png` (7 idiomas)
 - ✅ **Screenshots** — `store/screenshots/` (3 capturas de celular, 1179×2556; mínimo do Google é 2)
 - ✅ **Textos PT/EN/ES/FR/IT/RU/ZH** — `store/play-listing.md` (os 7 idiomas da interface)
-- ✅ **Notas da versão 1.4** — `store/release-notes.md`, nos mesmos 7 idiomas, dentro do
+- ✅ **Notas da versão 1.5** — `store/release-notes.md`, nos mesmos 7 idiomas, dentro do
       limite de 500 caracteres. É campo da versão, preenchido no formulário de release
       (Fase 5), não na ficha
 - ✅ **Política de privacidade no ar** — `https://mbastida43.github.io/gmailcleanerbuddy/privacy.html`
@@ -137,18 +137,24 @@ Tudo pronto no repo:
 > de ir para produção. Depois de publicado, perder a chave de upload custa uma espera de
 > 48h pelo reset do Google; perder a de assinatura, sem Play App Signing, custaria o app.
 
-- ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`, 5,6 MB)
-      e APK de mão em `.../apk/release/app-release.apk` (5,9 MB), ambos do build 5 / 1.4.
+- ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`, 5,5 MB)
+      e APK de mão em `.../apk/release/app-release.apk` (5,9 MB), ambos do build 6 / 1.5.
       Conferido **no artefato**, não só no log do Gradle: `aapt2 dump badging` devolve
-      `versionCode='5' versionName='1.4'`, o `apksigner verify --print-certs` devolve o SHA-1
-      esperado, e o `app.js` empacotado contém o código novo — build de cache passa despercebido
-      justamente por sair verde no Gradle
+      `versionCode='6' versionName='1.5'`, o `apksigner verify --print-certs` devolve o SHA-1
+      esperado, e o `app.js` empacotado contém o código novo — desta vez a checagem foi por
+      string: `assets/public/app.js` dentro do APK contém `loading.scanning` e `{pct}%`, que
+      só existem a partir deste build. Build de cache passa despercebido justamente por sair
+      verde no Gradle
 - ✅ `targetSdk 36` (`android/variables.gradle:4`) — atende a exigência atual
-- ✅ `versionCode 5` / `versionName 1.4` — build atual: análise varre a caixa inteira e
-      sorteia a amostra por toda ela (antes eram as 1.000 mais recentes), fase "Lendo a caixa
-      postal…" no overlay, o tile passa a mostrar o **total real da caixa** e a nota do rodapé
-      explica escopo e unidade. O AAB no disco é deste build.
-      Histórico: `versionCode 2` foi o que subiu no teste interno. O `3` e o `4` chegaram a ser
+- ✅ `versionCode 6` / `versionName 1.5` — build atual: **toda fase da análise tem número**.
+      A varredura da caixa mostra quantos e-mails já achou (crescente, sem denominador — é ela
+      que descobre o tamanho da caixa) e a montagem do ranking mostra percentual. Eram os dois
+      trechos mais longos e os únicos com texto parado, que é a cara de app travado. Junto,
+      contagem e limpeza passaram a usar a mesma lista de ids, sem repetição. O AAB no disco
+      é deste build.
+      Histórico: `versionCode 5` / `1.4` é o binário anterior, ainda na pasta de distribuição
+      por histórico — nunca chegou a subir no Console.
+      `versionCode 2` foi o que subiu no teste interno. O `3` e o `4` chegaram a ser
       gerados e nunca enviados — os dois foram abandonados em vez de reaproveitados, porque o
       binário mudou de comportamento depois de cada um. Números queimados custam nada; um
       `versionCode` que descreve dois binários diferentes custa depuração meses depois.
@@ -277,9 +283,10 @@ caçar bug grosseiro enquanto isso. É teste de verdade, só não conta prazo. E
 `UTEIS\GMAIL CLEANER BUDDY` no OneDrive, pasta separada da chave de propósito — junto vai um
 `LEIA-ME.txt` com o que avisar a quem instalar.
 
-Estado da pasta em 2026-08-16: `gmail-cleaner-buddy-1.4.apk` e `.aab` (build 5 / 1.4), mais os
-arquivos `1.2` antigos, que ficaram lá. **Confira a versão no nome antes de mandar ou de subir** —
-os dois pares convivem, e subir o `1.2.aab` no Console publicaria a versão errada.
+Estado da pasta em 2026-08-16, depois do 1.5: `gmail-cleaner-buddy-1.5.apk` e `.aab`
+(build 6 / 1.5) são os atuais; o par `1.4` ficou lá por histórico.
+**Confira a versão no nome antes de mandar ou de subir** — os pares convivem, e subir o
+`.aab` errado no Console publicaria a versão errada.
 
 O `LEIA-ME.txt` dessa pasta **não** é versionado aqui de propósito: este repo é público, e o
 arquivo descreve o arranjo do OneDrive, inclusive o nome da pasta vizinha onde está a chave de
