@@ -103,9 +103,13 @@ Tudo pronto no repo:
 
 - ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`)
 - ✅ `targetSdk 36` (`android/variables.gradle:4`) — atende a exigência atual
-- ✅ `versionCode 3` / `versionName 1.2` — build atual, já com a contagem real de leitura e
-      o rótulo "Top 10 Ofensores". O AAB no disco é deste build (`versionCode 2` foi o que
-      subiu no teste interno; a Play recusa reenvio do mesmo `versionCode`)
+- ✅ `versionCode 4` / `versionName 1.3` — build atual: análise varre a caixa inteira e
+      sorteia a amostra por toda ela (antes eram as 1.000 mais recentes), fase "Lendo a caixa
+      postal…" no overlay, rótulo "Emails na amostra" e a nota do rodapé explicando escopo e
+      unidade. O AAB no disco é deste build.
+      Histórico: `versionCode 2` foi o que subiu no teste interno; o `3` chegou a ser gerado
+      mas nunca enviado — o número foi abandonado em vez de reaproveitado, porque o binário
+      mudou de comportamento depois dele. A Play recusa reenvio do mesmo `versionCode`
 - ✅ Keystore em `android/gcb-release.keystore`. RSA 2048, validade 10.000 dias, alias `gcb`.
       Fica dentro de `android/` mas **fora do git** (`.gitignore` cobre `*.keystore`).
       **SHA-1: `66:00:EE:DC:91:33:71:C5:C6:66:73:5F:D4:15:AA:46:75:D4:53:27`**
