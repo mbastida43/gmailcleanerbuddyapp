@@ -69,7 +69,11 @@
     <div class="stats">
       <div class="stat">
         <strong id="totalEmails">0</strong>
-        <span data-i18n="stat.analyzed">Emails analisados</span>
+        <!-- "na amostra", não "da conta": o número é o teto de leitura
+             (MAX_ANALYZE em src/gmail.ts), então numa caixa grande ele para em
+             1.000 e nunca é o total. Como "analisados" era lido como total, a
+             caixa de 40 mil e-mails parecia não ter sido enxergada. -->
+        <span data-i18n="stat.analyzed">Emails na amostra</span>
       </div>
       <div class="stat">
         <strong id="totalSize">0</strong>
@@ -89,14 +93,20 @@
       <div class="list">
         <div class="list-title" data-i18n="list.title">📬 Top 10 Ofensores</div>
         <div id="offendersList"></div>
-        <!-- Por que este número diverge do que o Gmail mostra: aqui a unidade é
-             o e-mail, na busca do Gmail é a conversa. Um remetente que dispara
-             três avisos com o mesmo assunto vira 1 linha lá e 3 e-mails aqui.
-             Sem esta nota, quem confere acha que o app conta errado. -->
+        <!-- Por que este número diverge do que o Gmail mostra, nas três frentes:
+             unidade (e-mail aqui, conversa lá), escopo (buildSenderQuery em
+             src/gmail.ts inclui Spam e exclui a Lixeira; a busca comum do Gmail
+             exclui os dois) e origem (a lista vem da amostra, mas a contagem de
+             cada linha é da conta inteira). A busca literal está aí para o
+             usuário colar no Gmail e ver os números baterem — sem ela, quem
+             confere com um simples from: acha que o app conta errado. -->
         <div class="list-note" data-i18n="list.note">
-          Contamos e-mails, um a um. A busca do Gmail agrupa e-mails do mesmo
-          assunto em conversas, então o número dela costuma ser menor. É o
-          número daqui que vai para a lixeira.
+          Contamos e-mails, um a um, e é esse número que vai para a lixeira. A
+          busca do Gmail agrupa e-mails do mesmo assunto em conversas e ignora o
+          Spam, então costuma mostrar menos — para conferir, busque:
+          from:"remetente" in:anywhere -in:trash. A amostra são os 1.000 e-mails
+          mais recentes e é dela que sai a lista; a contagem de cada remetente é
+          da conta inteira.
         </div>
       </div>
     </div>

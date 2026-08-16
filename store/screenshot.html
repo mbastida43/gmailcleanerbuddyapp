@@ -73,7 +73,7 @@
     </div>
 
     <div class="stats">
-      <div class="stat"><strong>1,000</strong><span>Emails analyzed</span></div>
+      <div class="stat"><strong>1,000</strong><span>Emails in sample</span></div>
       <div class="stat"><strong>1.6 GB</strong><span>Total space</span></div>
       <div class="stat"><strong>187</strong><span>Unique senders</span></div>
       <div class="stat"><strong>6,059</strong><span>Top 10 (emails)</span></div>
@@ -86,9 +86,12 @@
         <!-- Espelha o rodapé real do app (www/index.html). A Play cobra que a
              captura represente a tela de verdade — se a nota existe lá, existe aqui. -->
         <div class="list-note">
-          We count emails, one by one. Gmail search groups emails with the same
-          subject into conversations, so its number is usually smaller. The
-          number here is what goes to the trash.
+          We count emails, one by one, and that is the number that goes to the
+          trash. Gmail search groups emails with the same subject into
+          conversations and skips Spam, so it usually shows less — to check,
+          search: from:"sender" in:anywhere -in:trash. The sample is your 1,000
+          most recent emails and the list comes from it; each sender's count
+          covers the whole account.
         </div>
       </div>
     </div>
