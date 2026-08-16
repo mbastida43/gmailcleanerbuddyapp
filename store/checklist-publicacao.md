@@ -277,6 +277,15 @@ caçar bug grosseiro enquanto isso. É teste de verdade, só não conta prazo. E
 `UTEIS\GMAIL CLEANER BUDDY` no OneDrive, pasta separada da chave de propósito — junto vai um
 `LEIA-ME.txt` com o que avisar a quem instalar.
 
+Estado da pasta em 2026-08-16: `gmail-cleaner-buddy-1.4.apk` e `.aab` (build 5 / 1.4), mais os
+arquivos `1.2` antigos, que ficaram lá. **Confira a versão no nome antes de mandar ou de subir** —
+os dois pares convivem, e subir o `1.2.aab` no Console publicaria a versão errada.
+
+O `LEIA-ME.txt` dessa pasta **não** é versionado aqui de propósito: este repo é público, e o
+arquivo descreve o arranjo do OneDrive, inclusive o nome da pasta vizinha onde está a chave de
+assinatura. Mesmo motivo do `store/backup-local.md`. Ao trocar o binário da pasta, edite o
+`LEIA-ME.txt` lá — a versão está escrita nele em três lugares.
+
 ---
 
 ## Fase 7 — Depois do envio
