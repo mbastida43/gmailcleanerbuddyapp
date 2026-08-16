@@ -123,6 +123,15 @@ assert.ok(
 // custar quem já aparecia. São 12 + o antigo.
 assert.equal(data.uniqueSenders, SENDERS + 1);
 
+// 9) O total da caixa é o da CAIXA, não o da amostra — são números diferentes e
+// a tela mostra este. Trocar um pelo outro é o erro que a tela cometia antes.
+assert.equal(data.mailboxMessages, MAILBOX);
+assert.notEqual(data.mailboxMessages, data.totalMessages);
+
+// 10) A varredura chegou ao fim da caixa, então o número é exato e a tela não
+// deve pôr "+". O contrário (parar no teto) é o caso em que ele vira um piso.
+assert.equal(data.mailboxCapped, false);
+
 console.log(
   `ok — ${reading.length} passos de leitura, fecha em ${TOTAL}, ` +
     `${data.uniqueSenders} remetentes de uma caixa de ${MAILBOX}`

@@ -36,7 +36,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'loading.ranking': '⏳ Aguarde… montando o ranking',
     'btn.cleanAll': '🗑️ Limpar Tudo',
     'btn.logout': '🚪 Sair',
-    'stat.analyzed': 'Emails na amostra',
+    'stat.analyzed': 'Emails na conta',
     'stat.space': 'Espaço total',
     'stat.senders': 'Remetentes únicos',
     'stat.top10': 'Top 10 (emails)',
@@ -89,7 +89,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'loading.ranking': '⏳ Please wait… building the ranking',
     'btn.cleanAll': '🗑️ Clean All',
     'btn.logout': '🚪 Sign out',
-    'stat.analyzed': 'Emails in sample',
+    'stat.analyzed': 'Account emails',
     'stat.space': 'Total space',
     'stat.senders': 'Unique senders',
     'stat.top10': 'Top 10 (emails)',
@@ -142,7 +142,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'loading.ranking': '⏳ Espera… armando el ranking',
     'btn.cleanAll': '🗑️ Limpiar Todo',
     'btn.logout': '🚪 Salir',
-    'stat.analyzed': 'Correos en la muestra',
+    'stat.analyzed': 'Correos en la cuenta',
     'stat.space': 'Espacio total',
     'stat.senders': 'Remitentes únicos',
     'stat.top10': 'Top 10 (correos)',
@@ -195,7 +195,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'loading.ranking': '⏳ Veuillez patienter… constitution du classement',
     'btn.cleanAll': '🗑️ Tout nettoyer',
     'btn.logout': '🚪 Se déconnecter',
-    'stat.analyzed': 'E-mails de l’échantillon',
+    'stat.analyzed': 'E-mails du compte',
     'stat.space': 'Espace total',
     'stat.senders': 'Expéditeurs uniques',
     'stat.top10': 'Top 10 (e-mails)',
@@ -248,7 +248,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'loading.ranking': '⏳ Attendere… creazione della classifica',
     'btn.cleanAll': '🗑️ Pulisci tutto',
     'btn.logout': '🚪 Esci',
-    'stat.analyzed': 'Email nel campione',
+    'stat.analyzed': 'Email nell’account',
     'stat.space': 'Spazio totale',
     'stat.senders': 'Mittenti unici',
     'stat.top10': 'Top 10 (email)',
@@ -301,7 +301,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'loading.ranking': '⏳ Подождите… составляем рейтинг',
     'btn.cleanAll': '🗑️ Очистить всё',
     'btn.logout': '🚪 Выйти',
-    'stat.analyzed': 'Писем в выборке',
+    'stat.analyzed': 'Писем в аккаунте',
     'stat.space': 'Всего места',
     'stat.senders': 'Уникальных отправителей',
     'stat.top10': 'Топ-10 (письма)',
@@ -354,7 +354,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'loading.ranking': '⏳ 请稍候… 正在生成排行',
     'btn.cleanAll': '🗑️ 全部清理',
     'btn.logout': '🚪 退出',
-    'stat.analyzed': '样本邮件数',
+    'stat.analyzed': '账户邮件数',
     'stat.space': '总占用空间',
     'stat.senders': '独立发件人',
     'stat.top10': '前 10 名（邮件数）',
@@ -596,7 +596,10 @@ function removeSendersLocally(senders: string[]): void {
 }
 
 function renderResults(data: AnalyzeData): void {
-  document.getElementById('totalEmails')!.textContent = formatNumber(data.totalMessages);
+  // O "+" quando a varredura bateu no teto: ali o número é um piso, não o
+  // total, e um 50.000 cravado passaria por contagem exata.
+  document.getElementById('totalEmails')!.textContent =
+    formatNumber(data.mailboxMessages) + (data.mailboxCapped ? '+' : '');
   document.getElementById('totalSize')!.textContent = formatSize(data.offenders.reduce((s, o) => s + o.size, 0));
   document.getElementById('uniqueSenders')!.textContent = formatNumber(data.uniqueSenders);
   document.getElementById('top10Count')!.textContent = formatNumber(data.top10.reduce((s, o) => s + o.count, 0));

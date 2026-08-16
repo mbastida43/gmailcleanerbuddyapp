@@ -112,10 +112,23 @@ export type ProgressPhase = 'scanning' | 'reading' | 'waiting' | 'readDone' | 'r
 export type ProgressFn = (phase: ProgressPhase, done: number, total: number) => void;
 
 export interface AnalyzeData {
+  /** Tamanho da amostra — quantas mensagens tiveram o cabeçalho From lido. */
   totalMessages: number;
   analyzedMessages: number;
   failedMessages: number;
   uniqueSenders: number;
+  /**
+   * Mensagens na conta, no escopo que o app trata (com Spam, sem Lixeira). Sai
+   * de graça da varredura de ids, que já precisa percorrer tudo.
+   */
+  mailboxMessages: number;
+  /**
+   * true quando a varredura parou no teto (MAX_SCAN_PAGES) em vez de no fim da
+   * caixa — aí `mailboxMessages` é um piso, não o total, e a interface precisa
+   * dizer "50.000+". Mostrar o número redondo como se fosse exato seria
+   * exatamente o tipo de precisão inventada que este app existe para não fazer.
+   */
+  mailboxCapped: boolean;
   offenders: Offender[];
   top10: Offender[];
 }
@@ -264,6 +277,9 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
     scanned++;
   } while (pageToken && scanned < MAX_SCAN_PAGES);
 
+  // Sobrou pageToken = paramos no teto, não no fim da caixa.
+  const mailboxCapped = !!pageToken;
+
   // 2) Amostra ESPALHADA pela caixa toda, não as 1000 mais recentes.
   //
   // A amostra antiga era o começo da lista — algo como 60 dias de caixa. Quem
@@ -394,6 +410,8 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
     analyzedMessages: toAnalyze.length - failedMessages,
     failedMessages,
     uniqueSenders: offenders.length,
+    mailboxMessages: allIds.length,
+    mailboxCapped,
     offenders,
     top10: offenders.slice(0, 10)
   };

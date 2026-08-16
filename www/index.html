@@ -69,11 +69,13 @@
     <div class="stats">
       <div class="stat">
         <strong id="totalEmails">0</strong>
-        <!-- "na amostra", não "da conta": o número é o teto de leitura
-             (MAX_ANALYZE em src/gmail.ts), então numa caixa grande ele para em
-             1.000 e nunca é o total. Como "analisados" era lido como total, a
-             caixa de 40 mil e-mails parecia não ter sido enxergada. -->
-        <span data-i18n="stat.analyzed">Emails na amostra</span>
+        <!-- Total de verdade, no escopo que o app trata (com Spam, sem Lixeira):
+             sai da varredura de ids, que já percorre a caixa inteira. Já foi
+             "analisados" (lido como total, mas era o teto de leitura de 1.000) e
+             depois "na amostra" (honesto, porém era o número que dava para dar
+             na época). Ganha um "+" quando a varredura para no teto — ver
+             mailboxCapped em src/gmail.ts. -->
+        <span data-i18n="stat.analyzed">Emails na conta</span>
       </div>
       <div class="stat">
         <strong id="totalSize">0</strong>
