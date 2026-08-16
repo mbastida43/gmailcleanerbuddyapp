@@ -174,13 +174,20 @@ const MAX_SENDER_PAGES = 50;
  * existindo na lixeira por 30 dias. O `-in:trash` corta essa parte: sobra
  * exatamente o que ainda ocupa a caixa e o que o botão de limpar vai mover.
  *
- * Equivalente conferível na busca do Gmail: from:"..." in:anywhere -in:trash
+ * Equivalente conferível na busca do Gmail: é a MESMA string, literalmente —
+ * cole no campo de busca e o número tem de bater. Com "Visualização de conversa"
+ * desativada, porque o Gmail conta conversas quando ela está ligada.
  *
  * As aspas em volta do endereço evitam injeção de operadores de busca.
  */
 function buildSenderQuery(sender: string, fields: string): URLSearchParams {
   return new URLSearchParams({
-    q: `from:"${sender}" -in:trash`,
+    // `in:anywhere` explícito, além do includeSpamTrash. Não é redundância: numa
+    // caixa real, `from:"x" -in:trash` devolveu 256 mensagens onde
+    // `from:x in:anywhere -in:trash` (a mesma busca digitada no Gmail) devolvia
+    // 265 — faltavam exatamente as segundas mensagens de conversas com reenvio.
+    // O app dava 256 e a limpeza teria deixado 9 para trás.
+    q: `from:"${sender}" in:anywhere -in:trash`,
     maxResults: '500',
     includeSpamTrash: 'true',
     fields
