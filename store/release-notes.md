@@ -8,11 +8,17 @@ Uma seção por versão, a mais nova em cima.
 
 ---
 
-## 1.3 (versionCode 4)
+## 1.4 (versionCode 5)
 
 O que o testador percebe: o ranking passa a encontrar remetente antigo, e a
 análise **demora mais** por causa disso. A demora é a primeira coisa que alguém
 reporta como bug, então ela é dita na segunda linha, não escondida no fim.
+
+> Estas notas foram escritas para o 1.3, que nunca chegou a subir — o total real
+> da caixa entrou logo depois e virou 1.4. O texto foi atualizado no lugar em vez
+> de ganhar uma seção nova: nota de versão descreve o que o usuário recebe, e o
+> usuário nunca recebeu o 1.3. Uma seção para uma versão que não existiu na loja
+> só confundiria quem for consultar isto daqui a seis meses.
 
 ### 🇧🇷 Português (pt-BR)
 ```
@@ -23,7 +29,7 @@ Por isso a análise demora alguns segundos a mais. É de propósito: ela varre a
 Também nesta versão:
 • O Spam entra na contagem (a Lixeira, não)
 • Uma nota nova explica por que o número aqui difere do da busca do Gmail
-• "Emails na amostra" deixa claro que o número é da amostra, não da conta
+• A tela mostra quantos e-mails a sua conta tem
 ```
 
 ### 🇺🇸 English (en-US)
@@ -35,7 +41,7 @@ So the analysis takes a few seconds longer. It is deliberate: it scans the whole
 Also:
 • Spam is counted (Trash is not)
 • A new note explains why the number here differs from Gmail search
-• "Emails in sample" makes clear the number is the sample, not your account
+• The screen now shows how many emails your account has
 ```
 
 ### 🇪🇸 Español (es)
@@ -47,7 +53,7 @@ Por eso el análisis tarda unos segundos más. Es a propósito: recorre todo el 
 También:
 • El Spam entra en el recuento (la Papelera no)
 • Una nota nueva explica por qué el número difiere de la búsqueda de Gmail
-• "Correos en la muestra" aclara que el número es de la muestra, no de la cuenta
+• La pantalla muestra cuántos correos tiene tu cuenta
 ```
 
 ### 🇫🇷 Français (fr)
@@ -59,7 +65,7 @@ L'analyse prend donc quelques secondes de plus. C'est voulu : elle parcourt tout
 Également :
 • Le spam est compté (pas la corbeille)
 • Une note explique l'écart avec la recherche Gmail
-• "E-mails de l'échantillon" dit d'où vient le nombre
+• L'écran affiche combien d'e-mails contient votre compte
 ```
 
 ### 🇮🇹 Italiano (it-IT)
@@ -71,7 +77,7 @@ Per questo l'analisi impiega qualche secondo in più. È voluto: percorre tutta 
 Inoltre:
 • Lo spam viene conteggiato (il cestino no)
 • Una nota spiega la differenza con la ricerca di Gmail
-• "Email nel campione" chiarisce che il numero è del campione
+• La schermata mostra quante email contiene il tuo account
 ```
 
 ### 🇷🇺 Русский (ru-RU)
@@ -83,7 +89,7 @@ Inoltre:
 Ещё:
 • Спам учитывается (корзина — нет)
 • Новая заметка объясняет расхождение с поиском Gmail
-• «Писем в выборке» — число из выборки, а не из всего аккаунта
+• На экране видно, сколько писем в аккаунте
 ```
 
 ### 🇨🇳 中文 (zh-CN)
@@ -95,5 +101,5 @@ Inoltre:
 本次更新还包括：
 • 垃圾邮件现在计入统计（回收站不计）
 • 新增说明，解释这里的数字为何与 Gmail 搜索不同
-• "样本邮件数"表明该数字来自样本，而非整个账户
+• 界面会显示账户里共有多少封邮件
 ```

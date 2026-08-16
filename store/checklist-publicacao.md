@@ -117,7 +117,7 @@ Tudo pronto no repo:
 - ✅ **Feature graphic 1024×500** — `store/feature-graphics/feature-<idioma>.png` (7 idiomas)
 - ✅ **Screenshots** — `store/screenshots/` (3 capturas de celular, 1179×2556; mínimo do Google é 2)
 - ✅ **Textos PT/EN/ES/FR/IT/RU/ZH** — `store/play-listing.md` (os 7 idiomas da interface)
-- ✅ **Notas da versão 1.3** — `store/release-notes.md`, nos mesmos 7 idiomas, dentro do
+- ✅ **Notas da versão 1.4** — `store/release-notes.md`, nos mesmos 7 idiomas, dentro do
       limite de 500 caracteres. É campo da versão, preenchido no formulário de release
       (Fase 5), não na ficha
 - ✅ **Política de privacidade no ar** — `https://mbastida43.github.io/gmailcleanerbuddy/privacy.html`
@@ -138,19 +138,21 @@ Tudo pronto no repo:
 > 48h pelo reset do Google; perder a de assinatura, sem Play App Signing, custaria o app.
 
 - ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`, 5,6 MB)
-      e APK de mão em `.../apk/release/app-release.apk` (5,9 MB), ambos do build 4 / 1.3.
+      e APK de mão em `.../apk/release/app-release.apk` (5,9 MB), ambos do build 5 / 1.4.
       Conferido **no artefato**, não só no log do Gradle: `aapt2 dump badging` devolve
-      `versionCode='4' versionName='1.3'`, o `apksigner verify --print-certs` devolve o SHA-1
+      `versionCode='5' versionName='1.4'`, o `apksigner verify --print-certs` devolve o SHA-1
       esperado, e o `app.js` empacotado contém o código novo — build de cache passa despercebido
       justamente por sair verde no Gradle
 - ✅ `targetSdk 36` (`android/variables.gradle:4`) — atende a exigência atual
-- ✅ `versionCode 4` / `versionName 1.3` — build atual: análise varre a caixa inteira e
+- ✅ `versionCode 5` / `versionName 1.4` — build atual: análise varre a caixa inteira e
       sorteia a amostra por toda ela (antes eram as 1.000 mais recentes), fase "Lendo a caixa
-      postal…" no overlay, rótulo "Emails na amostra" e a nota do rodapé explicando escopo e
-      unidade. O AAB no disco é deste build.
-      Histórico: `versionCode 2` foi o que subiu no teste interno; o `3` chegou a ser gerado
-      mas nunca enviado — o número foi abandonado em vez de reaproveitado, porque o binário
-      mudou de comportamento depois dele. A Play recusa reenvio do mesmo `versionCode`
+      postal…" no overlay, o tile passa a mostrar o **total real da caixa** e a nota do rodapé
+      explica escopo e unidade. O AAB no disco é deste build.
+      Histórico: `versionCode 2` foi o que subiu no teste interno. O `3` e o `4` chegaram a ser
+      gerados e nunca enviados — os dois foram abandonados em vez de reaproveitados, porque o
+      binário mudou de comportamento depois de cada um. Números queimados custam nada; um
+      `versionCode` que descreve dois binários diferentes custa depuração meses depois.
+      A Play recusa reenvio do mesmo `versionCode`
 - ✅ Keystore em `android/gcb-release.keystore`. RSA 2048, validade 10.000 dias, alias `gcb`.
       Fica dentro de `android/` mas **fora do git** (`.gitignore` cobre `*.keystore`).
       **SHA-1: `66:00:EE:DC:91:33:71:C5:C6:66:73:5F:D4:15:AA:46:75:D4:53:27`**
