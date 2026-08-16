@@ -8,99 +8,83 @@ Uma seção por versão, a mais nova em cima.
 
 ---
 
-## 1.5 (versionCode 6)
+## 1.6 (versionCode 7)
 
 O que o testador percebe: a espera continua a mesma, mas parou de parecer
 travamento. A demora foi a reclamação nº 1 prevista para o 1.4 — esta versão não
 a encurta, mostra o que está acontecendo enquanto ela dura. Por isso a nota fala
 de número na tela, não de velocidade: prometer rapidez aqui seria mentira.
 
-A varredura não ganha denominador em nenhum idioma. É ela que descobre o tamanho
-da caixa; um total ali seria número inventado, que é o que este app existe para
-não fazer.
+> O `versionCode 6` / `1.5` chegou a ser gerado e nunca subiu. A tela dele tinha
+> DOIS números em fases diferentes; virou um percentual único antes de qualquer
+> testador ver. Nota de versão descreve o que o usuário recebe, e ninguém
+> recebeu o 1.5 — por isso a seção foi reescrita no lugar, não duplicada.
+
+Nenhum idioma promete precisão que não existe na fase de varredura: o percentual
+dela vem do teto da varredura, não de um total conhecido, e isso não é dito ao
+usuário porque para ele o número é um só, de 0 a 100.
 
 ### 🇧🇷 Português (pt-BR)
 ```
-A espera agora tem número. Os dois trechos mais longos ficavam com o texto parado e pareciam travamento:
+A espera agora tem um número só: de 0% a 100%, do começo ao fim da análise. Antes eram três contadores em sequência, e cada troca parecia recomeço. Nas pausas o texto vira "Aguarde" e o número segura onde está.
 
-• Varredura da caixa: mostra quantos e-mails já encontrou, subindo a cada bloco lido
-• Montagem do ranking: mostra o percentual concluído
+A análise não ficou mais rápida — ela varre a caixa inteira de propósito. O que mudou é dar para ver que ela está andando.
 
-A varredura não mostra um total porque é justamente ela que descobre o tamanho da sua caixa.
-
-A contagem e a limpeza passaram a usar a mesma lista de mensagens, sem repetição.
+A contagem por remetente também foi corrigida: faltavam e-mails reenviados dentro de uma mesma conversa.
 ```
 
 ### 🇺🇸 English (en-US)
 ```
-The wait now has a number. The two longest stretches used to sit on a frozen line and looked like a crash:
+The wait now has a single number: 0% to 100%, from the start of the analysis to the end. There used to be three counters in a row, and every switch looked like a restart. During pauses the text says "Please wait" and the number holds.
 
-• Mailbox scan: shows how many emails it has found so far, rising with each block
-• Building the ranking: shows the percentage done
+The analysis is not faster — it scans your whole mailbox on purpose. What changed is that you can see it moving.
 
-The scan shows no total because it is the step that discovers how big your mailbox is.
-
-Counting and cleaning now use the same message list, with no duplicates.
+Per-sender counting was fixed too: resent emails inside the same conversation were being missed.
 ```
 
 ### 🇪🇸 Español (es)
 ```
-La espera ahora tiene número. Los dos tramos más largos se quedaban con el texto quieto y parecían un bloqueo:
+La espera ahora tiene un solo número: de 0% a 100%, del inicio al final del análisis. Antes eran tres contadores seguidos y cada cambio parecía un reinicio. En las pausas el texto pasa a "Espera" y el número se mantiene.
 
-• Recorrido del buzón: muestra cuántos correos lleva encontrados, subiendo con cada bloque
-• Armado del ranking: muestra el porcentaje completado
+El análisis no es más rápido: recorre todo el buzón a propósito. Lo que cambió es que ahora se ve que avanza.
 
-El recorrido no muestra un total porque es justo el paso que descubre el tamaño de tu buzón.
-
-El recuento y la limpieza ahora usan la misma lista de mensajes, sin repeticiones.
+También se corrigió el recuento por remitente: faltaban correos reenviados dentro de una misma conversación.
 ```
 
 ### 🇫🇷 Français (fr)
 ```
-L'attente a enfin un chiffre. Les deux étapes les plus longues restaient figées et ressemblaient à un plantage :
+L'attente a désormais un seul chiffre : de 0 % à 100 %, du début à la fin de l'analyse. Il y avait trois compteurs successifs, et chaque changement ressemblait à un redémarrage. Pendant les pauses, le texte devient « Veuillez patienter » et le chiffre reste en place.
 
-• Parcours de la boîte : affiche le nombre d'e-mails déjà trouvés, qui monte à chaque bloc
-• Constitution du classement : affiche le pourcentage effectué
+L'analyse n'est pas plus rapide : elle parcourt toute la boîte volontairement. Ce qui change, c'est qu'on la voit avancer.
 
-Le parcours n'affiche pas de total car c'est lui qui découvre la taille de votre boîte.
-
-Le comptage et le nettoyage utilisent la même liste, sans doublons.
+Le comptage par expéditeur est corrigé : les e-mails renvoyés dans une même conversation manquaient.
 ```
 
 ### 🇮🇹 Italiano (it-IT)
 ```
-L'attesa ora ha un numero. I due tratti più lunghi restavano con il testo fermo e sembravano un blocco:
+L'attesa ora ha un solo numero: da 0% a 100%, dall'inizio alla fine dell'analisi. Prima erano tre contatori in fila e ogni cambio sembrava un riavvio. Nelle pause il testo diventa "Attendere" e il numero resta fermo.
 
-• Scansione della casella: mostra quante email ha già trovato, in crescita a ogni blocco
-• Creazione della classifica: mostra la percentuale completata
+L'analisi non è più veloce: percorre tutta la casella di proposito. Quello che cambia è che ora si vede avanzare.
 
-La scansione non mostra un totale perché è proprio il passaggio che scopre quanto è grande la casella.
-
-Conteggio e pulizia ora usano la stessa lista di messaggi, senza ripetizioni.
+Corretto anche il conteggio per mittente: mancavano le email rinviate all'interno della stessa conversazione.
 ```
 
 ### 🇷🇺 Русский (ru-RU)
 ```
-У ожидания появилось число. Два самых долгих этапа стояли с неподвижной строкой и выглядели как зависание:
+У ожидания теперь один номер: от 0% до 100%, от начала анализа до конца. Раньше было три счётчика подряд, и каждая смена выглядела как перезапуск. Во время пауз появляется «Подождите», а число остаётся на месте.
 
-• Просмотр ящика: показывает, сколько писем уже найдено — счётчик растёт с каждым блоком
-• Составление рейтинга: показывает процент выполнения
+Быстрее анализ не стал — он намеренно просматривает весь ящик. Изменилось то, что теперь видно его движение.
 
-Общее число на первом этапе не показано: именно он и выясняет размер ящика.
-
-Подсчёт и очистка теперь работают с одним и тем же списком писем, без повторов.
+Исправлен и подсчёт по отправителю: терялись повторно присланные письма внутри одной переписки.
 ```
 
 ### 🇨🇳 中文 (zh-CN)
 ```
-等待过程现在有数字了。此前最长的两个阶段文字一直不动，看起来像卡死：
+等待现在只有一个数字：从 0% 到 100%，覆盖整个分析过程。此前是三个接连出现的计数器，每次切换都像重新开始。暂停时文字会变成"请稍候"，数字保持不变。
 
-• 扫描邮箱：显示已找到多少封邮件，每读一批就往上加
-• 生成排行：显示已完成的百分比
+分析并没有变快——它有意扫描整个邮箱。变化在于你能看到它在推进。
 
-扫描阶段不显示总数，因为正是这一步在算出你的邮箱有多大。
-
-统计和清理现在使用同一份邮件清单，不再重复计算。
+发件人统计也修好了：同一会话中重发的邮件此前会漏掉。
 ```
 
 ---
