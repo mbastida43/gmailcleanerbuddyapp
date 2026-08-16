@@ -33,7 +33,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'loading.readingStart': '📖 Lendo a caixa postal…',
     'loading.waiting': '⏳ Aguarde…',
     'loading.readDone': '✅ Leitura concluída — {total} emails',
-    'loading.ranking': '⏳ Aguarde… montando o ranking',
+    'loading.ranking': '⏳ Aguarde… montando o ranking ({pct}%)',
     'btn.cleanAll': '🗑️ Limpar Tudo',
     'btn.logout': '🚪 Sair',
     'stat.analyzed': 'Emails na conta',
@@ -86,7 +86,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'loading.readingStart': '📖 Reading your mailbox…',
     'loading.waiting': '⏳ Please wait…',
     'loading.readDone': '✅ Reading complete — {total} emails',
-    'loading.ranking': '⏳ Please wait… building the ranking',
+    'loading.ranking': '⏳ Please wait… building the ranking ({pct}%)',
     'btn.cleanAll': '🗑️ Clean All',
     'btn.logout': '🚪 Sign out',
     'stat.analyzed': 'Account emails',
@@ -139,7 +139,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'loading.readingStart': '📖 Leyendo tu buzón…',
     'loading.waiting': '⏳ Espera…',
     'loading.readDone': '✅ Lectura completada — {total} correos',
-    'loading.ranking': '⏳ Espera… armando el ranking',
+    'loading.ranking': '⏳ Espera… armando el ranking ({pct}%)',
     'btn.cleanAll': '🗑️ Limpiar Todo',
     'btn.logout': '🚪 Salir',
     'stat.analyzed': 'Correos en la cuenta',
@@ -192,7 +192,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'loading.readingStart': '📖 Lecture de votre boîte…',
     'loading.waiting': '⏳ Veuillez patienter…',
     'loading.readDone': '✅ Lecture terminée — {total} e-mails',
-    'loading.ranking': '⏳ Veuillez patienter… constitution du classement',
+    'loading.ranking': '⏳ Veuillez patienter… constitution du classement ({pct}%)',
     'btn.cleanAll': '🗑️ Tout nettoyer',
     'btn.logout': '🚪 Se déconnecter',
     'stat.analyzed': 'E-mails du compte',
@@ -245,7 +245,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'loading.readingStart': '📖 Lettura della casella…',
     'loading.waiting': '⏳ Attendere…',
     'loading.readDone': '✅ Lettura completata — {total} email',
-    'loading.ranking': '⏳ Attendere… creazione della classifica',
+    'loading.ranking': '⏳ Attendere… creazione della classifica ({pct}%)',
     'btn.cleanAll': '🗑️ Pulisci tutto',
     'btn.logout': '🚪 Esci',
     'stat.analyzed': 'Email nell’account',
@@ -298,7 +298,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'loading.readingStart': '📖 Читаем почтовый ящик…',
     'loading.waiting': '⏳ Подождите…',
     'loading.readDone': '✅ Чтение завершено — писем: {total}',
-    'loading.ranking': '⏳ Подождите… составляем рейтинг',
+    'loading.ranking': '⏳ Подождите… составляем рейтинг ({pct}%)',
     'btn.cleanAll': '🗑️ Очистить всё',
     'btn.logout': '🚪 Выйти',
     'stat.analyzed': 'Писем в аккаунте',
@@ -351,7 +351,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'loading.readingStart': '📖 正在读取收件箱…',
     'loading.waiting': '⏳ 请稍候…',
     'loading.readDone': '✅ 读取完成 — 共 {total} 封邮件',
-    'loading.ranking': '⏳ 请稍候… 正在生成排行',
+    'loading.ranking': '⏳ 请稍候… 正在生成排行（{pct}%）',
     'btn.cleanAll': '🗑️ 全部清理',
     'btn.logout': '🚪 退出',
     'stat.analyzed': '账户邮件数',
@@ -822,7 +822,8 @@ function reportProgress(phase: gmail.ProgressPhase, done: number, total: number)
   const text =
     phase === 'scanning' ? t('loading.readingStart')
     : phase === 'waiting' ? t('loading.waiting')
-    : phase === 'ranking' ? t('loading.ranking')
+    : phase === 'ranking'
+      ? t('loading.ranking', { pct: String(total ? Math.floor((done / total) * 100) : 0) })
     : phase === 'readDone' ? t('loading.readDone', { total: formatNumber(total) })
     : t('loading.reading', { done: formatNumber(done), total: formatNumber(total) });
 
