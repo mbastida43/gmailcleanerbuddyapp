@@ -2,8 +2,9 @@
 // Camada Gmail — porta da lógica do servidor Express (src/server.ts do
 // projeto web) para chamadas diretas à REST API do Gmail com Bearer token.
 // Mantém a mesma semântica validada no app web:
-// - análise por amostra de 1000 mensagens
-// - contagem EXATA (busca from:"..." na conta inteira) para os top 25
+// - amostra de 1000 mensagens ESPALHADAS pela caixa (ids varridos inteiros,
+//   metadado só das 1000 sorteadas) — descobre quem são os remetentes
+// - contagem EXATA (busca from:"..." na conta inteira) para cada um deles
 // - limpeza via batchModify (até 1000 ids/chamada, TRASH + remove INBOX)
 //   com fallback para messages.trash individual
 // ============================================================
@@ -12,14 +13,23 @@ import { getAccessToken } from './auth';
 
 const BASE = 'https://gmail.googleapis.com/gmail/v1/users/me';
 
+// Quantas mensagens têm o cabeçalho From lido. É o teto CARO: uma chamada por
+// mensagem. Mantido em 1000 — o que mudou foi de ONDE essas 1000 saem.
 const MAX_ANALYZE = 1000;
 
+// Teto da varredura de ids: 500 por chamada, então 100 páginas = 50.000
+// mensagens. Essa parte é barata (ids sem metadado), mas é sequencial — o
+// pageToken encadeia — e cada página custa ~200ms. 100 páginas é o ponto em que
+// a espera ainda cabe numa análise. Acima de 50.000, a amostra se espalha pelas
+// 50.000 mais recentes em vez da caixa toda: continua muito melhor do que as
+// 1.000 mais recentes, só não é a caixa inteira.
+const MAX_SCAN_PAGES = 100;
+
 // Contagem exata para TODOS os remetentes descobertos, não só para os
-// campeões da amostra. A amostra são as 1000 mensagens mais recentes — algo
-// como 60 dias de caixa — então quem escreve uma vez por mês aparece ali com
-// contagem 1 e afundava para a centésima posição, mesmo tendo dezenas de
-// e-mails na conta inteira. Era o caso do groups-noreply@linkedin.com: 1 na
-// amostra, 17 no total. Com o limite em 25 ele nunca chegava a ser contado.
+// campeões da amostra. Quem escreve uma vez por mês aparecia com contagem 1 e
+// afundava para a centésima posição, mesmo tendo dezenas de e-mails na conta
+// inteira. Era o caso do groups-noreply@linkedin.com: 1 na amostra, 17 no
+// total. Com o limite em 25 ele nunca chegava a ser contado.
 // O teto abaixo é só uma trava contra caixas com milhares de remetentes
 // distintos, não um ranking.
 const EXACT_COUNT_LIMIT = 500;
@@ -83,6 +93,11 @@ export interface Offender {
 }
 
 /**
+ * 'scanning' = varrendo os ids da caixa, antes de existir denominador. Ela vem
+ * ANTES de 'reading' e é a única fase sem total conhecido — é justamente ela
+ * que descobre o tamanho da caixa. Sem esta fase o overlay ficava mudo por
+ * ~20s numa caixa grande, que é a cara de um app travado.
+ *
  * 'reading' = trabalhando; 'waiting' = parado de propósito, segurando o ritmo
  * para não estourar a cota do Gmail. A interface precisa distinguir os dois,
  * senão a pausa passa por travamento.
@@ -93,7 +108,7 @@ export interface Offender {
  * de 1000/1000), quem esperava lia como "a análise recomeçou". Um número só,
  * uma vez, até o fim — e um aviso explícito de que ele acabou.
  */
-export type ProgressPhase = 'reading' | 'waiting' | 'readDone' | 'ranking';
+export type ProgressPhase = 'scanning' | 'reading' | 'waiting' | 'readDone' | 'ranking';
 export type ProgressFn = (phase: ProgressPhase, done: number, total: number) => void;
 
 export interface AnalyzeData {
@@ -224,23 +239,54 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
   // para a interface desabilitar o botão de limpar.
   const ownEmail = await getOwnEmail();
 
-  // 1) Amostra: ids das mensagens mais recentes
-  let ids: string[] = [];
+  // 1) Varredura: ids da caixa INTEIRA, sem metadado nenhum.
+  //
+  // Mesmo escopo de buildSenderQuery — inclui Spam, exclui a Lixeira — para que
+  // a descoberta enxergue exatamente o universo que a contagem conta e o botão
+  // limpa. Enquanto a listagem aqui ignorava o Spam, um remetente que só caía
+  // lá jamais era descoberto, embora fosse contado e limpo normalmente se
+  // chegasse à lista por outro caminho.
+  report('scanning', 0, 0);
+  let allIds: string[] = [];
   let pageToken: string | undefined;
+  let scanned = 0;
   do {
     const q = new URLSearchParams({
+      q: '-in:trash',
       maxResults: '500',
+      includeSpamTrash: 'true',
       fields: 'messages/id,nextPageToken'
     });
     if (pageToken) q.set('pageToken', pageToken);
     const resp = await gfetch(`/messages?${q.toString()}`);
-    ids = ids.concat((resp.messages || []).map((m: { id: string }) => m.id));
+    allIds = allIds.concat((resp.messages || []).map((m: { id: string }) => m.id));
     pageToken = resp.nextPageToken;
-  } while (pageToken && ids.length < MAX_ANALYZE);
+    scanned++;
+  } while (pageToken && scanned < MAX_SCAN_PAGES);
 
-  const toAnalyze = ids.slice(0, MAX_ANALYZE);
+  // 2) Amostra ESPALHADA pela caixa toda, não as 1000 mais recentes.
+  //
+  // A amostra antiga era o começo da lista — algo como 60 dias de caixa. Quem
+  // despejou 500 e-mails e parou de escrever há dois anos simplesmente não
+  // existia no ranking: não era contagem errada, era remetente ausente, e
+  // nenhuma contagem exata resgata quem nunca foi descoberto.
+  //
+  // Pegando 1 a cada N ao longo da lista inteira, a chance de descobrir um
+  // remetente cresce com o tamanho dele — que é exatamente o critério do app.
+  // Numa caixa de 40 mil, N=40: quem tem 500 e-mails aparece praticamente
+  // sempre, e quem tem 3 quase nunca. É a troca certa aqui, porque quem tem 3
+  // e-mails nunca foi o problema de ninguém. O passo é fracionário de
+  // propósito: arredondá-lo para baixo amontoaria a amostra no início da lista,
+  // que é o viés de recência que estamos tirando.
+  const step = Math.max(1, allIds.length / MAX_ANALYZE);
+  const toAnalyze: string[] = [];
+  for (let i = 0; toAnalyze.length < MAX_ANALYZE; i++) {
+    const idx = Math.floor(i * step);
+    if (idx >= allIds.length) break;
+    toAnalyze.push(allIds[idx]!);
+  }
 
-  // 2) Remetente de cada mensagem (em lotes paralelos)
+  // 3) Remetente de cada mensagem (em lotes paralelos)
   const senderCounts: Record<string, number> = {};
   const senderSizes: Record<string, number> = {};
   const senderCategories: Record<string, string> = {};
@@ -312,7 +358,7 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
   }));
   offenders.sort((a, b) => b.count - a.count);
 
-  // 3) Contagem exata (conta inteira) para todos os remetentes descobertos.
+  // 4) Contagem exata (conta inteira) para todos os remetentes descobertos.
   // Concorrência e pausa calibradas pela cota do Gmail (250 unidades por
   // segundo por usuário; cada busca custa 5): ~20 req/s = ~100 unidades/s,
   // com folga confortável.

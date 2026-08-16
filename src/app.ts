@@ -41,7 +41,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'stat.senders': 'Remetentes únicos',
     'stat.top10': 'Top 10 (emails)',
     'list.title': '📬 Top 10 Ofensores',
-    'list.note': 'Contamos e-mails, um a um, e é esse número que vai para a lixeira. A busca do Gmail agrupa e-mails do mesmo assunto em conversas e ignora o Spam, então costuma mostrar menos — para conferir, busque: from:"remetente" in:anywhere -in:trash. A amostra são os 1.000 e-mails mais recentes e é dela que sai a lista; a contagem de cada remetente é da conta inteira.',
+    'list.note': 'Contamos e-mails, um a um, e é esse número que vai para a lixeira. A busca do Gmail agrupa e-mails do mesmo assunto em conversas e ignora o Spam, então costuma mostrar menos — para conferir, busque: from:"remetente" in:anywhere -in:trash. A amostra são 1.000 e-mails espalhados por toda a caixa e é dela que sai a lista; a contagem de cada remetente é da conta inteira.',
     'btn.clean': 'Limpar',
     'toast.authSuccess': '✅ Autenticado com sucesso!',
     'toast.authError': '❌ Erro na autenticação. Tente novamente.',
@@ -94,7 +94,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'stat.senders': 'Unique senders',
     'stat.top10': 'Top 10 (emails)',
     'list.title': '📬 Top 10 Offenders',
-    'list.note': 'We count emails, one by one, and that is the number that goes to the trash. Gmail search groups emails with the same subject into conversations and skips Spam, so it usually shows less — to check, search: from:"sender" in:anywhere -in:trash. The sample is your 1,000 most recent emails and the list comes from it; each sender\'s count covers the whole account.',
+    'list.note': 'We count emails, one by one, and that is the number that goes to the trash. Gmail search groups emails with the same subject into conversations and skips Spam, so it usually shows less — to check, search: from:"sender" in:anywhere -in:trash. The sample is 1,000 emails spread across your whole mailbox and the list comes from it; each sender\'s count covers the whole account.',
     'btn.clean': 'Clean',
     'toast.authSuccess': '✅ Successfully authenticated!',
     'toast.authError': '❌ Authentication error. Please try again.',
@@ -147,7 +147,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'stat.senders': 'Remitentes únicos',
     'stat.top10': 'Top 10 (correos)',
     'list.title': '📬 Top 10 Infractores',
-    'list.note': 'Contamos correos, uno a uno, y ese es el número que va a la papelera. La búsqueda de Gmail agrupa los correos del mismo asunto en conversaciones y omite el Spam, por eso suele mostrar menos: para comprobarlo, busca from:"remitente" in:anywhere -in:trash. La muestra son los 1.000 correos más recientes y de ahí sale la lista; el recuento de cada remitente es de toda la cuenta.',
+    'list.note': 'Contamos correos, uno a uno, y ese es el número que va a la papelera. La búsqueda de Gmail agrupa los correos del mismo asunto en conversaciones y omite el Spam, por eso suele mostrar menos: para comprobarlo, busca from:"remitente" in:anywhere -in:trash. La muestra son 1.000 correos repartidos por todo el buzón y de ahí sale la lista; el recuento de cada remitente es de toda la cuenta.',
     'btn.clean': 'Limpiar',
     'toast.authSuccess': '✅ ¡Autenticado correctamente!',
     'toast.authError': '❌ Error de autenticación. Inténtalo de nuevo.',
@@ -200,7 +200,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'stat.senders': 'Expéditeurs uniques',
     'stat.top10': 'Top 10 (e-mails)',
     'list.title': '📬 Top 10 des Indésirables',
-    'list.note': 'Nous comptons les e-mails un par un, et c’est ce nombre qui part à la corbeille. La recherche Gmail regroupe les e-mails du même sujet en conversations et ignore le spam, elle en affiche donc souvent moins : pour vérifier, cherchez from:"expéditeur" in:anywhere -in:trash. L’échantillon correspond à vos 1 000 e-mails les plus récents et la liste en découle ; le total de chaque expéditeur couvre tout le compte.',
+    'list.note': 'Nous comptons les e-mails un par un, et c’est ce nombre qui part à la corbeille. La recherche Gmail regroupe les e-mails du même sujet en conversations et ignore le spam, elle en affiche donc souvent moins : pour vérifier, cherchez from:"expéditeur" in:anywhere -in:trash. L’échantillon réunit 1 000 e-mails répartis sur toute la boîte et la liste en découle ; le total de chaque expéditeur couvre tout le compte.',
     'btn.clean': 'Nettoyer',
     'toast.authSuccess': '✅ Authentification réussie !',
     'toast.authError': '❌ Erreur d’authentification. Veuillez réessayer.',
@@ -253,7 +253,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'stat.senders': 'Mittenti unici',
     'stat.top10': 'Top 10 (email)',
     'list.title': '📬 Top 10 Responsabili',
-    'list.note': 'Contiamo le email una a una, ed è questo il numero che finisce nel cestino. La ricerca di Gmail raggruppa le email con lo stesso oggetto in conversazioni e ignora lo spam, quindi di solito ne mostra meno: per verificare, cerca from:"mittente" in:anywhere -in:trash. Il campione sono le 1.000 email più recenti ed è da lì che nasce l’elenco; il conteggio di ogni mittente riguarda l’intero account.',
+    'list.note': 'Contiamo le email una a una, ed è questo il numero che finisce nel cestino. La ricerca di Gmail raggruppa le email con lo stesso oggetto in conversazioni e ignora lo spam, quindi di solito ne mostra meno: per verificare, cerca from:"mittente" in:anywhere -in:trash. Il campione sono 1.000 email distribuite su tutta la casella ed è da lì che nasce l’elenco; il conteggio di ogni mittente riguarda l’intero account.',
     'btn.clean': 'Pulisci',
     'toast.authSuccess': '✅ Autenticazione riuscita!',
     'toast.authError': '❌ Errore di autenticazione. Riprova.',
@@ -306,7 +306,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'stat.senders': 'Уникальных отправителей',
     'stat.top10': 'Топ-10 (письма)',
     'list.title': '📬 Топ-10 нарушителей',
-    'list.note': 'Мы считаем письма по одному, и именно это число уходит в корзину. Поиск Gmail объединяет письма с одной темой в цепочки и не учитывает спам, поэтому обычно показывает меньше: чтобы проверить, найдите from:"отправитель" in:anywhere -in:trash. Выборка — это 1000 самых свежих писем, из неё и берётся список; счётчик каждого отправителя охватывает весь аккаунт.',
+    'list.note': 'Мы считаем письма по одному, и именно это число уходит в корзину. Поиск Gmail объединяет письма с одной темой в цепочки и не учитывает спам, поэтому обычно показывает меньше: чтобы проверить, найдите from:"отправитель" in:anywhere -in:trash. Выборка — это 1000 писем со всего ящика, из неё и берётся список; счётчик каждого отправителя охватывает весь аккаунт.',
     'btn.clean': 'Очистить',
     'toast.authSuccess': '✅ Вход выполнен успешно!',
     'toast.authError': '❌ Ошибка аутентификации. Попробуйте ещё раз.',
@@ -359,7 +359,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'stat.senders': '独立发件人',
     'stat.top10': '前 10 名（邮件数）',
     'list.title': '📬 前 10 名骚扰发件人',
-    'list.note': '我们逐封统计邮件，移入垃圾箱的就是这个数字。Gmail 搜索会把相同主题的邮件归为一个会话，也不含垃圾邮件，因此通常显示得更少：要核对请搜索 from:"发件人" in:anywhere -in:trash。样本是最近的 1,000 封邮件，列表由此产生；每位发件人的数量则来自整个账户。',
+    'list.note': '我们逐封统计邮件，移入垃圾箱的就是这个数字。Gmail 搜索会把相同主题的邮件归为一个会话，也不含垃圾邮件，因此通常显示得更少：要核对请搜索 from:"发件人" in:anywhere -in:trash。样本是遍布整个邮箱的 1,000 封邮件，列表由此产生；每位发件人的数量则来自整个账户。',
     'btn.clean': '清理',
     'toast.authSuccess': '✅ 认证成功！',
     'toast.authError': '❌ 认证失败，请重试。',
@@ -813,8 +813,12 @@ function announcePhase(phase: gmail.ProgressPhase | '', text: string): void {
 
 /** Traduz o progresso de gmail.ts para o texto do overlay. */
 function reportProgress(phase: gmail.ProgressPhase, done: number, total: number): void {
+  // 'scanning' reaproveita o texto de entrada da leitura: "Lendo a caixa
+  // postal…", sem número. É o que ela é — e a fase não tem denominador para
+  // mostrar, porque é ela que vai descobri-lo.
   const text =
-    phase === 'waiting' ? t('loading.waiting')
+    phase === 'scanning' ? t('loading.readingStart')
+    : phase === 'waiting' ? t('loading.waiting')
     : phase === 'ranking' ? t('loading.ranking')
     : phase === 'readDone' ? t('loading.readDone', { total: formatNumber(total) })
     : t('loading.reading', { done: formatNumber(done), total: formatNumber(total) });

@@ -7,9 +7,20 @@ import { analyze, type ProgressPhase } from '../src/gmail';
 const TOTAL = 1000;
 const SENDERS = 12;
 
+// Caixa de 1500 mensagens em 3 páginas — maior que a amostra de 1000, que é o
+// caso que interessa: é a diferença entre varrer a caixa e ver só o começo dela.
+const PAGE = 500;
+const PAGES = 3;
+const MAILBOX = PAGE * PAGES;
+
+// As mensagens de índice >= 1000 são as ANTIGAS: ficam fora das 1000 mais
+// recentes, que era toda a amostra antiga. Este remetente só existe nelas.
+const OLD_SENDER = 'antigo@exemplo.com';
+
 // Mensagens que não rendem remetente também são mensagens LIDAS: a de índice
 // 7 volta sem cabeçalho From (o `return` cedo) e a 13 falha na rede (o
 // `catch`). Se o contador não passasse pelo finally, o total nunca fecharia.
+// Ambas caem na amostra: com passo 1,5 os índices são 0,1,3,4,6,7,9,10,12,13…
 const NO_FROM = '7';
 const BROKEN = '13';
 
@@ -25,12 +36,15 @@ globalThis.fetch = (async (input: string) => {
   // Contagem exata de um remetente (tem q=from:)
   if (url.includes('q=from')) return jsonRes({ messages: [{ id: 'x' }, { id: 'y' }] });
 
-  // Listagem da amostra: duas páginas de 500
+  // Varredura da caixa: PAGES páginas encadeadas por pageToken, e aí acaba.
+  // Sem o fim, a varredura só pararia no teto e o teste não veria a caixa
+  // inteira — que é o que ele existe para checar.
   if (url.includes('/messages?')) {
-    const page = url.includes('pageToken') ? 1 : 0;
+    const token = new URL(url).searchParams.get('pageToken');
+    const page = token ? Number(token) : 0;
     return jsonRes({
-      messages: Array.from({ length: 500 }, (_, i) => ({ id: String(page * 500 + i) })),
-      nextPageToken: 'next'
+      messages: Array.from({ length: PAGE }, (_, i) => ({ id: String(page * PAGE + i) })),
+      nextPageToken: page < PAGES - 1 ? String(page + 1) : undefined
     });
   }
 
@@ -38,8 +52,15 @@ globalThis.fetch = (async (input: string) => {
   const id = url.split('/messages/')[1]!.split('?')[0]!;
   if (id === BROKEN) return { ok: false, status: 500, json: async () => ({}) } as unknown as Response;
   if (id === NO_FROM) return jsonRes({ payload: { headers: [] }, sizeEstimate: 10 });
+  // Remetente por BLOCO de 40 ids, não por `n % SENDERS`: um passo de amostra
+  // fracionário pula índices em progressão (com 1,5 nunca cai em n≡2 mod 3) e,
+  // se o remetente também for periódico no índice, os dois períodos batem e o
+  // mock "esconde" remetentes por aritmética — defeito do teste, não do app.
+  // Caixa de verdade não alterna remetente de mensagem em mensagem.
+  const n = Number(id);
+  const from = n >= TOTAL ? OLD_SENDER : `r${Math.floor(n / 40) % SENDERS}@exemplo.com`;
   return jsonRes({
-    payload: { headers: [{ name: 'From', value: `Fulano <r${Number(id) % SENDERS}@exemplo.com>` }] },
+    payload: { headers: [{ name: 'From', value: `Fulano <${from}>` }] },
     sizeEstimate: 100
   });
 }) as typeof fetch;
@@ -81,4 +102,28 @@ assert.equal(data.failedMessages, 1);
 assert.equal(data.totalMessages, TOTAL);
 assert.equal(data.top10.length, 10);
 
-console.log(`ok — ${reading.length} passos de leitura, fecha em ${TOTAL}, ${data.uniqueSenders} remetentes`);
+// 6) A varredura vem antes de tudo e não mostra número: é ela que descobre o
+// denominador, então não teria o que mostrar.
+assert.equal(seen[0]?.phase, 'scanning', 'a varredura é a primeira fase anunciada');
+assert.ok(
+  seen.filter((s) => s.phase === 'scanning').every((s) => s.done === 0 && s.total === 0),
+  'a varredura não reporta contador'
+);
+
+// 7) O remetente que só tem e-mails ANTIGOS aparece. Era o buraco: a amostra
+// antiga eram as 1000 primeiras da lista, e ele vive da 1000 em diante — nunca
+// era descoberto, e contagem exata nenhuma resgata quem não foi descoberto.
+// Se a amostra voltar a ser `allIds.slice(0, MAX_ANALYZE)`, esta linha quebra.
+assert.ok(
+  data.offenders.some((o) => o.sender === OLD_SENDER),
+  `${OLD_SENDER} vive só na parte antiga da caixa e precisa entrar na amostra`
+);
+
+// 8) Os 12 remetentes recentes continuam todos lá: espalhar a amostra não pode
+// custar quem já aparecia. São 12 + o antigo.
+assert.equal(data.uniqueSenders, SENDERS + 1);
+
+console.log(
+  `ok — ${reading.length} passos de leitura, fecha em ${TOTAL}, ` +
+    `${data.uniqueSenders} remetentes de uma caixa de ${MAILBOX}`
+);
