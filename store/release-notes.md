@@ -8,6 +8,103 @@ Uma seção por versão, a mais nova em cima.
 
 ---
 
+## 1.5 (versionCode 6)
+
+O que o testador percebe: a espera continua a mesma, mas parou de parecer
+travamento. A demora foi a reclamação nº 1 prevista para o 1.4 — esta versão não
+a encurta, mostra o que está acontecendo enquanto ela dura. Por isso a nota fala
+de número na tela, não de velocidade: prometer rapidez aqui seria mentira.
+
+A varredura não ganha denominador em nenhum idioma. É ela que descobre o tamanho
+da caixa; um total ali seria número inventado, que é o que este app existe para
+não fazer.
+
+### 🇧🇷 Português (pt-BR)
+```
+A espera agora tem número. Os dois trechos mais longos ficavam com o texto parado e pareciam travamento:
+
+• Varredura da caixa: mostra quantos e-mails já encontrou, subindo a cada bloco lido
+• Montagem do ranking: mostra o percentual concluído
+
+A varredura não mostra um total porque é justamente ela que descobre o tamanho da sua caixa.
+
+A contagem e a limpeza passaram a usar a mesma lista de mensagens, sem repetição.
+```
+
+### 🇺🇸 English (en-US)
+```
+The wait now has a number. The two longest stretches used to sit on a frozen line and looked like a crash:
+
+• Mailbox scan: shows how many emails it has found so far, rising with each block
+• Building the ranking: shows the percentage done
+
+The scan shows no total because it is the step that discovers how big your mailbox is.
+
+Counting and cleaning now use the same message list, with no duplicates.
+```
+
+### 🇪🇸 Español (es)
+```
+La espera ahora tiene número. Los dos tramos más largos se quedaban con el texto quieto y parecían un bloqueo:
+
+• Recorrido del buzón: muestra cuántos correos lleva encontrados, subiendo con cada bloque
+• Armado del ranking: muestra el porcentaje completado
+
+El recorrido no muestra un total porque es justo el paso que descubre el tamaño de tu buzón.
+
+El recuento y la limpieza ahora usan la misma lista de mensajes, sin repeticiones.
+```
+
+### 🇫🇷 Français (fr)
+```
+L'attente a enfin un chiffre. Les deux étapes les plus longues restaient figées et ressemblaient à un plantage :
+
+• Parcours de la boîte : affiche le nombre d'e-mails déjà trouvés, qui monte à chaque bloc
+• Constitution du classement : affiche le pourcentage effectué
+
+Le parcours n'affiche pas de total car c'est lui qui découvre la taille de votre boîte.
+
+Le comptage et le nettoyage utilisent la même liste, sans doublons.
+```
+
+### 🇮🇹 Italiano (it-IT)
+```
+L'attesa ora ha un numero. I due tratti più lunghi restavano con il testo fermo e sembravano un blocco:
+
+• Scansione della casella: mostra quante email ha già trovato, in crescita a ogni blocco
+• Creazione della classifica: mostra la percentuale completata
+
+La scansione non mostra un totale perché è proprio il passaggio che scopre quanto è grande la casella.
+
+Conteggio e pulizia ora usano la stessa lista di messaggi, senza ripetizioni.
+```
+
+### 🇷🇺 Русский (ru-RU)
+```
+У ожидания появилось число. Два самых долгих этапа стояли с неподвижной строкой и выглядели как зависание:
+
+• Просмотр ящика: показывает, сколько писем уже найдено — счётчик растёт с каждым блоком
+• Составление рейтинга: показывает процент выполнения
+
+Общее число на первом этапе не показано: именно он и выясняет размер ящика.
+
+Подсчёт и очистка теперь работают с одним и тем же списком писем, без повторов.
+```
+
+### 🇨🇳 中文 (zh-CN)
+```
+等待过程现在有数字了。此前最长的两个阶段文字一直不动，看起来像卡死：
+
+• 扫描邮箱：显示已找到多少封邮件，每读一批就往上加
+• 生成排行：显示已完成的百分比
+
+扫描阶段不显示总数，因为正是这一步在算出你的邮箱有多大。
+
+统计和清理现在使用同一份邮件清单，不再重复计算。
+```
+
+---
+
 ## 1.4 (versionCode 5)
 
 O que o testador percebe: o ranking passa a encontrar remetente antigo, e a
