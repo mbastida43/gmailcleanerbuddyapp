@@ -8,6 +8,66 @@ Uma seção por versão, a mais nova em cima.
 
 ---
 
+## 1.7 (versionCode 8)
+
+O que o testador percebe: dois números que já existiam na tela ficam mais honestos, não
+novos. O tamanho por remetente estava preso ao que caiu na amostra de até 1000 mensagens e
+nunca era corrigido quando a contagem exata mostrava um total maior — para um remetente com
+milhares de e-mails e poucos na amostra, o tamanho na tela podia ficar bem abaixo do real. O
+"Remetentes únicos" também mostrava o descoberto na amostra como se fosse o total da caixa;
+agora ganha o mesmo "+" que os e-mails totais já usavam quando é piso, não total.
+
+### 🇧🇷 Português (pt-BR)
+```
+O tamanho ao lado de cada remetente agora acompanha a contagem exata: antes ficava preso ao que caiu na amostra de análise, e podia mostrar bem menos do que o remetente realmente ocupa.
+
+O número de remetentes únicos também ganhou um "+" quando é piso — descoberto na amostra, não o total real da caixa — o mesmo aviso que os e-mails totais já tinham.
+```
+
+### 🇺🇸 English (en-US)
+```
+The size next to each sender now tracks the exact count: it used to be stuck to whatever landed in the analysis sample, and could show far less than the sender actually takes up.
+
+Unique senders also gets a "+" when it's a floor — found in the sample, not the mailbox's real total — the same warning total emails already had.
+```
+
+### 🇪🇸 Español (es)
+```
+El tamaño junto a cada remitente ahora sigue el recuento exacto: antes quedaba atado a lo que caía en la muestra del análisis, y podía mostrar mucho menos de lo que el remitente realmente ocupa.
+
+Remitentes únicos también gana un "+" cuando es un piso — descubierto en la muestra, no el total real del buzón — el mismo aviso que ya tenían los correos totales.
+```
+
+### 🇫🇷 Français (fr)
+```
+La taille à côté de chaque expéditeur suit désormais le comptage exact : avant, elle restait bloquée sur ce qui tombait dans l'échantillon d'analyse et pouvait afficher bien moins que ce que l'expéditeur occupe réellement.
+
+Le nombre d'expéditeurs uniques reçoit aussi un « + » quand c'est un plancher — découvert dans l'échantillon, pas le total réel de la boîte — le même avertissement que les e-mails totaux avaient déjà.
+```
+
+### 🇮🇹 Italiano (it-IT)
+```
+La dimensione accanto a ogni mittente ora segue il conteggio esatto: prima restava legata a quanto cadeva nel campione di analisi e poteva mostrare molto meno di quanto il mittente occupi davvero.
+
+Anche i mittenti unici ricevono un "+" quando è un minimo — scoperto nel campione, non il totale reale della casella — lo stesso avviso che le email totali già avevano.
+```
+
+### 🇷🇺 Русский (ru-RU)
+```
+Размер рядом с каждым отправителем теперь соответствует точному подсчёту: раньше он был привязан только к тому, что попало в выборку анализа, и мог показывать намного меньше, чем отправитель занимает на самом деле.
+
+Число уникальных отправителей тоже получает «+», когда это нижняя граница — найдено в выборке, а не реальный итог ящика — то же предупреждение, что уже было у общего числа писем.
+```
+
+### 🇨🇳 中文 (zh-CN)
+```
+每个发件人旁边的大小现在会跟随精确统计：以前它只统计落入分析抽样的部分，可能远低于该发件人实际占用的空间。
+
+当"独立发件人"只是抽样中发现的下限、并非邮箱真实总数时，现在也会像邮件总数一样加上"+"提示。
+```
+
+---
+
 ## 1.6 (versionCode 7)
 
 O que o testador percebe: a espera continua a mesma, mas parou de parecer
