@@ -84,6 +84,10 @@ export interface Offender {
   domain: string;
   count: number;
   sampleCount: number;
+  /** Estimativa de bytes. Some só o que caiu na amostra e depois escala pela
+   *  razão count/sampleCount quando `count` vira exato — sem isso, um
+   *  remetente com milhares de e-mails mas poucos na amostra mostrava o
+   *  tamanho de só essa fração, sem nenhum aviso de que era aproximado. */
   size: number;
   category: string;
   isProtected: boolean;
@@ -404,6 +408,9 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
         try {
           item.count = await countMessagesFrom(item.sender);
           item.exact = true;
+          // Escala o tamanho amostrado pela mesma razão: sampleCount mensagens
+          // pesaram item.size, count é o total real.
+          item.size = Math.round((item.size * item.count) / item.sampleCount);
         } catch (err) {
           if (err instanceof UnauthorizedError) throw err;
           // mantém a contagem da amostra como fallback

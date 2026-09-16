@@ -594,7 +594,12 @@ function renderResults(data: AnalyzeData): void {
   document.getElementById('totalEmails')!.textContent =
     formatNumber(data.mailboxMessages) + (data.mailboxCapped ? '+' : '');
   document.getElementById('totalSize')!.textContent = formatSize(data.offenders.reduce((s, o) => s + o.size, 0));
-  document.getElementById('uniqueSenders')!.textContent = formatNumber(data.uniqueSenders);
+  // Mesmo critério do "+" acima: sobrou mensagem fora da amostra (ou a
+  // varredura nem terminou), então o número de remetentes é piso, não total —
+  // só quem foi lido tem como aparecer na lista.
+  const sendersCapped = data.mailboxCapped || data.mailboxMessages > data.totalMessages;
+  document.getElementById('uniqueSenders')!.textContent =
+    formatNumber(data.uniqueSenders) + (sendersCapped ? '+' : '');
   document.getElementById('top10Count')!.textContent = formatNumber(data.top10.reduce((s, o) => s + o.count, 0));
 
   const list = document.getElementById('offendersList')!;
