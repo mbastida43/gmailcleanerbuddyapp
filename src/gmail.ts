@@ -1,38 +1,146 @@
 // ============================================================
 // Camada Gmail — porta da lógica do servidor Express (src/server.ts do
 // projeto web) para chamadas diretas à REST API do Gmail com Bearer token.
-// Mantém a mesma semântica validada no app web:
-// - amostra de 1000 mensagens ESPALHADAS pela caixa (ids varridos inteiros,
-//   metadado só das 1000 sorteadas) — descobre quem são os remetentes
-// - contagem EXATA (busca from:"..." na conta inteira) para cada um deles
+// Regra única desta camada: CONTAGEM EXATA, mensagem por mensagem. Nenhum
+// número na tela é amostra, estimativa ou extrapolação.
+// - varre os ids da caixa inteira (sem metadado, barato)
+// - conhece o remetente de TODAS elas — uma a uma. É o único jeito de a soma
+//   dos remetentes fechar com o total da caixa.
+// - e por isso mesmo guarda o que aprendeu: remetente e tamanho de uma
+//   mensagem não mudam nunca, então só id inédito custa leitura (ver o cache
+//   mais abaixo). A exatidão é a mesma; o que cai é o tempo.
 // - limpeza via batchModify (até 1000 ids/chamada, TRASH + remove INBOX)
 //   com fallback para messages.trash individual
+//
+// A amostragem de 1000 mensagens que existia aqui foi removida: amostra
+// descobre remetente, não conta e-mail. Quem não caía nas 1000 sorteadas
+// simplesmente não existia na tela, e a contagem exata por busca — que ficava
+// por cima para corrigir — nunca resgata um remetente que nunca foi
+// descoberto. Agora não há quem corrigir: todo mundo é lido.
 // ============================================================
 
 import { getAccessToken } from './auth';
 
 const BASE = 'https://gmail.googleapis.com/gmail/v1/users/me';
 
-// Quantas mensagens têm o cabeçalho From lido. É o teto CARO: uma chamada por
-// mensagem. Mantido em 1000 — o que mudou foi de ONDE essas 1000 saem.
-const MAX_ANALYZE = 1000;
+// Trava de sanidade contra paginação que não termina, não limite de produto:
+// 2000 páginas × 500 ids = 1 milhão de mensagens. Bater nisso acende o
+// `mailboxCapped`, e a tela mostra o número como piso ("1.000.000+").
+const MAX_PAGES = 2000;
 
-// Teto da varredura de ids: 500 por chamada, então 100 páginas = 50.000
-// mensagens. Essa parte é barata (ids sem metadado), mas é sequencial — o
-// pageToken encadeia — e cada página custa ~200ms. 100 páginas é o ponto em que
-// a espera ainda cabe numa análise. Acima de 50.000, a amostra se espalha pelas
-// 50.000 mais recentes em vez da caixa toda: continua muito melhor do que as
-// 1.000 mais recentes, só não é a caixa inteira.
-const MAX_SCAN_PAGES = 100;
+// Cota do Gmail: 250 unidades por segundo por usuário, e um messages.get custa
+// 5 unidades. Teto FÍSICO de 50 mensagens por segundo — ler a caixa inteira
+// leva o tempo que leva, e nenhuma concorrência maior acelera: passar do teto
+// só rende 429. Seguramos em 45/s para deixar folga para a varredura.
+//
+// ponytail: leitura ~45 e-mails/s. Caixa de 20 mil ≈ 7 min, 50 mil ≈ 18 min.
+// É o preço da exatidão pedida. Se um dia isso incomodar, o caminho NÃO é
+// voltar a amostrar — é guardar o resultado por id e reler só o que chegou
+// desde a última análise (histórico incremental).
+const READ_CONCURRENCY = 20;
+const READ_PER_SEC = 45;
 
-// Contagem exata para TODOS os remetentes descobertos, não só para os
-// campeões da amostra. Quem escreve uma vez por mês aparecia com contagem 1 e
-// afundava para a centésima posição, mesmo tendo dezenas de e-mails na conta
-// inteira. Era o caso do groups-noreply@linkedin.com: 1 na amostra, 17 no
-// total. Com o limite em 25 ele nunca chegava a ser contado.
-// O teto abaixo é só uma trava contra caixas com milhares de remetentes
-// distintos, não um ranking.
-const EXACT_COUNT_LIMIT = 500;
+// ============================================================
+// Cache de identidade por id de mensagem.
+//
+// Ler o cabeçalho From custa 5 unidades de cota por mensagem, e o Gmail dá 250
+// por segundo — 50 mensagens/s, teto físico. Mas o remetente e o tamanho de
+// uma mensagem NUNCA mudam: o que muda é o conjunto de ids da caixa, e isso a
+// varredura descobre de graça (5 unidades por 500 ids).
+//
+// Então a varredura manda e a leitura só paga pelos ids que ela nunca viu. A
+// primeira análise de uma caixa de 20 mil leva os ~7 minutos de sempre; a
+// segunda lê só o que chegou desde então — segundos. Depois de uma limpeza,
+// zero: nenhum id novo.
+//
+// Nada disso afrouxa a exatidão. A conta continua sendo feita sobre o conjunto
+// varrido AGORA, mensagem por mensagem; o cache só evita repetir a pergunta
+// cuja resposta não muda. Id que saiu da caixa sai do cache no fim da análise.
+// ============================================================
+
+/** O que se sabe de uma mensagem. `sender` vazio = lida e sem remetente
+ *  utilizável (rascunho, chat, cabeçalho corrompido). */
+interface MsgFacts {
+  sender: string;
+  size: number;
+}
+
+const CACHE_PREFIX = 'msgfacts:v1:';
+
+/**
+ * `localStorage` não existe no bundle de teste (roda em Node) e pode estar
+ * desligado numa webview. Cache ausente é caso normal — custa reler, não
+ * errar —, então o acesso é opcional em vez de obrigatório.
+ */
+function storage(): Storage | null {
+  try {
+    return typeof localStorage !== 'undefined' ? localStorage : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Formato guardado: os remetentes vão numa lista e cada mensagem referencia o
+ * índice. Um endereço como `groups-noreply@linkedin.com` aparece milhares de
+ * vezes numa caixa; repetir a string em cada entrada triplicava o JSON e
+ * estourava o `localStorage` antes da hora.
+ */
+function loadCache(email: string): Map<string, MsgFacts> {
+  const facts = new Map<string, MsgFacts>();
+  const store = storage();
+  if (!store || !email) return facts;
+  try {
+    const raw = store.getItem(CACHE_PREFIX + email);
+    if (!raw) return facts;
+    const parsed = JSON.parse(raw);
+    const senders: unknown = parsed?.senders;
+    const msgs: unknown = parsed?.msgs;
+    if (!Array.isArray(senders) || !msgs || typeof msgs !== 'object') return facts;
+    for (const [id, entry] of Object.entries(msgs as Record<string, unknown>)) {
+      if (!Array.isArray(entry)) continue;
+      const sender = senders[Number(entry[0])];
+      facts.set(id, {
+        sender: typeof sender === 'string' ? sender : '',
+        size: Number(entry[1]) || 0
+      });
+    }
+  } catch {
+    // Cache corrompido é cache ausente: a análise relê e reescreve. Nunca vale
+    // derrubar uma análise por causa de um atalho de desempenho.
+    facts.clear();
+  }
+  return facts;
+}
+
+function saveCache(email: string, facts: Map<string, MsgFacts>): void {
+  const store = storage();
+  if (!store || !email) return;
+  try {
+    const index = new Map<string, number>();
+    const senders: string[] = [];
+    const msgs: Record<string, [number, number]> = {};
+    for (const [id, f] of facts) {
+      let i = index.get(f.sender);
+      if (i === undefined) {
+        i = senders.push(f.sender) - 1;
+        index.set(f.sender, i);
+      }
+      msgs[id] = [i, f.size];
+    }
+    store.setItem(CACHE_PREFIX + email, JSON.stringify({ senders, msgs }));
+  } catch {
+    // ponytail: o localStorage estoura por volta de 5 MB, ~100 mil mensagens.
+    // Estourar só custa reler na próxima análise, então descartamos o cache em
+    // silêncio em vez de quebrar uma análise que já terminou certa. Se caixas
+    // desse tamanho virarem regra, o caminho é IndexedDB.
+    try {
+      store.removeItem(CACHE_PREFIX + email);
+    } catch {
+      /* nem remover deu: segue sem cache */
+    }
+  }
+}
 
 export class UnauthorizedError extends Error {
   constructor() {
@@ -82,18 +190,15 @@ export interface Offender {
    *  o LinkedIn, por exemplo, escreve de groups-noreply@, jobs-noreply@,
    *  messages-noreply@ e outros, e cada um é uma linha independente. */
   domain: string;
+  /** Quantas mensagens deste remetente existem na caixa. Contadas uma a uma,
+   *  lendo o cabeçalho From de cada mensagem — não é busca, nem estimativa,
+   *  nem amostra escalada. */
   count: number;
-  sampleCount: number;
-  /** Estimativa de bytes. Some só o que caiu na amostra e depois escala pela
-   *  razão count/sampleCount quando `count` vira exato — sem isso, um
-   *  remetente com milhares de e-mails mas poucos na amostra mostrava o
-   *  tamanho de só essa fração, sem nenhum aviso de que era aproximado. */
+  /** Soma dos sizeEstimate das mesmas `count` mensagens. Também exata: era
+   *  extrapolada pela razão count/amostra, que inventava bytes. */
   size: number;
   category: string;
   isProtected: boolean;
-  /** true quando `count` veio da busca na conta inteira; false quando é só
-   *  a contagem da amostra (acontece se a contagem exata falhar). */
-  exact: boolean;
 }
 
 /**
@@ -106,19 +211,24 @@ export interface Offender {
  * para não estourar a cota do Gmail. A interface precisa distinguir os dois,
  * senão a pausa passa por travamento.
  *
- * 'ranking' = contagem exata de cada remetente na conta inteira.
+ * Duas fases, não três: a 'ranking' (contagem exata por busca) deixou de
+ * existir porque a leitura já conta tudo. Ela só era necessária para corrigir
+ * o que a amostra errava.
  *
- * Cada fase manda done/total no seu próprio universo (ids varridos, e-mails da
- * amostra, remetentes contados). Quem transforma isso num percentual ÚNICO de
- * 0 a 100 é a interface: três contadores em sequência, cada um recomeçando do
- * zero, é o que fazia a análise parecer que tinha reiniciado.
+ * Cada fase manda done/total no seu próprio universo (ids varridos, e-mails
+ * lidos). Quem transforma isso num percentual ÚNICO de 0 a 100 é a interface.
  */
-export type ProgressPhase = 'scanning' | 'reading' | 'waiting' | 'ranking';
+export type ProgressPhase = 'scanning' | 'reading' | 'waiting';
 export type ProgressFn = (phase: ProgressPhase, done: number, total: number) => void;
 
 export interface AnalyzeData {
-  /** Tamanho da amostra — quantas mensagens tiveram o cabeçalho From lido. */
+  /** Mensagens consideradas na análise: a caixa inteira, igual a
+   *  `mailboxMessages`. Mantido como campo próprio porque é o que a interface
+   *  usa para falar do universo analisado. */
   totalMessages: number;
+  /** Mensagens cuja identidade se conhece — lidas agora ou vindas do cache de
+   *  análises anteriores. `totalMessages - analyzedMessages` é exatamente
+   *  `failedMessages`. */
   analyzedMessages: number;
   failedMessages: number;
   uniqueSenders: number;
@@ -128,10 +238,19 @@ export interface AnalyzeData {
    */
   mailboxMessages: number;
   /**
-   * true quando a varredura parou no teto (MAX_SCAN_PAGES) em vez de no fim da
-   * caixa — aí `mailboxMessages` é um piso, não o total, e a interface precisa
-   * dizer "50.000+". Mostrar o número redondo como se fosse exato seria
-   * exatamente o tipo de precisão inventada que este app existe para não fazer.
+   * Mensagens lidas que não renderam remetente: sem cabeçalho From (rascunho,
+   * mensagem de chat) ou com um endereço que não passa na validação. Contam na
+   * caixa mas não em nenhum remetente — é a única diferença legítima entre
+   * `mailboxMessages` e a soma dos `count`, e por isso vai para a tela em vez
+   * de ficar escondida.
+   */
+  unattributedMessages: number;
+  /**
+   * true quando a varredura parou na trava de sanidade (MAX_PAGES, 1 milhão de
+   * mensagens) em vez de no fim da caixa — aí `mailboxMessages` é um piso e a
+   * interface precisa dizer "+". Mostrar o número redondo como se fosse exato
+   * seria exatamente o tipo de precisão inventada que este app existe para não
+   * fazer.
    */
   mailboxCapped: boolean;
   offenders: Offender[];
@@ -142,29 +261,48 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function gfetch(path: string, init: RequestInit = {}): Promise<any> {
-  const token = getAccessToken();
-  if (!token) throw new UnauthorizedError();
+// Erros que somem sozinhos: cota estourada e indisponibilidade momentânea do
+// Gmail. Um 429 no meio da leitura era contado como failedMessages — mensagem
+// descartada, e a contagem na tela ficava MENOR do que a do Gmail sem nenhum
+// aviso. Com a caixa inteira sendo lida, 429 deixa de ser exceção e passa a ser
+// rotina; descartar não é opção quando o produto é o número exato.
+const RETRY_STATUS = new Set([429, 500, 502, 503, 504]);
+const MAX_RETRIES = 5;
 
-  const res = await fetch(`${BASE}${path}`, {
-    ...init,
-    headers: {
-      ...(init.headers || {}),
-      Authorization: `Bearer ${token}`
+async function gfetch(path: string, init: RequestInit = {}): Promise<any> {
+  for (let attempt = 0; ; attempt++) {
+    const token = getAccessToken();
+    if (!token) throw new UnauthorizedError();
+
+    const res = await fetch(`${BASE}${path}`, {
+      ...init,
+      headers: {
+        ...(init.headers || {}),
+        Authorization: `Bearer ${token}`
+      }
+    });
+    if (res.ok) {
+      if (res.status === 204) return null;
+      return res.json();
     }
-  });
-  if (!res.ok) {
+
     const { reason, message } = await readApiError(res);
     if (res.status === 401 || (res.status === 403 && AUTH_REASONS.has(reason))) {
       throw new UnauthorizedError();
     }
-    throw new GmailApiError(res.status, reason, message);
+    // O 403 de cota (rateLimitExceeded / userRateLimitExceeded) é transitório
+    // como o 429, e o Gmail usa os dois para a mesma coisa.
+    const retriable =
+      RETRY_STATUS.has(res.status) ||
+      (res.status === 403 && /rateLimitExceeded/i.test(reason));
+    if (!retriable || attempt >= MAX_RETRIES) {
+      throw new GmailApiError(res.status, reason, message);
+    }
+    // 300ms, 600, 1200, 2400, 4800 — tempo de sobra para a média móvel da cota
+    // baixar, sem prender a análise por minutos.
+    await sleep(300 * 2 ** attempt);
   }
-  if (res.status === 204) return null;
-  return res.json();
 }
-
-const MAX_SENDER_PAGES = 50;
 
 /**
  * A consulta por remetente — uma só, usada pela contagem E pela limpeza.
@@ -279,7 +417,13 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
   let scanned = 0;
   do {
     const q = new URLSearchParams({
-      q: '-in:trash',
+      // MESMA string de buildSenderQuery, menos o `from:`. O `in:anywhere`
+      // não é decoração: sem ele, `-in:trash` devolvia 256 onde
+      // `in:anywhere -in:trash` devolvia 265 — faltavam as segundas mensagens
+      // de conversas com reenvio. Enquanto a varredura não o tinha, essas
+      // mensagens não eram lidas, logo não eram contadas para ninguém, e a
+      // soma dos remetentes não fechava com a caixa.
+      q: 'in:anywhere -in:trash',
       maxResults: '500',
       includeSpamTrash: 'true',
       fields: 'messages/id,nextPageToken'
@@ -294,50 +438,41 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
     // era a única sem número nenhum: meio minuto de texto parado é a cara de um
     // app travado. Um total que sobe a cada página prova que algo acontece.
     report('scanning', seenIds.size, 0);
-  } while (pageToken && scanned < MAX_SCAN_PAGES);
+  } while (pageToken && scanned < MAX_PAGES);
 
-  // Sobrou pageToken = paramos no teto, não no fim da caixa.
+  // Sobrou pageToken = paramos na trava de sanidade, não no fim da caixa.
   const mailboxCapped = !!pageToken;
   const allIds = [...seenIds];
 
-  // 2) Amostra ESPALHADA pela caixa toda, não as 1000 mais recentes.
+  // 2) O que já se sabe sai do cache; o resto é lido.
   //
-  // A amostra antiga era o começo da lista — algo como 60 dias de caixa. Quem
-  // despejou 500 e-mails e parou de escrever há dois anos simplesmente não
-  // existia no ranking: não era contagem errada, era remetente ausente, e
-  // nenhuma contagem exata resgata quem nunca foi descoberto.
+  // `facts` é um Map CHAVEADO POR ID, e é essa escolha que garante a exatidão:
+  // um id só pode ter uma entrada, então uma mensagem não tem como ser contada
+  // duas vezes, venha ela do cache ou da leitura. A contagem por remetente é
+  // derivada disso no fim, nunca incrementada no caminho.
   //
-  // Pegando 1 a cada N ao longo da lista inteira, a chance de descobrir um
-  // remetente cresce com o tamanho dele — que é exatamente o critério do app.
-  // Numa caixa de 40 mil, N=40: quem tem 500 e-mails aparece praticamente
-  // sempre, e quem tem 3 quase nunca. É a troca certa aqui, porque quem tem 3
-  // e-mails nunca foi o problema de ninguém. O passo é fracionário de
-  // propósito: arredondá-lo para baixo amontoaria a amostra no início da lista,
-  // que é o viés de recência que estamos tirando.
-  const step = Math.max(1, allIds.length / MAX_ANALYZE);
-  const toAnalyze: string[] = [];
-  for (let i = 0; toAnalyze.length < MAX_ANALYZE; i++) {
-    const idx = Math.floor(i * step);
-    if (idx >= allIds.length) break;
-    toAnalyze.push(allIds[idx]!);
+  // Sem cache útil, isto é idêntico ao que era antes: lê tudo, uma por uma.
+  const cached = ownEmail ? loadCache(ownEmail) : new Map<string, MsgFacts>();
+  const facts = new Map<string, MsgFacts>();
+  const toRead: string[] = [];
+  for (const id of allIds) {
+    const hit = cached.get(id);
+    if (hit) facts.set(id, hit);
+    else toRead.push(id);
   }
 
-  // 3) Remetente de cada mensagem (em lotes paralelos)
-  const senderCounts: Record<string, number> = {};
-  const senderSizes: Record<string, number> = {};
-  const senderCategories: Record<string, string> = {};
   let failedMessages = 0;
 
-  // Um passo por E-MAIL, não por lote de 25. O contador é o número real de
-  // mensagens já lidas: sobe uma a uma conforme cada resposta chega, e o
-  // último incremento escreve 1000. Antes ele era reportado ANTES do lote, ia
-  // de 0 a 975 aos pulos e a fase terminava sem nunca escrever 1000 — o
-  // usuário esperava por um número que não vinha.
-  const BATCH_SIZE = 25;
+  // Um passo por E-MAIL, não por lote: o contador é o número real de mensagens
+  // já lidas, sobe uma a uma conforme cada resposta chega, e o último
+  // incremento escreve o total cheio. O denominador é o que falta LER, não o
+  // tamanho da caixa — numa segunda análise são 80 mensagens, não 20 mil, e
+  // fingir o contrário deixaria a barra parada em 99%.
   let read = 0;
-  report('reading', 0, toAnalyze.length);
-  for (let i = 0; i < toAnalyze.length; i += BATCH_SIZE) {
-    const batch = toAnalyze.slice(i, i + BATCH_SIZE);
+  report('reading', 0, toRead.length);
+  for (let i = 0; i < toRead.length; i += READ_CONCURRENCY) {
+    const batch = toRead.slice(i, i + READ_CONCURRENCY);
+    const startedAt = Date.now();
     await Promise.all(
       batch.map(async (id) => {
         try {
@@ -347,92 +482,81 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
           const headers: Array<{ name?: string; value?: string }> =
             details.payload?.headers || [];
           const fromHeader = headers.find((h) => h.name === 'From');
-          if (!fromHeader?.value) return;
 
-          const emailMatch =
-            fromHeader.value.match(/<(.+?)>/) ||
-            fromHeader.value.match(/([^\s]+@[^\s]+)/);
-          const raw = emailMatch ? emailMatch[1] : fromHeader.value;
-          const senderEmail = String(raw).trim().toLowerCase();
-          if (!validateSender(senderEmail)) return;
-
-          senderCounts[senderEmail] = (senderCounts[senderEmail] || 0) + 1;
-          senderSizes[senderEmail] =
-            (senderSizes[senderEmail] || 0) + (details.sizeEstimate || 0);
-          if (!senderCategories[senderEmail]) {
-            senderCategories[senderEmail] = categorizeSender(senderEmail);
-          }
+          const emailMatch = fromHeader?.value
+            ? fromHeader.value.match(/<(.+?)>/) ||
+              fromHeader.value.match(/([^\s]+@[^\s]+)/)
+            : null;
+          const raw = emailMatch ? emailMatch[1] : fromHeader?.value;
+          const senderEmail = String(raw || '').trim().toLowerCase();
+          // Remetente vazio = lida e sem remetente utilizável (rascunho,
+          // mensagem de chat, cabeçalho corrompido). Ela EXISTE na caixa, então
+          // entra no Map do mesmo jeito em vez de desaparecer — era o buraco
+          // silencioso que abria diferença entre o total da caixa e a soma da
+          // lista. Vai para o cache também: relê-la não mudaria o resultado.
+          facts.set(id, {
+            sender: validateSender(senderEmail) ? senderEmail : '',
+            size: Number(details.sizeEstimate) || 0
+          });
         } catch (err) {
           if (err instanceof UnauthorizedError) throw err;
+          // gfetch já retentou 429/5xx cinco vezes. Chegar aqui é erro que não
+          // passa, e a tela avisa quantas foram (toast.analyzePartial): número
+          // exato inclui dizer o que não deu para contar. Não entra no cache —
+          // a próxima análise tenta de novo.
           failedMessages++;
         } finally {
-          // No finally: os `return` acima (sem cabeçalho From, remetente
-          // inválido) também são mensagens lidas. Fora daqui, elas sumiriam
-          // da contagem e o total nunca fecharia.
-          report('reading', ++read, toAnalyze.length);
+          // No finally: a sem remetente e a que falhou também foram lidas.
+          // Fora daqui, o contador nunca fecharia no total.
+          report('reading', ++read, toRead.length);
         }
       })
     );
-  }
-
-  const offenders: Offender[] = Object.keys(senderCounts).map((email) => ({
-    sender: email,
-    domain: domainOf(email),
-    count: senderCounts[email],
-    sampleCount: senderCounts[email],
-    size: senderSizes[email] || 0,
-    category: senderCategories[email],
-    isProtected: !!ownEmail && email === ownEmail,
-    exact: false
-  }));
-  offenders.sort((a, b) => b.count - a.count);
-
-  // 4) Contagem exata (conta inteira) para todos os remetentes descobertos.
-  // Concorrência e pausa calibradas pela cota do Gmail (250 unidades por
-  // segundo por usuário; cada busca custa 5): ~20 req/s = ~100 unidades/s,
-  // com folga confortável.
-  const toCount = offenders.slice(0, EXACT_COUNT_LIMIT);
-  const CONCURRENCY = 8;
-  const PAUSE_MS = 150;
-  // PERCENTUAL, não um segundo contador. O total daqui (remetentes) é conhecido
-  // desde o início, então esconder o progresso era esconder informação que
-  // existia. O que não podia voltar era o CONTADOR: 0/342 logo depois de
-  // 1000/1000 lia-se como "a análise recomeçou". 0% → 100% não se confunde com
-  // a contagem de e-mails, é outra unidade na tela.
-  let counted = 0;
-  if (toCount.length > 0) report('ranking', 0, toCount.length);
-  for (let i = 0; i < toCount.length; i += CONCURRENCY) {
-    const batch = toCount.slice(i, i + CONCURRENCY);
-    await Promise.all(
-      batch.map(async (item) => {
-        try {
-          item.count = await countMessagesFrom(item.sender);
-          item.exact = true;
-          // Escala o tamanho amostrado pela mesma razão: sampleCount mensagens
-          // pesaram item.size, count é o total real.
-          item.size = Math.round((item.size * item.count) / item.sampleCount);
-        } catch (err) {
-          if (err instanceof UnauthorizedError) throw err;
-          // mantém a contagem da amostra como fallback
-        } finally {
-          // No finally: remetente que falhou também já foi tentado. Fora daqui,
-          // a barra pararia antes de 100% sempre que uma contagem falhasse.
-          counted++;
-        }
-      })
-    );
-    report('ranking', counted, toCount.length);
-    if (i + CONCURRENCY < toCount.length) {
-      await sleep(PAUSE_MS);
+    // Ritmo, não pausa fixa: segura o lote no tempo que a cota permite. Uma
+    // pausa constante ou desperdiça cota (rede rápida) ou estoura (rede lenta
+    // que já demorou mais que o devido).
+    const owedMs = (batch.length / READ_PER_SEC) * 1000 - (Date.now() - startedAt);
+    if (owedMs > 0 && i + READ_CONCURRENCY < toRead.length) {
+      report('waiting', read, toRead.length);
+      await sleep(owedMs);
     }
   }
 
+  // Guarda só os ids desta varredura — o Map já é exatamente isso, então o
+  // cache se poda sozinho: mensagem que foi para a lixeira sai dele aqui, sem
+  // nenhuma limpeza explícita.
+  if (ownEmail) saveCache(ownEmail, facts);
+
+  // 3) Contagem: uma passada pelo Map. Derivar em vez de incrementar durante a
+  // leitura é o que faz "cada mensagem conta uma vez" ser verdade por
+  // construção, e não por disciplina de quem mexer no laço depois.
+  const senderCounts = new Map<string, number>();
+  const senderSizes = new Map<string, number>();
+  let unattributedMessages = 0;
+  for (const { sender, size } of facts.values()) {
+    if (!sender) {
+      unattributedMessages++;
+      continue;
+    }
+    senderCounts.set(sender, (senderCounts.get(sender) || 0) + 1);
+    senderSizes.set(sender, (senderSizes.get(sender) || 0) + size);
+  }
+
+  const offenders: Offender[] = [...senderCounts].map(([email, count]) => ({
+    sender: email,
+    domain: domainOf(email),
+    count,
+    size: senderSizes.get(email) || 0,
+    category: categorizeSender(email),
+    isProtected: !!ownEmail && email === ownEmail
+  }));
   offenders.sort((a, b) => b.count - a.count);
 
   return {
-    totalMessages: toAnalyze.length,
-    analyzedMessages: toAnalyze.length - failedMessages,
+    totalMessages: allIds.length,
+    analyzedMessages: facts.size,
     failedMessages,
+    unattributedMessages,
     uniqueSenders: offenders.length,
     mailboxMessages: allIds.length,
     mailboxCapped,
@@ -442,25 +566,13 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
 }
 
 /**
- * Quantos EMAILS (mensagens) o remetente mandou.
+ * Ids das mensagens do remetente, sem repetição — a lista que a limpeza move.
  *
- * Contava conversas (/threads) antes, e isso desencontrava o número em dois
- * lugares: uma conversa com cinco respostas aparecia como 1 na lista, e a
- * limpeza depois relatava as 5 mensagens que de fato moveu. A interface fala
- * em "emails" — então a unidade é a mensagem.
- *
- * Usa exatamente a mesma consulta de clean(), inclusive o escopo: o número
- * ao lado do ofensor é a promessa do que o botão vai mover.
- */
-async function countMessagesFrom(sender: string): Promise<number> {
-  return (await listSenderIds(sender)).length;
-}
-
-/**
- * Ids das mensagens do remetente, sem repetição — a lista que a contagem mede e
- * que a limpeza move. Uma função só para os dois: enquanto eram dois laços
- * iguais, um contava e o outro movia, e nada garantia que fossem o mesmo
- * conjunto.
+ * Mesmo escopo da varredura de analyze() (`in:anywhere -in:trash`, com Spam),
+ * de propósito: o número contado na leitura e o conjunto movido por esta lista
+ * têm de ser o mesmo, senão o botão limpa mais ou menos do que a tela
+ * prometeu. A lista é consultada na hora do clique, não guardada da análise —
+ * e-mail que chegou depois também é desse remetente.
  *
  * O Set é a correção de um erro real: `total += página.length` somava o mesmo
  * id duas vezes quando a paginação do Gmail o devolvia em duas páginas — e ela
@@ -480,7 +592,7 @@ async function listSenderIds(sender: string): Promise<string[]> {
     for (const m of (resp.messages || []) as Array<{ id: string }>) ids.add(m.id);
     pageToken = resp.nextPageToken;
     pages++;
-  } while (pageToken && pages < MAX_SENDER_PAGES);
+  } while (pageToken && pages < MAX_PAGES);
 
   return [...ids];
 }

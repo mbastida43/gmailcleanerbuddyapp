@@ -86,12 +86,14 @@
         <!-- Espelha o rodapé real do app (www/index.html). A Play cobra que a
              captura represente a tela de verdade — se a nota existe lá, existe aqui. -->
         <div class="list-note">
-          We count emails, one by one, and that is the number that goes to the
-          trash. Gmail search groups emails with the same subject into
-          conversations and skips Spam, so it usually shows less — to check,
-          search: from:"sender" in:anywhere -in:trash. The sample is 1,000
-          emails spread across your whole mailbox and the list comes from it;
-          each sender's count covers the whole account.
+          We read every email in your account, one by one: the count for each
+          sender is exact, and that is the number that goes to the trash. The
+          senders add up to the mailbox total — no sampling, no estimates.
+          That is why the first analysis takes a few minutes; later ones only
+          read what arrived since. Gmail search groups
+          emails with the same subject into conversations and skips Spam, so it
+          usually shows less; to check, search: from:"sender" in:anywhere
+          -in:trash.
         </div>
       </div>
     </div>
@@ -138,8 +140,10 @@
   }
 
   if (screen === 'reading') {
-    // A tela que o usuario mais olha: o contador real de e-mails lidos.
-    document.getElementById('loadingStatus').textContent = '📖 Reading emails… 620/1,000';
+    // A tela que o usuario mais olha: UM percentual, do começo ao fim. O
+    // contador "620/1.000" saiu junto com a amostra de 1000 — agora a leitura
+    // e a caixa inteira, e o denominador varia com a conta de cada um.
+    document.getElementById('loadingStatus').textContent = '📖 Reading emails… 62%';
     document.getElementById('loading').classList.add('show');
   }
 

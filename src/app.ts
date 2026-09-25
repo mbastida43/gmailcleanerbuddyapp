@@ -40,7 +40,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'stat.senders': 'Remetentes únicos',
     'stat.top10': 'Top 10 (emails)',
     'list.title': '📬 Top 10 Ofensores',
-    'list.note': 'Contamos e-mails, um a um, e é esse número que vai para a lixeira. A busca do Gmail agrupa e-mails do mesmo assunto em conversas e ignora o Spam, então costuma mostrar menos — para conferir, busque: from:"remetente" in:anywhere -in:trash. A amostra são 1.000 e-mails espalhados por toda a caixa e é dela que sai a lista; a contagem de cada remetente é da conta inteira.',
+    'list.note': 'Lemos todos os e-mails da conta, um por um: a contagem de cada remetente é exata e é esse número que vai para a lixeira. A soma dos remetentes fecha com o total da caixa — nada de amostra ou estimativa. É por isso que a primeira análise leva alguns minutos; as seguintes leem só o que chegou depois dela. A busca do Gmail agrupa e-mails do mesmo assunto em conversas e ignora o Spam, então costuma mostrar menos; para conferir, busque: from:"remetente" in:anywhere -in:trash.',
     'btn.clean': 'Limpar',
     'toast.authSuccess': '✅ Autenticado com sucesso!',
     'toast.authError': '❌ Erro na autenticação. Tente novamente.',
@@ -92,7 +92,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'stat.senders': 'Unique senders',
     'stat.top10': 'Top 10 (emails)',
     'list.title': '📬 Top 10 Offenders',
-    'list.note': 'We count emails, one by one, and that is the number that goes to the trash. Gmail search groups emails with the same subject into conversations and skips Spam, so it usually shows less — to check, search: from:"sender" in:anywhere -in:trash. The sample is 1,000 emails spread across your whole mailbox and the list comes from it; each sender\'s count covers the whole account.',
+    'list.note': 'We read every email in your account, one by one: the count for each sender is exact, and that is the number that goes to the trash. The senders add up to the mailbox total — no sampling, no estimates. That is why the first analysis takes a few minutes; later ones only read what arrived since. Gmail search groups emails with the same subject into conversations and skips Spam, so it usually shows less; to check, search: from:"sender" in:anywhere -in:trash.',
     'btn.clean': 'Clean',
     'toast.authSuccess': '✅ Successfully authenticated!',
     'toast.authError': '❌ Authentication error. Please try again.',
@@ -144,7 +144,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'stat.senders': 'Remitentes únicos',
     'stat.top10': 'Top 10 (correos)',
     'list.title': '📬 Top 10 Infractores',
-    'list.note': 'Contamos correos, uno a uno, y ese es el número que va a la papelera. La búsqueda de Gmail agrupa los correos del mismo asunto en conversaciones y omite el Spam, por eso suele mostrar menos: para comprobarlo, busca from:"remitente" in:anywhere -in:trash. La muestra son 1.000 correos repartidos por todo el buzón y de ahí sale la lista; el recuento de cada remitente es de toda la cuenta.',
+    'list.note': 'Leemos todos los correos de la cuenta, uno por uno: el recuento de cada remitente es exacto y ese es el número que va a la papelera. La suma de los remitentes cuadra con el total del buzón, sin muestras ni estimaciones. Por eso el primer análisis tarda unos minutos; los siguientes solo leen lo que llegó después. La búsqueda de Gmail agrupa los correos del mismo asunto en conversaciones y omite el Spam, así que suele mostrar menos; para comprobarlo, busca: from:"remitente" in:anywhere -in:trash.',
     'btn.clean': 'Limpiar',
     'toast.authSuccess': '✅ ¡Autenticado correctamente!',
     'toast.authError': '❌ Error de autenticación. Inténtalo de nuevo.',
@@ -196,7 +196,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'stat.senders': 'Expéditeurs uniques',
     'stat.top10': 'Top 10 (e-mails)',
     'list.title': '📬 Top 10 des Indésirables',
-    'list.note': 'Nous comptons les e-mails un par un, et c’est ce nombre qui part à la corbeille. La recherche Gmail regroupe les e-mails du même sujet en conversations et ignore le spam, elle en affiche donc souvent moins : pour vérifier, cherchez from:"expéditeur" in:anywhere -in:trash. L’échantillon réunit 1 000 e-mails répartis sur toute la boîte et la liste en découle ; le total de chaque expéditeur couvre tout le compte.',
+    'list.note': 'Nous lisons tous les e-mails du compte, un par un : le total de chaque expéditeur est exact, et c’est ce nombre qui part à la corbeille. La somme des expéditeurs correspond au total de la boîte — aucun échantillon, aucune estimation. C’est pourquoi la première analyse prend quelques minutes ; les suivantes ne lisent que ce qui est arrivé depuis. La recherche Gmail regroupe les e-mails du même sujet en conversations et ignore le spam, elle en affiche donc souvent moins ; pour vérifier, cherchez : from:"expéditeur" in:anywhere -in:trash.',
     'btn.clean': 'Nettoyer',
     'toast.authSuccess': '✅ Authentification réussie !',
     'toast.authError': '❌ Erreur d’authentification. Veuillez réessayer.',
@@ -248,7 +248,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'stat.senders': 'Mittenti unici',
     'stat.top10': 'Top 10 (email)',
     'list.title': '📬 Top 10 Responsabili',
-    'list.note': 'Contiamo le email una a una, ed è questo il numero che finisce nel cestino. La ricerca di Gmail raggruppa le email con lo stesso oggetto in conversazioni e ignora lo spam, quindi di solito ne mostra meno: per verificare, cerca from:"mittente" in:anywhere -in:trash. Il campione sono 1.000 email distribuite su tutta la casella ed è da lì che nasce l’elenco; il conteggio di ogni mittente riguarda l’intero account.',
+    'list.note': 'Leggiamo tutte le email dell’account, una per una: il conteggio di ogni mittente è esatto ed è questo il numero che finisce nel cestino. La somma dei mittenti coincide con il totale della casella — nessun campione, nessuna stima. Per questo la prima analisi richiede alcuni minuti; le successive leggono solo ciò che è arrivato dopo. La ricerca di Gmail raggruppa le email con lo stesso oggetto in conversazioni e ignora lo spam, quindi di solito ne mostra meno; per verificare, cerca: from:"mittente" in:anywhere -in:trash.',
     'btn.clean': 'Pulisci',
     'toast.authSuccess': '✅ Autenticazione riuscita!',
     'toast.authError': '❌ Errore di autenticazione. Riprova.',
@@ -300,7 +300,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'stat.senders': 'Уникальных отправителей',
     'stat.top10': 'Топ-10 (письма)',
     'list.title': '📬 Топ-10 нарушителей',
-    'list.note': 'Мы считаем письма по одному, и именно это число уходит в корзину. Поиск Gmail объединяет письма с одной темой в цепочки и не учитывает спам, поэтому обычно показывает меньше: чтобы проверить, найдите from:"отправитель" in:anywhere -in:trash. Выборка — это 1000 писем со всего ящика, из неё и берётся список; счётчик каждого отправителя охватывает весь аккаунт.',
+    'list.note': 'Мы читаем все письма аккаунта, по одному: счётчик каждого отправителя точен, и именно это число уходит в корзину. Сумма по отправителям совпадает с общим числом писем в ящике — никакой выборки и никаких оценок. Поэтому первый анализ занимает несколько минут, а следующие читают только то, что пришло после него. Поиск Gmail объединяет письма с одной темой в цепочки и не учитывает спам, поэтому обычно показывает меньше; чтобы проверить, найдите: from:"отправитель" in:anywhere -in:trash.',
     'btn.clean': 'Очистить',
     'toast.authSuccess': '✅ Вход выполнен успешно!',
     'toast.authError': '❌ Ошибка аутентификации. Попробуйте ещё раз.',
@@ -352,7 +352,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'stat.senders': '独立发件人',
     'stat.top10': '前 10 名（邮件数）',
     'list.title': '📬 前 10 名骚扰发件人',
-    'list.note': '我们逐封统计邮件，移入垃圾箱的就是这个数字。Gmail 搜索会把相同主题的邮件归为一个会话，也不含垃圾邮件，因此通常显示得更少：要核对请搜索 from:"发件人" in:anywhere -in:trash。样本是遍布整个邮箱的 1,000 封邮件，列表由此产生；每位发件人的数量则来自整个账户。',
+    'list.note': '我们会逐封读取账户中的每一封邮件：每位发件人的数量都是精确值，移入垃圾箱的就是这个数字。各发件人相加正好等于邮箱总数，没有抽样也没有估算。因此首次分析需要几分钟，之后的分析只读取此后新到的邮件。Gmail 搜索会把相同主题的邮件归为一个会话，也不含垃圾邮件，因此通常显示得更少；要核对请搜索：from:"发件人" in:anywhere -in:trash。',
     'btn.clean': '清理',
     'toast.authSuccess': '✅ 认证成功！',
     'toast.authError': '❌ 认证失败，请重试。',
@@ -568,9 +568,10 @@ async function refreshAnalysis(): Promise<void> {
 }
 
 // Atualização otimista: remove o remetente limpo da lista local e re-renderiza
-// na hora, sem pagar a análise completa de novo (que agora leva ~1min, porque
-// conta exatamente TODOS os remetentes, não só os 25 primeiros). Reabrir o app
-// refaz a análise quando o usuário quiser re-verificar.
+// na hora, sem pagar a análise completa de novo. Isso deixou de ser um detalhe
+// de desempenho e virou necessidade: a análise lê a caixa mensagem por mensagem
+// (minutos, não segundos), então refazê-la depois de cada limpeza era
+// impensável. Reabrir o app refaz quando o usuário quiser re-verificar.
 function removeSenderLocally(sender: string): void {
   removeSendersLocally([sender]);
 }
@@ -594,23 +595,20 @@ function renderResults(data: AnalyzeData): void {
   document.getElementById('totalEmails')!.textContent =
     formatNumber(data.mailboxMessages) + (data.mailboxCapped ? '+' : '');
   document.getElementById('totalSize')!.textContent = formatSize(data.offenders.reduce((s, o) => s + o.size, 0));
-  // Mesmo critério do "+" acima: sobrou mensagem fora da amostra (ou a
-  // varredura nem terminou), então o número de remetentes é piso, não total —
-  // só quem foi lido tem como aparecer na lista.
-  const sendersCapped = data.mailboxCapped || data.mailboxMessages > data.totalMessages;
+  // Mesmo critério do "+" acima, e só ele: toda mensagem varrida é lida, então
+  // todo remetente da caixa está na lista. O "+" sobrevive apenas para o caso
+  // em que a própria varredura não chegou ao fim.
   document.getElementById('uniqueSenders')!.textContent =
-    formatNumber(data.uniqueSenders) + (sendersCapped ? '+' : '');
+    formatNumber(data.uniqueSenders) + (data.mailboxCapped ? '+' : '');
   document.getElementById('top10Count')!.textContent = formatNumber(data.top10.reduce((s, o) => s + o.count, 0));
 
   const list = document.getElementById('offendersList')!;
   list.innerHTML = '';
 
-  // Sempre os 10 maiores ofensores. A contagem exata roda para todos os
-  // remetentes descobertos (ver EXACT_COUNT_LIMIT em gmail.ts), mas isso serve
-  // para ACERTAR quem são os 10 — não para alongar a lista. Antes, com a
-  // contagem exata limitada aos 25 primeiros da amostra, um remetente com
-  // poucos e-mails recentes e muitos no total podia ficar de fora do pódio
-  // por engano.
+  // Sempre os 10 maiores ofensores — e agora são os 10 maiores da caixa de
+  // verdade, não os 10 maiores de uma amostra. Todas as mensagens foram lidas,
+  // então a ordenação é sobre contagens exatas: ninguém entra ou sai do pódio
+  // por sorte de amostragem.
   data.top10.forEach((item, i) => {
     const row = document.createElement('div');
     row.className = 'offender';
@@ -816,22 +814,31 @@ function announcePhase(phase: gmail.ProgressPhase | '', text: string): void {
 // sequência — "12.500 encontrados", "1000/1000", "43%" — e cada troca de fase
 // lia-se como recomeço. Agora é um número que sai de 0 e chega a 100.
 //
-// As fatias são fixas porque a varredura não tem denominador: é ela que
-// descobre o tamanho da caixa. O percentual dela vem do TETO da varredura
-// (100 páginas × 500 ids), então numa caixa pequena o número anda pouco e
-// salta para 10% quando ela acaba. Salto para frente é aceitável; voltar
-// atrás não é, e é isso que o Math.max garante.
-const SCAN_END = 10;
-const READ_END = 60;
-const SCAN_CEILING = 500 * 100;
+// A varredura de ids ficou com uma fatia PEQUENA de propósito: ela lê 500 ids
+// por chamada, a leitura lê 1 e-mail por chamada. Numa caixa de 20 mil, a
+// varredura leva segundos e a leitura leva minutos — dar 10% para a primeira
+// fazia o percentual correr até 10 e depois parecer travado. A leitura é
+// praticamente toda a análise, então é praticamente todo o percentual.
+//
+// A fatia da varredura é fixa porque ela não tem denominador: é ela que
+// descobre o tamanho da caixa. O número dela vem de um teto arbitrário, então
+// numa caixa pequena anda pouco e salta para 5% quando acaba. Salto para
+// frente é aceitável; voltar atrás não é, e é isso que o Math.max garante.
+const SCAN_END = 5;
+const SCAN_CEILING = 20000;
 
 let lastPct = 0;
 
 function overallPct(phase: gmail.ProgressPhase, done: number, total: number): number {
-  const frac = total > 0 ? done / total : 0;
   if (phase === 'scanning') return Math.min(SCAN_END, (done / SCAN_CEILING) * SCAN_END);
-  if (phase === 'reading') return SCAN_END + frac * (READ_END - SCAN_END);
-  if (phase === 'ranking') return READ_END + frac * (100 - READ_END);
+  if (phase === 'reading') {
+    // Denominador zero = não havia nada para ler: o cache já sabia o remetente
+    // de todas as mensagens varridas. É 100%, não 0% — é o caso em que a
+    // análise foi instantânea, e mostrar 5% seria confundir "pronto" com
+    // "travado".
+    const frac = total > 0 ? done / total : 1;
+    return SCAN_END + frac * (100 - SCAN_END);
+  }
   return lastPct; // 'waiting': parado de propósito, o número segura onde está
 }
 

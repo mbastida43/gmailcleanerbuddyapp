@@ -1,31 +1,55 @@
-// Contador de leitura: o que o usuário vê enquanto espera.
-// A regra é uma só — um número, subindo de 1 em 1, que fecha no total e não
-// volta. Roda com: npm test
+// A promessa do app: o número na tela é o número no Gmail. Este teste guarda a
+// aritmética que sustenta isso — cada mensagem da caixa é lida uma vez e
+// termina em exatamente um lugar (um remetente, a pilha das sem remetente, ou
+// a das que falharam) — e o contador que o usuário vê enquanto isso acontece.
+// Roda com: npm test
 import { strict as assert } from 'node:assert';
 import { analyze, type ProgressPhase } from '../src/gmail';
 
-const TOTAL = 1000;
-const SENDERS = 12;
+// O ritmo que segura a cota do Gmail (~45 e-mails/s) não tem por que atrasar o
+// teste: ele mede contagem, não tempo. Sem isto, as pausas de ritmo e o recuo
+// das retentativas somariam dezenas de segundos de espera ociosa.
+const realSetTimeout = globalThis.setTimeout;
+globalThis.setTimeout = ((fn: any) => realSetTimeout(fn, 0)) as any;
 
-// Caixa de 1500 mensagens em 3 páginas — maior que a amostra de 1000, que é o
-// caso que interessa: é a diferença entre varrer a caixa e ver só o começo dela.
-const PAGE = 500;
+// Caixa em 3 páginas que SE SOBREPÕEM em 2 ids — a paginação do Gmail repete
+// ids na virada de página, e id repetido contado duas vezes é caixa maior do
+// que é. Páginas curtas de propósito: o que se testa é a lógica de paginação,
+// não o tamanho de página do Gmail.
+const PAGE = 60;
 const PAGES = 3;
-const MAILBOX = PAGE * PAGES;
+const OVERLAP = 2;
+const STRIDE = PAGE - OVERLAP;
+// p0: 0..59, p1: 58..117, p2: 116..175 — união 0..175
+const MAILBOX = STRIDE * (PAGES - 1) + PAGE;
 
-// As mensagens de índice >= 1000 são as ANTIGAS: ficam fora das 1000 mais
-// recentes, que era toda a amostra antiga. Este remetente só existe nelas.
+// Este remetente só existe no FIM da caixa (última página). Enquanto a análise
+// lia uma amostra, ele era descoberto por sorte; agora tem de aparecer sempre,
+// porque todas as mensagens são lidas.
 const OLD_SENDER = 'antigo@exemplo.com';
+const OLD_FROM = MAILBOX - PAGE;
 
-// Mensagens que não rendem remetente também são mensagens LIDAS: a de índice
-// 7 volta sem cabeçalho From (o `return` cedo) e a 13 falha na rede (o
-// `catch`). Se o contador não passasse pelo finally, o total nunca fecharia.
-// Ambas caem na amostra: com passo 1,5 os índices são 0,1,3,4,6,7,9,10,12,13…
-const NO_FROM = '7';
-const BROKEN = '13';
+// Três destinos possíveis de uma mensagem lida, um id para cada:
+const NO_FROM = '7'; // sem cabeçalho From (rascunho, chat) → não atribuída
+const JUNK_FROM = '33'; // From que não é endereço → não atribuída
+const BROKEN = '13'; // 500 eterno → falha, mesmo depois das retentativas
+const FLAKY = '21'; // 429 duas vezes e então OK → NÃO pode se perder
+
+const SENDERS = 12;
+const SIZE = 100;
+
+const attempts: Record<string, number> = {};
+let senderQueries = 0;
 
 function jsonRes(body: unknown) {
   return { ok: true, status: 200, json: async () => body } as unknown as Response;
+}
+function errRes(status: number, reason = '') {
+  return {
+    ok: false,
+    status,
+    json: async () => ({ error: { errors: [{ reason }], message: 'nope' } })
+  } as unknown as Response;
 }
 
 globalThis.fetch = (async (input: string) => {
@@ -33,35 +57,38 @@ globalThis.fetch = (async (input: string) => {
 
   if (url.includes('/profile')) return jsonRes({ emailAddress: 'eu@exemplo.com' });
 
-  // Contagem exata de um remetente (tem q=from:)
-  if (url.includes('q=from')) return jsonRes({ messages: [{ id: 'x' }, { id: 'y' }] });
+  // A análise não faz mais busca por remetente: a leitura já conta tudo. Se
+  // alguma voltar, o contador abaixo denuncia.
+  if (url.includes('q=from')) {
+    senderQueries++;
+    return jsonRes({ messages: [] });
+  }
 
-  // Varredura da caixa: PAGES páginas encadeadas por pageToken, e aí acaba.
-  // Sem o fim, a varredura só pararia no teto e o teste não veria a caixa
-  // inteira — que é o que ele existe para checar.
+  // Varredura: PAGES páginas encadeadas por pageToken, com sobreposição.
   if (url.includes('/messages?')) {
     const token = new URL(url).searchParams.get('pageToken');
     const page = token ? Number(token) : 0;
     return jsonRes({
-      messages: Array.from({ length: PAGE }, (_, i) => ({ id: String(page * PAGE + i) })),
+      messages: Array.from({ length: PAGE }, (_, i) => ({ id: String(page * STRIDE + i) })),
       nextPageToken: page < PAGES - 1 ? String(page + 1) : undefined
     });
   }
 
-  // Detalhe de uma mensagem
   const id = url.split('/messages/')[1]!.split('?')[0]!;
-  if (id === BROKEN) return { ok: false, status: 500, json: async () => ({}) } as unknown as Response;
-  if (id === NO_FROM) return jsonRes({ payload: { headers: [] }, sizeEstimate: 10 });
-  // Remetente por BLOCO de 40 ids, não por `n % SENDERS`: um passo de amostra
-  // fracionário pula índices em progressão (com 1,5 nunca cai em n≡2 mod 3) e,
-  // se o remetente também for periódico no índice, os dois períodos batem e o
-  // mock "esconde" remetentes por aritmética — defeito do teste, não do app.
-  // Caixa de verdade não alterna remetente de mensagem em mensagem.
+  attempts[id] = (attempts[id] || 0) + 1;
+
+  if (id === BROKEN) return errRes(500);
+  if (id === FLAKY && attempts[id]! <= 2) return errRes(429, 'rateLimitExceeded');
+  if (id === NO_FROM) return jsonRes({ payload: { headers: [] }, sizeEstimate: SIZE });
+  if (id === JUNK_FROM) {
+    return jsonRes({ payload: { headers: [{ name: 'From', value: 'sem endereco' }] }, sizeEstimate: SIZE });
+  }
+
   const n = Number(id);
-  const from = n >= TOTAL ? OLD_SENDER : `r${Math.floor(n / 40) % SENDERS}@exemplo.com`;
+  const from = n >= OLD_FROM ? OLD_SENDER : `r${Math.floor(n / 7) % SENDERS}@exemplo.com`;
   return jsonRes({
     payload: { headers: [{ name: 'From', value: `Fulano <${from}>` }] },
-    sizeEstimate: 100
+    sizeEstimate: SIZE
   });
 }) as typeof fetch;
 
@@ -69,79 +96,76 @@ const seen: Array<{ phase: ProgressPhase; done: number; total: number }> = [];
 
 const data = await analyze((phase, done, total) => seen.push({ phase, done, total }));
 
-const reading = seen.filter((s) => s.phase === 'reading');
+// ---- 1) A REGRA: toda mensagem da caixa acaba em exatamente um lugar. ----
+// É esta soma que faz o número da tela bater com o do Gmail. Se ela falhar,
+// alguma mensagem está sendo contada duas vezes ou desaparecendo em silêncio.
+const counted = data.offenders.reduce((s, o) => s + o.count, 0);
+assert.equal(
+  counted + data.unattributedMessages + data.failedMessages,
+  data.mailboxMessages,
+  'remetentes + não atribuídas + falhas tem de dar o total da caixa'
+);
+assert.equal(data.unattributedMessages, 2, 'a sem From e a com From inválido');
+assert.equal(data.failedMessages, 1, 'só a que falha para sempre');
 
-// 1) Um passo por e-mail: 0, 1, 2, … TOTAL — sem pulos e sem repetições.
+// ---- 2) A leitura é a caixa INTEIRA, não uma amostra dela. ----
+assert.equal(data.totalMessages, data.mailboxMessages, 'lê-se tudo o que se varre');
+assert.equal(data.mailboxMessages, MAILBOX, 'id repetido na virada de página conta uma vez');
+assert.equal(data.mailboxCapped, false, 'a varredura chegou ao fim da caixa');
+
+// ---- 3) O 429 não perde mensagem: retenta até passar. ----
+// Era o furo silencioso — com a caixa inteira sendo lida, estourar a cota é
+// rotina, e cada 429 descartado tirava um e-mail da conta final.
+assert.equal(attempts[FLAKY], 3, 'duas recusas por cota e uma que passa');
+assert.ok(
+  data.offenders.some((o) => o.count > 0 && o.sender === `r${Math.floor(Number(FLAKY) / 7) % SENDERS}@exemplo.com`),
+  'a mensagem que tomou 429 tem de estar contada no remetente dela'
+);
+assert.equal(attempts[BROKEN], 6, 'a que nunca passa é tentada 1 + 5 vezes e desiste');
+
+// ---- 4) Nenhuma busca por remetente: a contagem sai da leitura. ----
+assert.equal(senderQueries, 0, 'a fase de contagem por busca não existe mais');
+
+// ---- 5) Tamanho é soma, não extrapolação. ----
+for (const o of data.offenders) {
+  assert.equal(o.size, o.count * SIZE, `${o.sender}: tamanho é a soma das mensagens dele`);
+}
+
+// ---- 6) Quem vive no fim da caixa aparece. ----
+assert.ok(
+  data.offenders.some((o) => o.sender === OLD_SENDER),
+  `${OLD_SENDER} só tem e-mails na última página e precisa estar na lista`
+);
+
+// ---- 7) O contador que o usuário vê: um passo por e-mail, fecha no total. ----
+const reading = seen.filter((s) => s.phase === 'reading');
 assert.deepEqual(
   reading.map((s) => s.done),
-  Array.from({ length: TOTAL + 1 }, (_, i) => i),
-  'a contagem deve subir de 1 em 1, de 0 até o total'
+  Array.from({ length: MAILBOX + 1 }, (_, i) => i),
+  'a contagem sobe de 1 em 1, de 0 até o total'
 );
+assert.ok(reading.every((s) => s.total === MAILBOX), 'o total não muda durante a leitura');
+assert.equal(seen[seen.length - 1]?.phase, 'reading', 'a leitura é a última fase');
+assert.equal(seen[seen.length - 1]?.done, MAILBOX, 'e fecha no total cheio');
 
-// 2) O denominador é sempre o mesmo número: nada de trocar de total no meio.
-assert.ok(reading.every((s) => s.total === TOTAL), 'o total não pode mudar durante a leitura');
-
-// 3) A leitura fecha no total cheio e a fase seguinte entra direto: não há mais
-// batida de "leitura concluída". A tela mostra UM percentual do começo ao fim, e
-// um aviso com outro número no meio dele era o segundo contador que confundia.
-const after = seen.slice(seen.indexOf(reading[reading.length - 1]!) + 1);
-assert.equal(reading[reading.length - 1]?.done, TOTAL, 'a leitura fecha no total');
-assert.equal(after[0]?.phase, 'ranking', 'depois da leitura entra o ranking, sem escala');
-
-// 4) A fase final e anunciada, e caminha ate o fim: ela ocupa o ultimo pedaço do
-// percentual, entao o ultimo report tem de ser 100% dela. O `every` sozinho
-// passava com a lista vazia: apagar o report('ranking') de gmail.ts deixava o
-// teste verde.
-const ranking = seen.filter((s) => s.phase === 'ranking');
-assert.ok(ranking.length > 0, 'a fase de ranking precisa ser reportada');
+// A pausa de ritmo é anunciada como 'waiting', não como leitura: parado de
+// propósito e travado se parecem na tela se ninguém disser qual é qual.
 assert.ok(
-  after.every((s) => s.phase === 'ranking'),
-  'depois da leitura só entra o ranking'
+  seen.some((s) => s.phase === 'waiting'),
+  'segurar o ritmo da cota tem de ser reportado como espera'
 );
-const last = ranking[ranking.length - 1]!;
-assert.equal(last.done, last.total, 'o ranking precisa fechar em 100%');
-assert.equal(last.total, data.uniqueSenders, 'o denominador do ranking são os remetentes');
 
-// 5) A mensagem quebrada é contabilizada como falha, não sumiu da conta.
-assert.equal(data.failedMessages, 1);
-assert.equal(data.totalMessages, TOTAL);
-assert.equal(data.top10.length, 10);
-
-// 6) A varredura vem antes de tudo e mostra o que já achou — número crescente,
-// SEM denominador: é ela que descobre o total, e inventar um seria mentira.
-// É a fase mais longa da análise; sem número nenhum ela parecia app travado.
+// ---- 8) A varredura vem primeiro e nunca inventa denominador. ----
 assert.equal(seen[0]?.phase, 'scanning', 'a varredura é a primeira fase anunciada');
 const scan = seen.filter((s) => s.phase === 'scanning');
 assert.ok(scan.every((s) => s.total === 0), 'a varredura não pode inventar denominador');
 assert.deepEqual(
   scan.map((s) => s.done),
-  [0, PAGE, PAGE * 2, MAILBOX],
-  'a varredura reporta o total encontrado a cada página, sempre crescendo'
+  [0, PAGE, STRIDE + PAGE, MAILBOX],
+  'a varredura reporta o que já achou a cada página, sempre crescendo'
 );
-
-// 7) O remetente que só tem e-mails ANTIGOS aparece. Era o buraco: a amostra
-// antiga eram as 1000 primeiras da lista, e ele vive da 1000 em diante — nunca
-// era descoberto, e contagem exata nenhuma resgata quem não foi descoberto.
-// Se a amostra voltar a ser `allIds.slice(0, MAX_ANALYZE)`, esta linha quebra.
-assert.ok(
-  data.offenders.some((o) => o.sender === OLD_SENDER),
-  `${OLD_SENDER} vive só na parte antiga da caixa e precisa entrar na amostra`
-);
-
-// 8) Os 12 remetentes recentes continuam todos lá: espalhar a amostra não pode
-// custar quem já aparecia. São 12 + o antigo.
-assert.equal(data.uniqueSenders, SENDERS + 1);
-
-// 9) O total da caixa é o da CAIXA, não o da amostra — são números diferentes e
-// a tela mostra este. Trocar um pelo outro é o erro que a tela cometia antes.
-assert.equal(data.mailboxMessages, MAILBOX);
-assert.notEqual(data.mailboxMessages, data.totalMessages);
-
-// 10) A varredura chegou ao fim da caixa, então o número é exato e a tela não
-// deve pôr "+". O contrário (parar no teto) é o caso em que ele vira um piso.
-assert.equal(data.mailboxCapped, false);
 
 console.log(
-  `ok — ${reading.length} passos de leitura, fecha em ${TOTAL}, ` +
-    `${data.uniqueSenders} remetentes de uma caixa de ${MAILBOX}`
+  `ok — ${MAILBOX} mensagens lidas uma a uma: ${counted} em ${data.uniqueSenders} remetentes, ` +
+    `${data.unattributedMessages} sem remetente, ${data.failedMessages} falha`
 );
