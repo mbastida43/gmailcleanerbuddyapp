@@ -117,7 +117,7 @@ Tudo pronto no repo:
 - ✅ **Feature graphic 1024×500** — `store/feature-graphics/feature-<idioma>.png` (7 idiomas)
 - ✅ **Screenshots** — `store/screenshots/` (3 capturas de celular, 1179×2556; mínimo do Google é 2)
 - ✅ **Textos PT/EN/ES/FR/IT/RU/ZH** — `store/play-listing.md` (os 7 idiomas da interface)
-- ✅ **Notas da versão 1.7** — `store/release-notes.md`, nos mesmos 7 idiomas, dentro do
+- ✅ **Notas da versão 1.8** — `store/release-notes.md`, nos mesmos 7 idiomas, dentro do
       limite de 500 caracteres. É campo da versão, preenchido no formulário de release
       (Fase 5), não na ficha
 - ✅ **Política de privacidade no ar** — `https://mbastida43.github.io/gmailcleanerbuddy/privacy.html`

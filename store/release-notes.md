@@ -8,6 +8,73 @@ Uma seção por versão, a mais nova em cima.
 
 ---
 
+## 1.8 (versionCode 9)
+
+O que o testador percebe: os números finalmente batem com a busca do Gmail, e a
+primeira análise ficou bem mais lenta. As duas coisas são a mesma mudança. A
+análise amostrava 1000 mensagens para descobrir os remetentes — quem não caía na
+amostra não existia na tela, e a contagem exata por busca que rodava por cima
+nunca resgata um remetente que nunca foi descoberto. Agora o app lê o cabeçalho
+de cada e-mail da conta, um por um, e por isso a primeira análise leva minutos
+numa caixa grande. A nota diz isso de frente: esconder a troca faria o testador
+achar que travou. Da segunda análise em diante o app só lê o que chegou depois
+da anterior, então volta a levar segundos — e depois de uma limpeza, nada.
+
+Confira com o testador: pegar o primeiro remetente da lista, colar
+`from:"<endereço>" in:anywhere -in:trash` na busca do Gmail (com "Visualização de
+conversa" DESATIVADA) e ver o mesmo número. Era essa comparação que falhava.
+
+### 🇧🇷 Português (pt-BR)
+```
+Os números da tela agora batem com o Gmail. A análise deixou de estimar por amostra: lê cada e-mail da conta, um por um, então a contagem e o tamanho de cada remetente são exatos e a soma fecha com o total da caixa.
+
+Em troca, a primeira análise leva alguns minutos. As seguintes levam segundos — o app guarda o que já leu e só olha o que chegou depois.
+```
+
+### 🇺🇸 English (en-US)
+```
+The numbers on screen now match Gmail. The analysis no longer estimates from a sample: it reads every email in your account, one by one, so each sender's count and size are exact and they add up to the mailbox total.
+
+In exchange, the first analysis takes a few minutes. Later ones take seconds — the app remembers what it already read and only looks at what arrived since.
+```
+
+### 🇪🇸 Español (es)
+```
+Los números de la pantalla ya coinciden con Gmail. El análisis dejó de estimar por muestra: lee cada correo de la cuenta, uno por uno, así que el recuento y el tamaño de cada remitente son exactos y la suma cuadra con el total del buzón.
+
+A cambio, el primer análisis tarda unos minutos. Los siguientes tardan segundos: la app recuerda lo que ya leyó y solo mira lo que llegó después.
+```
+
+### 🇫🇷 Français (fr)
+```
+Les chiffres affichés correspondent enfin à Gmail. L'analyse n'estime plus à partir d'un échantillon : elle lit chaque e-mail du compte, un par un, donc le total et la taille de chaque expéditeur sont exacts et leur somme correspond au total de la boîte.
+
+En contrepartie, la première analyse prend quelques minutes. Les suivantes durent quelques secondes : l'app retient ce qu'elle a déjà lu.
+```
+
+### 🇮🇹 Italiano (it-IT)
+```
+I numeri a schermo ora coincidono con Gmail. L'analisi non stima più da un campione: legge ogni email dell'account, una per una, quindi il conteggio e la dimensione di ogni mittente sono esatti e la somma corrisponde al totale della casella.
+
+In cambio, la prima analisi richiede alcuni minuti. Le successive durano secondi: l'app ricorda ciò che ha già letto.
+```
+
+### 🇷🇺 Русский (ru-RU)
+```
+Числа на экране теперь совпадают с Gmail. Анализ больше не оценивает по выборке: он читает каждое письмо аккаунта, по одному, поэтому счётчик и размер каждого отправителя точны, а их сумма совпадает с общим числом писем в ящике.
+
+Взамен первый анализ занимает несколько минут. Следующие — секунды: приложение помнит прочитанное и смотрит только то, что пришло после.
+```
+
+### 🇨🇳 中文 (zh-CN)
+```
+屏幕上的数字现在与 Gmail 一致。分析不再按抽样估算：它会逐封读取账户中的每一封邮件，因此每位发件人的数量和大小都是精确值，相加正好等于邮箱总数。
+
+代价是首次分析需要几分钟。之后的分析只需几秒——应用会记住已读取的内容，只查看此后新到的邮件。
+```
+
+---
+
 ## 1.7 (versionCode 8)
 
 O que o testador percebe: dois números que já existiam na tela ficam mais honestos, não
