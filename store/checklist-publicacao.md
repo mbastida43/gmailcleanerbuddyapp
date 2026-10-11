@@ -137,27 +137,31 @@ Tudo pronto no repo:
 > de ir para produção. Depois de publicado, perder a chave de upload custa uma espera de
 > 48h pelo reset do Google; perder a de assinatura, sem Play App Signing, custaria o app.
 
-- ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`, 5,5 MB)
-      e APK de mão em `.../apk/release/app-release.apk` (5,9 MB), ambos do build 7 / 1.6.
-      Conferido **no artefato**, não só no log do Gradle: `aapt2 dump badging` devolve
-      `versionCode='7' versionName='1.6'`, o `apksigner verify --print-certs` devolve o SHA-1
-      esperado, e o `app.js` empacotado contém o código novo — desta vez a checagem foi por
-      string: `assets/public/app.js` dentro do APK contém `loading.scanning` e `{pct}%`, que
-      só existem a partir deste build. Build de cache passa despercebido justamente por sair
-      verde no Gradle
+- ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`, 5,8 MB)
+      e APK de mão em `.../apk/release/app-release.apk` (6,2 MB), ambos do build 10 / 1.9,
+      gerados em 2026-10-10. Conferido **no artefato**, não só no log do Gradle:
+      `aapt2 dump badging` no APK devolve `versionCode='10' versionName='1.9'` (no AAB, o
+      manifesto empacotado traz os mesmos valores), o SHA-1 do certificado é o esperado nos
+      dois (`apksigner verify --print-certs` no APK, `keytool -printcert -jarfile` no AAB), e o
+      `app.js` empacotado contém `/threads/` — a leitura por conversa, que só existe a partir
+      deste build. Build de cache passa despercebido justamente por sair verde no Gradle
 - ✅ `targetSdk 36` (`android/variables.gradle:4`) — atende a exigência atual
-- ✅ `versionCode 7` / `versionName 1.6` — build atual: **um percentual só, de 0 a 100**, do
-      começo ao fim da análise, com "Aguarde" nas pausas segurando o mesmo número. Antes eram
-      três contadores em sequência e cada troca de fase lia-se como recomeço. Junto, a consulta
-      por remetente ganhou `in:anywhere`: numa caixa real ela achava 256 mensagens onde a mesma
-      busca digitada no Gmail achava 265 — faltavam reenvios, e a limpeza os deixaria para trás.
-      O AAB no disco é deste build.
-      ⚠️ O `in:anywhere` **ainda não foi confirmado no aparelho**. O teste é
-      `bebee@hive.bebee.com` marcar 265 no app. Enquanto isso não acontecer, não suba este
-      AAB — a mudança está no binário de teste da pasta de distribuição justamente para isso.
-      Histórico: `versionCode 6` / `1.5` e `5` / `1.4` são binários anteriores, ainda na pasta
-      de distribuição por histórico — nenhum dos dois chegou a subir no Console.
-      `versionCode 2` foi o que subiu no teste interno. O `3` e o `4` chegaram a ser
+- ✅ `versionCode 10` / `versionName 1.9` — build atual. Desde a 1.8 a análise **lê cada e-mail
+      da caixa, um por um**: a contagem e o tamanho por remetente são exatos e a soma fecha com
+      o total da caixa — antes era amostra de 1000 mensagens. O preço é a primeira análise
+      levar minutos numa caixa grande; as seguintes só leem o que chegou depois (cache por
+      id). A 1.9 acelera a leitura sem mudar a contagem: conversa com 2+ e-mails é lida num
+      `threads.get` só, e uma fila contínua substitui os lotes de 20. Notas em
+      `store/release-notes.md`.
+      ⚠️ **Teste de aceite ainda não feito no aparelho.** Pegar o primeiro remetente da lista
+      e conferir o mesmo número em `from:"<endereço>" in:anywhere -in:trash` na busca do
+      Gmail, com "Visualização de conversa" DESATIVADA. Vale também o teste antigo do
+      `in:anywhere`: `bebee@hive.bebee.com` tem de marcar 265. Enquanto isso não acontecer,
+      não suba este AAB.
+      Histórico: `versionCode 9` / `1.8` nunca foi gerado — a 1.9 veio logo em seguida e o
+      número ficou queimado. `8` / `1.7`, `7` / `1.6`, `6` / `1.5` e `5` / `1.4` são binários
+      anteriores, ainda na pasta de distribuição por histórico — nenhum chegou a subir no
+      Console. `versionCode 2` foi o que subiu no teste interno. O `3` e o `4` chegaram a ser
       gerados e nunca enviados — os dois foram abandonados em vez de reaproveitados, porque o
       binário mudou de comportamento depois de cada um. Números queimados custam nada; um
       `versionCode` que descreve dois binários diferentes custa depuração meses depois.
@@ -200,15 +204,11 @@ Tudo pronto no repo:
       não é o seu. Sem esse segundo cadastro o login funciona no APK que você instala e falha
       para quem baixa da loja — sintoma que parece bug do app e não é.
 
-**Como buildar nesta máquina:** `JAVA_HOME` e `ANDROID_HOME` não estão definidos no sistema, e
-`npm run build:aab` falha porque o script chama `gradlew` sem extensão e o `cmd` não resolve.
-Rode direto:
-
-```powershell
-$env:JAVA_HOME   = "C:\Program Files\Android\Android Studio\jbr"
-$env:ANDROID_HOME = "C:\Users\marlo\AppData\Local\Android\Sdk"
-cd android; .\gradlew.bat bundleRelease   # ou assembleRelease para gerar APK de teste
-```
+**Como buildar nesta máquina:** `npm run build:aab` (ou `npm run build:apk` para o APK de teste).
+Roda typecheck, testes, empacota o `app.js`, sincroniza o Capacitor e chama o Gradle. O
+`scripts/gradle.mjs` chama o `gradlew.bat` pelo caminho completo e preenche `JAVA_HOME` e
+`ANDROID_HOME` com o JDK e o SDK do Android Studio quando faltam — os dois motivos pelos quais
+o build falhava antes. Saída em `android/app/build/outputs/bundle/release/` e `.../apk/release/`.
 
 ---
 
@@ -286,8 +286,9 @@ caçar bug grosseiro enquanto isso. É teste de verdade, só não conta prazo. E
 `UTEIS\GMAIL CLEANER BUDDY` no OneDrive, pasta separada da chave de propósito — junto vai um
 `LEIA-ME.txt` com o que avisar a quem instalar.
 
-Estado da pasta em 2026-08-16, depois do 1.6: `gmail-cleaner-buddy-1.6.apk` e `.aab`
-(build 7 / 1.6) são os atuais; os pares `1.5` e `1.4` ficaram lá por histórico.
+Estado da pasta em 2026-10-10, depois do 1.9: `gmail-cleaner-buddy-1.9.apk` e `.aab`
+(build 10 / 1.9) são os atuais; os pares `1.7`, `1.6`, `1.5` e `1.4` ficaram lá por
+histórico. Não há par `1.8` — esse binário nunca foi gerado.
 **Confira a versão no nome antes de mandar ou de subir** — os pares convivem, e subir o
 `.aab` errado no Console publicaria a versão errada.
 
