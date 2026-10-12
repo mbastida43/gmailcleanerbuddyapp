@@ -373,6 +373,34 @@ let ownEmailCache: { token: string; email: string } | null = null;
  *   mandar a própria caixa de enviados para a lixeira, e trava que não sabe o
  *   que proteger tem de recusar, nunca liberar.
  */
+// O Gmail ignora pontos e o +sufixo, e googlemail.com é o mesmo domínio:
+// marlon.bastida@gmail.com, marlonbastida@gmail.com e
+// marlon.bastida+x@googlemail.com chegam na MESMA caixa. Comparar a string
+// crua deixava essas variações sem cadeado e com o botão de limpar ativo.
+export function accountKey(email: string): string {
+  const e = email.trim().toLowerCase();
+  const at = e.lastIndexOf('@');
+  if (at < 0) return e;
+  let local = e.slice(0, at);
+  let domain = e.slice(at + 1);
+  if (domain === 'googlemail.com') domain = 'gmail.com';
+  if (domain === 'gmail.com') local = local.split('+')[0]!.replace(/\./g, '');
+  return `${local}@${domain}`;
+}
+
+function isOwnAddress(sender: string, ownEmail: string): boolean {
+  return !!ownEmail && accountKey(sender) === accountKey(ownEmail);
+}
+
+/**
+ * Os 10 maiores e, SEMPRE, a própria conta — mesmo fora do top 10, com o botão
+ * desabilitado na tela. `own` são as linhas protegidas a garantir.
+ */
+export function top10Of(offenders: Offender[], own: Offender[]): Offender[] {
+  const top = offenders.slice(0, 10);
+  return [...top, ...own.filter((o) => !top.includes(o))];
+}
+
 async function getOwnEmail(required = false): Promise<string> {
   const token = getAccessToken();
   if (!token) throw new UnauthorizedError();
@@ -548,9 +576,24 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
     count,
     size: senderSizes.get(email) || 0,
     category: categorizeSender(email),
-    isProtected: !!ownEmail && email === ownEmail
+    isProtected: isOwnAddress(email, ownEmail)
   }));
   offenders.sort((a, b) => b.count - a.count);
+
+  // A própria conta aparece mesmo sem nenhum e-mail enviado: linha com 0, só
+  // para mostrar que ela está protegida. Fica fora de `offenders` — não é
+  // remetente da caixa e não entra nas somas.
+  let own = offenders.filter((o) => o.isProtected);
+  if (ownEmail && own.length === 0) {
+    own = [{
+      sender: ownEmail,
+      domain: domainOf(ownEmail),
+      count: 0,
+      size: 0,
+      category: categorizeSender(ownEmail),
+      isProtected: true
+    }];
+  }
 
   return {
     totalMessages: allIds.length,
@@ -561,7 +604,7 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
     mailboxMessages: allIds.length,
     mailboxCapped,
     offenders,
-    top10: offenders.slice(0, 10)
+    top10: top10Of(offenders, own)
   };
 }
 
@@ -616,7 +659,7 @@ export async function clean(
   // falha passageira de rede bastava para "Limpar Tudo" varrer a caixa de
   // enviados dele.
   const ownEmail = await getOwnEmail(true);
-  if (sender.trim().toLowerCase() === ownEmail) {
+  if (isOwnAddress(sender, ownEmail)) {
     throw new Error('own_address');
   }
 

@@ -584,7 +584,7 @@ function removeSendersLocally(senders: string[]): void {
   if (!currentData || senders.length === 0) return;
   const removed = new Set(senders);
   currentData.offenders = currentData.offenders.filter((o) => !removed.has(o.sender));
-  currentData.top10 = currentData.offenders.slice(0, 10);
+  currentData.top10 = gmail.top10Of(currentData.offenders, currentData.top10.filter((o) => o.isProtected));
   currentData.uniqueSenders = currentData.offenders.length;
   renderResults(currentData);
 }
@@ -600,7 +600,7 @@ function renderResults(data: AnalyzeData): void {
   // em que a própria varredura não chegou ao fim.
   document.getElementById('uniqueSenders')!.textContent =
     formatNumber(data.uniqueSenders) + (data.mailboxCapped ? '+' : '');
-  document.getElementById('top10Count')!.textContent = formatNumber(data.top10.reduce((s, o) => s + o.count, 0));
+  document.getElementById('top10Count')!.textContent = formatNumber(data.offenders.slice(0, 10).reduce((s, o) => s + o.count, 0));
 
   const list = document.getElementById('offendersList')!;
   list.innerHTML = '';
@@ -609,13 +609,16 @@ function renderResults(data: AnalyzeData): void {
   // verdade, não os 10 maiores de uma amostra. Todas as mensagens foram lidas,
   // então a ordenação é sobre contagens exatas: ninguém entra ou sai do pódio
   // por sorte de amostragem.
-  data.top10.forEach((item, i) => {
+  data.top10.forEach((item) => {
     const row = document.createElement('div');
     row.className = 'offender';
 
+    // Posição real no ranking: a própria conta pode vir de fora do top 10
+    // (ex.: 57º) ou nem ser remetente (–).
+    const i = data.offenders.indexOf(item);
     const rank = document.createElement('div');
     rank.className = `rank ${i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : ''}`;
-    rank.textContent = String(i + 1);
+    rank.textContent = i < 0 ? '–' : String(i + 1);
 
     const details = document.createElement('div');
     const domainEl = document.createElement('div');

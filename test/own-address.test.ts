@@ -6,7 +6,7 @@
 // A regra que este teste protege: quando não dá para saber QUAL conta
 // proteger, a limpeza recusa. Falha fechada, nunca aberta. Roda com: npm test
 import { strict as assert } from 'node:assert';
-import { clean } from '../src/gmail';
+import { accountKey, clean, top10Of } from '../src/gmail';
 
 const OWN = 'eu@exemplo.com';
 const OTHER = 'newsletter@exemplo.com';
@@ -70,4 +70,22 @@ assert.equal(modifyCalls, 1);
 // 4) Variação de caixa e espaço não driblam a trava.
 await rejectsWith(clean('  EU@Exemplo.COM  '.trim()), 'own_address');
 
-console.log('ok — trava do próprio endereço falha fechada, 4 casos');
+// 5) Variações que o Gmail entrega na mesma caixa também são a própria conta;
+//    fora do Gmail, ponto e +sufixo são outro endereço.
+const G = 'marlon.bastida@gmail.com';
+for (const v of ['marlonbastida@gmail.com', 'Marlon.Bastida+teste@googlemail.com', 'm.a.r.l.o.n.bastida@gmail.com']) {
+  assert.equal(accountKey(v), accountKey(G), v);
+}
+assert.notEqual(accountKey('marlon.bastida@gmai.com'), accountKey(G), 'domínio diferente não é a mesma conta');
+assert.notEqual(accountKey('e.u@exemplo.com'), accountKey(OWN));
+
+// 6) A própria conta SEMPRE aparece na lista, mesmo fora do top 10.
+const row = (sender: string, count: number, isProtected = false) =>
+  ({ sender, domain: '', count, size: 0, category: 'cat.other', isProtected }) as any;
+const ranking = Array.from({ length: 15 }, (_, i) => row(`r${i}@x.com`, 100 - i, i === 12));
+const shown = top10Of(ranking, ranking.filter((o: any) => o.isProtected));
+assert.equal(shown.length, 11);
+assert.equal(shown[10].sender, 'r12@x.com', 'a 13ª posição, protegida, entra no fim');
+assert.equal(top10Of(ranking.slice(0, 5), []).length, 5);
+
+console.log('ok — trava do próprio endereço falha fechada, 6 casos');
