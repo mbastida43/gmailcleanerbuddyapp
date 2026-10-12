@@ -117,7 +117,7 @@ Tudo pronto no repo:
 - ✅ **Feature graphic 1024×500** — `store/feature-graphics/feature-<idioma>.png` (7 idiomas)
 - ✅ **Screenshots** — `store/screenshots/` (3 capturas de celular, 1179×2556; mínimo do Google é 2)
 - ✅ **Textos PT/EN/ES/FR/IT/RU/ZH** — `store/play-listing.md` (os 7 idiomas da interface)
-- ✅ **Notas da versão 1.8** — `store/release-notes.md`, nos mesmos 7 idiomas, dentro do
+- ✅ **Notas da versão 1.10** — `store/release-notes.md`, nos mesmos 7 idiomas, dentro do
       limite de 500 caracteres. É campo da versão, preenchido no formulário de release
       (Fase 5), não na ficha
 - ✅ **Política de privacidade no ar** — `https://mbastida43.github.io/gmailcleanerbuddy/privacy.html`
@@ -137,26 +137,36 @@ Tudo pronto no repo:
 > de ir para produção. Depois de publicado, perder a chave de upload custa uma espera de
 > 48h pelo reset do Google; perder a de assinatura, sem Play App Signing, custaria o app.
 
-- ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`, 5,5 MB)
-      e APK de mão em `.../apk/release/app-release.apk` (5,9 MB), ambos do build 7 / 1.6.
-      Conferido **no artefato**, não só no log do Gradle: `aapt2 dump badging` devolve
-      `versionCode='7' versionName='1.6'`, o `apksigner verify --print-certs` devolve o SHA-1
-      esperado, e o `app.js` empacotado contém o código novo — desta vez a checagem foi por
-      string: `assets/public/app.js` dentro do APK contém `loading.scanning` e `{pct}%`, que
-      só existem a partir deste build. Build de cache passa despercebido justamente por sair
-      verde no Gradle
+- ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`, 5,8 MB)
+      e APK de mão em `.../apk/release/app-release.apk` (6,2 MB), ambos do build 11 / 1.10,
+      gerados em 2026-10-12 a partir do commit `b3ffa36` (tag `v1.10`). Conferido **no
+      artefato**, não só no log do Gradle: `aapt2 dump badging` no APK devolve
+      `versionCode='11' versionName='1.10'` (no AAB, o manifesto empacotado traz `1.10`), o
+      SHA-1 do certificado é o esperado nos dois (`apksigner verify --print-certs` no APK,
+      `jarsigner -verify` + `keytool -printcert -jarfile` no AAB), e o `app.js` do APK e do AAB
+      tem o mesmo hash do `www/app.js` compilado. Por string: contém `googlemail` (a trava da
+      própria conta nova) e **não** contém `/threads/` (a leitura por conversa da 1.9, revertida).
+      Build de cache passa despercebido justamente por sair verde no Gradle
 - ✅ `targetSdk 36` (`android/variables.gradle:4`) — atende a exigência atual
-- ✅ `versionCode 7` / `versionName 1.6` — build atual: **um percentual só, de 0 a 100**, do
-      começo ao fim da análise, com "Aguarde" nas pausas segurando o mesmo número. Antes eram
-      três contadores em sequência e cada troca de fase lia-se como recomeço. Junto, a consulta
-      por remetente ganhou `in:anywhere`: numa caixa real ela achava 256 mensagens onde a mesma
-      busca digitada no Gmail achava 265 — faltavam reenvios, e a limpeza os deixaria para trás.
-      O AAB no disco é deste build.
-      ⚠️ O `in:anywhere` **ainda não foi confirmado no aparelho**. O teste é
-      `bebee@hive.bebee.com` marcar 265 no app. Enquanto isso não acontecer, não suba este
-      AAB — a mudança está no binário de teste da pasta de distribuição justamente para isso.
-      Histórico: `versionCode 6` / `1.5` e `5` / `1.4` são binários anteriores, ainda na pasta
-      de distribuição por histórico — nenhum dos dois chegou a subir no Console.
+- ✅ `versionCode 11` / `versionName 1.10` — build atual. A análise **lê cada e-mail da caixa,
+      um por um** (como na 1.8): a contagem e o tamanho por remetente são exatos e a soma fecha
+      com o total da caixa. A primeira análise leva minutos numa caixa grande; as seguintes só
+      leem o que chegou depois (cache por id). Novo na 1.10: a **própria conta aparece sempre**
+      na lista, com cadeado e o botão de limpar desabilitado — mesmo fora do top 10, e em
+      qualquer forma do endereço Gmail (pontos, `+sufixo`, `googlemail.com`). Só fica fora
+      quando nunca enviou e-mail. O versionCode 11 instala por cima da 1.9. Notas em
+      `store/release-notes.md`; `.apk` e `.aab` também na release `v1.10` do GitHub.
+      ⚠️ **Teste de aceite ainda não feito no aparelho.** Pegar o primeiro remetente da lista
+      e conferir o mesmo número em `from:"<endereço>" in:anywhere -in:trash` na busca do
+      Gmail, com "Visualização de conversa" DESATIVADA; `bebee@hive.bebee.com` tem de marcar
+      265; e a própria conta tem de aparecer com o cadeado e o botão desabilitado. Enquanto
+      isso não acontecer, não suba este AAB.
+      Histórico: `versionCode 10` / `1.9` (leitura por conversa) foi **revertido** em
+      2026-10-12 — na prática ficou mais lento: `threads.get` é mais pesado e, com 20 leituras
+      simultâneas, o tempo de resposta passou a limitar o ritmo antes da cota. `9` / `1.8` foi
+      gerado depois, em 2026-10-12, e substituído pela 1.10 no mesmo dia — não suba: é menor
+      que o 10. `8` / `1.7`, `7` / `1.6`, `6` / `1.5` e `5` / `1.4` são binários anteriores.
+      Todos estão na subpasta `antigas` da pasta de distribuição, e nenhum subiu no Console.
       `versionCode 2` foi o que subiu no teste interno. O `3` e o `4` chegaram a ser
       gerados e nunca enviados — os dois foram abandonados em vez de reaproveitados, porque o
       binário mudou de comportamento depois de cada um. Números queimados custam nada; um
@@ -200,15 +210,11 @@ Tudo pronto no repo:
       não é o seu. Sem esse segundo cadastro o login funciona no APK que você instala e falha
       para quem baixa da loja — sintoma que parece bug do app e não é.
 
-**Como buildar nesta máquina:** `JAVA_HOME` e `ANDROID_HOME` não estão definidos no sistema, e
-`npm run build:aab` falha porque o script chama `gradlew` sem extensão e o `cmd` não resolve.
-Rode direto:
-
-```powershell
-$env:JAVA_HOME   = "C:\Program Files\Android\Android Studio\jbr"
-$env:ANDROID_HOME = "C:\Users\marlo\AppData\Local\Android\Sdk"
-cd android; .\gradlew.bat bundleRelease   # ou assembleRelease para gerar APK de teste
-```
+**Como buildar nesta máquina:** `npm run build:aab` (ou `npm run build:apk` para o APK de teste).
+Roda typecheck, testes, empacota o `app.js`, sincroniza o Capacitor e chama o Gradle. O
+`scripts/gradle.mjs` chama o `gradlew.bat` pelo caminho completo e preenche `JAVA_HOME` e
+`ANDROID_HOME` com o JDK e o SDK do Android Studio quando faltam — os dois motivos pelos quais
+o build falhava antes. Saída em `android/app/build/outputs/bundle/release/` e `.../apk/release/`.
 
 ---
 
