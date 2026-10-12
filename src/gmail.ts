@@ -394,7 +394,8 @@ function isOwnAddress(sender: string, ownEmail: string): boolean {
 
 /**
  * Os 10 maiores e, SEMPRE, a própria conta — mesmo fora do top 10, com o botão
- * desabilitado na tela. `own` são as linhas protegidas a garantir.
+ * desabilitado na tela. `own` são as linhas protegidas a garantir (vazio se a
+ * conta nunca enviou e-mail).
  */
 export function top10Of(offenders: Offender[], own: Offender[]): Offender[] {
   const top = offenders.slice(0, 10);
@@ -580,20 +581,9 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
   }));
   offenders.sort((a, b) => b.count - a.count);
 
-  // A própria conta aparece mesmo sem nenhum e-mail enviado: linha com 0, só
-  // para mostrar que ela está protegida. Fica fora de `offenders` — não é
-  // remetente da caixa e não entra nas somas.
-  let own = offenders.filter((o) => o.isProtected);
-  if (ownEmail && own.length === 0) {
-    own = [{
-      sender: ownEmail,
-      domain: domainOf(ownEmail),
-      count: 0,
-      size: 0,
-      category: categorizeSender(ownEmail),
-      isProtected: true
-    }];
-  }
+  // A própria conta só fica fora da tela se nunca enviou e-mail: aí ela não é
+  // remetente de nada e não há o que proteger.
+  const own = offenders.filter((o) => o.isProtected);
 
   return {
     totalMessages: allIds.length,

@@ -613,12 +613,11 @@ function renderResults(data: AnalyzeData): void {
     const row = document.createElement('div');
     row.className = 'offender';
 
-    // Posição real no ranking: a própria conta pode vir de fora do top 10
-    // (ex.: 57º) ou nem ser remetente (–).
+    // Posição real no ranking: a própria conta pode vir de fora do top 10 (ex.: 57º).
     const i = data.offenders.indexOf(item);
     const rank = document.createElement('div');
     rank.className = `rank ${i === 0 ? 'r1' : i === 1 ? 'r2' : i === 2 ? 'r3' : ''}`;
-    rank.textContent = i < 0 ? '–' : String(i + 1);
+    rank.textContent = String(i + 1);
 
     const details = document.createElement('div');
     const domainEl = document.createElement('div');
