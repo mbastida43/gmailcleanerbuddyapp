@@ -1,0 +1,160 @@
+INFORME — POR QUE O GMAIL CLEANER BUDDY FICA LENTO
+====================================================
+Versão analisada: 1.12 (versionCode 13) — 2026-10-12
+
+RESUMO
+------
+O app fica lento na primeira análise porque o Gmail não informa quem enviou
+cada e-mail de uma vez só. É preciso perguntar e-mail por e-mail, e o Google
+limita quantas perguntas por segundo cada conta pode fazer.
+
+
+1. O QUE A ANÁLISE FAZ, EM DUAS ETAPAS
+--------------------------------------
+  VARREDURA
+    O que faz: pede ao Gmail a lista de todos os e-mails da caixa, só os
+               códigos de identificação.
+    Custo:     500 e-mails por pedido.
+    Tempo:     segundos (caixa de 20 mil = 40 pedidos).
+
+  LEITURA
+    O que faz: para cada e-mail, pede o remetente (From) e o tamanho.
+    Custo:     1 pedido por e-mail.
+    Tempo:     cerca de 7 minutos (caixa de 20 mil = 20 mil pedidos).
+
+Quase toda a demora está na leitura. A API do Gmail não tem um pedido do tipo
+"quantos e-mails cada remetente mandou". A única forma de ter a contagem exata
+é ler o remetente de cada e-mail.
+
+
+2. O LIMITE QUE NINGUÉM CONSEGUE PASSAR: A COTA DO GOOGLE
+---------------------------------------------------------
+  - O Gmail dá a cada conta 250 unidades por segundo.
+  - Ler o remetente de um e-mail custa 5 unidades.
+  - Então o máximo é 50 e-mails por segundo. O app usa 45 por segundo e deixa
+    uma folga para a varredura.
+
+Pedir mais rápido não adianta: o Google responde com erro 429 ("muitos
+pedidos") e o app precisa esperar e tentar de novo, o que fica ainda mais
+lento.
+
+  Tamanho da caixa      Tempo mínimo da 1ª análise
+  ----------------      --------------------------
+  5 mil e-mails         ~2 min
+  20 mil                ~7,5 min
+  50 mil                ~18,5 min
+  100 mil               ~37 min
+
+Esse é o melhor caso possível. No celular, normalmente demora um pouco mais.
+
+
+3. POR QUE NO CELULAR FICA MAIS LENTO QUE O MÍNIMO
+--------------------------------------------------
+O app lê 20 e-mails ao mesmo tempo, em grupos, e só começa o próximo grupo
+quando os 20 responderam. Por isso, o grupo anda no ritmo do mais lento:
+
+  - Rede móvel: com 4G ou Wi-Fi fraco, cada resposta pode levar meio segundo
+    ou mais. Se o mais lento do grupo leva 0,6 s, o ritmo cai para cerca de
+    33 e-mails por segundo em vez de 45.
+  - Erros temporários: quando um pedido recebe erro 429 ou uma falha do
+    Google, o app espera 0,3 s, 0,6 s, 1,2 s, 2,4 s e 4,8 s antes de cada nova
+    tentativa. Os outros 19 ficam parados esperando ele.
+  - Telas de "Aguarde": são as pausas de propósito para não passar do limite
+    do Google. Não é travamento.
+
+
+4. POR QUE DA SEGUNDA VEZ É RÁPIDO: O CACHE
+-------------------------------------------
+O remetente e o tamanho de um e-mail nunca mudam. Por isso, o app guarda o que
+já leu, em uma memória do próprio app no celular. Na análise seguinte:
+  1. a varredura descobre a lista atual de e-mails, o que leva segundos;
+  2. só os e-mails que ele ainda não conhece são lidos;
+  3. o resto sai da memória.
+
+Na prática, a segunda análise lê só o que chegou desde a anterior. Depois de
+uma limpeza, praticamente nada.
+
+
+5. QUANDO O CACHE NÃO AJUDA, E A ANÁLISE VOLTA A SER LENTA
+----------------------------------------------------------
+  - Fechar o app no meio da 1ª análise:
+    O cache só é gravado no fim. Se a análise for interrompida (app fechado,
+    celular travou), nada é guardado e a próxima começa do zero. A queda por
+    "sessão expirada" foi corrigida na 1.12 (veja o item 7).
+
+  - Caixa muito grande, acima de ~100 mil e-mails:
+    Essa memória do celular tem limite de cerca de 5 MB. Se o cache não
+    couber, o app o descarta sem avisar, e toda análise passa a ser lenta
+    como a primeira.
+
+  - Desinstalar o app ou "limpar dados":
+    O cache é apagado. Atualizar de versão por cima, como da 1.11 para a
+    1.12, não apaga.
+
+  - Outra conta Gmail:
+    Cada conta tem seu próprio cache, então a primeira análise de cada uma é
+    lenta.
+
+
+6. POR QUE A 1.9 FICOU MAIS LENTA (JÁ REVERTIDA)
+------------------------------------------------
+A 1.9 tentou ler conversas inteiras de uma vez (threads.get). Na teoria,
+gastava menos cota. Na prática:
+  - esse pedido é bem mais pesado para o Google, que monta a conversa
+    inteira, inclusive e-mails que o app já conhecia;
+  - cada resposta passou a demorar mais, e com 20 pedidos ao mesmo tempo o
+    limite virou o tempo de resposta, não a cota;
+  - numa conversa de 2 e-mails não havia economia nenhuma (custo 10 contra
+    5 + 5), mas a resposta demorava mais.
+
+
+7. A SESSÃO QUE CAÍA NO MEIO DA PRIMEIRA LEITURA (CORRIGIDO NA 1.12)
+--------------------------------------------------------------------
+O problema:
+  - O acesso que o Google dá ao app dura 1 hora.
+  - A primeira leitura de uma caixa grande pode passar disso: a ~45 e-mails
+    por segundo, 1 hora dá cerca de 150 mil e-mails; com rede móvel, menos.
+  - Quando a hora acabava, o app tratava como "sessão expirada", parava a
+    análise e perdia tudo o que já tinha lido, porque o cache só é gravado
+    no fim.
+
+A correção (1.12):
+  - Quando o acesso vence, o app pede outro ao Android sozinho, sem mostrar
+    tela de login. Como o Gmail já foi autorizado uma vez, o Android entrega
+    na hora.
+  - O pedido que deu erro é repetido com o acesso novo, então nenhum e-mail
+    se perde. As 20 leituras que vencem juntas esperam uma única renovação.
+  - O app passou a usar a validade exata informada pelo Google. Antes ele
+    considerava o acesso vencido 5 minutos antes; com essa folga, o Android
+    devolveria o mesmo acesso velho na renovação.
+  - Segurança: se o acesso novo for de outra conta, não tiver permissão no
+    Gmail, ou se a pessoa clicou em Sair, o app recusa e a sessão cai como
+    antes. Contas nunca se misturam.
+  - Com o app parado mais de 1 hora, ao analisar ou limpar de novo o acesso
+    também é renovado sozinho, sem voltar para a tela de login.
+
+Limites:
+  - A renovação foi testada só em simulação, não num celular de verdade.
+    Para confirmar: fazer uma primeira análise que passe de 1 hora, sem sair
+    do app.
+  - Com mais de uma conta Google autorizada no celular, o Android pode
+    mostrar a caixa de escolha de conta. Escolhendo a mesma conta, a leitura
+    continua.
+  - Se a pessoa sair do app durante a leitura, o Android pode pausá-la. A
+    renovação resolve o vencimento da hora, não o app em segundo plano.
+
+
+8. O QUE DARIA PARA MELHORAR (SÓ PARA SABER, NADA FOI FEITO)
+------------------------------------------------------------
+  - Gravar o cache aos poucos durante a primeira análise, em vez de só no
+    fim. Assim, uma interrupção não faria perder tudo. É o ganho mais direto
+    para quem desiste no meio.
+  - Trocar o armazenamento por um sem o limite de 5 MB, o IndexedDB. Isso só
+    faz diferença para caixas acima de ~100 mil e-mails.
+  - Trocar os grupos de 20 por uma fila contínua, para ninguém ficar
+    esperando o mais lento. Esse foi o lado bom da 1.9, mas separado da
+    leitura por conversa. O ganho seria pequeno e só em rede ruim.
+
+Nada disso muda o teto de cerca de 45 e-mails por segundo. A primeira análise
+de uma caixa grande sempre vai levar minutos, porque é o preço da contagem
+exata.
