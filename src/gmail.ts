@@ -28,28 +28,17 @@ const BASE = 'https://gmail.googleapis.com/gmail/v1/users/me';
 // `mailboxCapped`, e a tela mostra o número como piso ("1.000.000+").
 const MAX_PAGES = 2000;
 
-// Cota do Gmail: 250 unidades por segundo por usuário. messages.get custa 5
-// unidades (1 e-mail); threads.get custa 10 e traz TODOS os e-mails da
-// conversa, cada um com o próprio cabeçalho From. Passar do teto só rende 429,
-// então o ritmo é medido em UNIDADES, não em requisições: seguramos 225/s
-// (= 45 messages.get/s) para deixar folga para a varredura.
+// Cota do Gmail: 250 unidades por segundo por usuário, e um messages.get custa
+// 5 unidades. Teto FÍSICO de 50 mensagens por segundo — ler a caixa inteira
+// leva o tempo que leva, e nenhuma concorrência maior acelera: passar do teto
+// só rende 429. Seguramos em 45/s para deixar folga para a varredura.
 //
-// Duas coisas fazem a leitura render mais dentro da mesma cota:
-// - conversa com 2+ e-mails ainda não lidos vira UM threads.get: 10 unidades
-//   para N e-mails em vez de 5×N. Cada e-mail continua contado um a um pelo
-//   seu próprio From — só a viagem é compartilhada.
-// - fila contínua de leitores em vez de lotes: no lote, os 20 esperavam o
-//   mais lento (uma retentativa de 429 segurava todos), e a cota ficava ociosa.
-//
-// ponytail: caixa sem conversas (só newsletter) segue no teto de ~45 e-mails/s.
-// Se isso incomodar, o caminho NÃO é amostrar — é histórico incremental.
+// ponytail: leitura ~45 e-mails/s. Caixa de 20 mil ≈ 7 min, 50 mil ≈ 18 min.
+// É o preço da exatidão pedida. Se um dia isso incomodar, o caminho NÃO é
+// voltar a amostrar — é guardar o resultado por id e reler só o que chegou
+// desde a última análise (histórico incremental).
 const READ_CONCURRENCY = 20;
-const UNITS_PER_SEC = 225;
-const COST_MESSAGE = 5;
-const COST_THREAD = 10;
-// Espera curta de ritmo é o andamento normal da fila, não uma pausa: só vira
-// 'waiting' na tela quando dá para notar.
-const WAIT_REPORT_MS = 300;
+const READ_PER_SEC = 45;
 
 // ============================================================
 // Cache de identidade por id de mensagem.
@@ -60,7 +49,7 @@ const WAIT_REPORT_MS = 300;
 // varredura descobre de graça (5 unidades por 500 ids).
 //
 // Então a varredura manda e a leitura só paga pelos ids que ela nunca viu. A
-// primeira análise de uma caixa de 20 mil leva até ~7 minutos (menos com conversas); a
+// primeira análise de uma caixa de 20 mil leva os ~7 minutos de sempre; a
 // segunda lê só o que chegou desde então — segundos. Depois de uma limpeza,
 // zero: nenhum id novo.
 //
@@ -404,30 +393,6 @@ async function getOwnEmail(required = false): Promise<string> {
   }
 }
 
-/**
- * Remetente e tamanho de UM e-mail, a partir do seu próprio cabeçalho From —
- * venha ele de messages.get ou de dentro de um threads.get.
- *
- * Remetente vazio = lido e sem remetente utilizável (rascunho, mensagem de
- * chat, cabeçalho corrompido). Ele EXISTE na caixa, então entra no Map do
- * mesmo jeito em vez de desaparecer — era o buraco silencioso que abria
- * diferença entre o total da caixa e a soma da lista. Vai para o cache também:
- * relê-lo não mudaria o resultado.
- */
-function factsOf(details: any): MsgFacts {
-  const headers: Array<{ name?: string; value?: string }> = details?.payload?.headers || [];
-  const fromHeader = headers.find((h) => h.name === 'From');
-  const emailMatch = fromHeader?.value
-    ? fromHeader.value.match(/<(.+?)>/) || fromHeader.value.match(/([^\s]+@[^\s]+)/)
-    : null;
-  const raw = emailMatch ? emailMatch[1] : fromHeader?.value;
-  const senderEmail = String(raw || '').trim().toLowerCase();
-  return {
-    sender: validateSender(senderEmail) ? senderEmail : '',
-    size: Number(details?.sizeEstimate) || 0
-  };
-}
-
 export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
   const report: ProgressFn = onProgress || (() => {});
 
@@ -447,8 +412,7 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
   report('scanning', 0, 0);
   // Set, não array: a paginação do Gmail repete ids na virada de página, e id
   // repetido aqui vira mensagem contada duas vezes — caixa maior do que é.
-  // id → threadId. Map pelo mesmo motivo: id repetido é uma entrada só.
-  const seenIds = new Map<string, string>();
+  const seenIds = new Set<string>();
   let pageToken: string | undefined;
   let scanned = 0;
   do {
@@ -462,13 +426,11 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
       q: 'in:anywhere -in:trash',
       maxResults: '500',
       includeSpamTrash: 'true',
-      fields: 'messages(id,threadId),nextPageToken'
+      fields: 'messages/id,nextPageToken'
     });
     if (pageToken) q.set('pageToken', pageToken);
     const resp = await gfetch(`/messages?${q.toString()}`);
-    for (const m of (resp.messages || []) as Array<{ id: string; threadId?: string }>) {
-      seenIds.set(m.id, m.threadId || '');
-    }
+    for (const m of (resp.messages || []) as Array<{ id: string }>) seenIds.add(m.id);
     pageToken = resp.nextPageToken;
     scanned++;
     // Número CRESCENTE, sem denominador — o denominador é o que esta fase está
@@ -480,7 +442,7 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
 
   // Sobrou pageToken = paramos na trava de sanidade, não no fim da caixa.
   const mailboxCapped = !!pageToken;
-  const allIds = [...seenIds.keys()];
+  const allIds = [...seenIds];
 
   // 2) O que já se sabe sai do cache; o resto é lido.
   //
@@ -501,79 +463,64 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
 
   let failedMessages = 0;
 
-  // Agrupa o que falta ler por conversa. Só ids que FALTAM: conversa com 30
-  // e-mails no cache e 1 novo continua custando um messages.get, não um
-  // threads.get inteiro.
-  const byThread = new Map<string, string[]>();
-  for (const id of toRead) {
-    const key = seenIds.get(id) || `msg:${id}`;
-    const group = byThread.get(key);
-    if (group) group.push(id);
-    else byThread.set(key, [id]);
-  }
-  const jobs = [...byThread.values()];
-
-  // Um passo por E-MAIL, não por requisição: o contador é o número real de
-  // mensagens já lidas, sobe uma a uma, e o último incremento escreve o total
-  // cheio. O denominador é o que falta LER, não o tamanho da caixa — numa
-  // segunda análise são 80 mensagens, não 20 mil.
+  // Um passo por E-MAIL, não por lote: o contador é o número real de mensagens
+  // já lidas, sobe uma a uma conforme cada resposta chega, e o último
+  // incremento escreve o total cheio. O denominador é o que falta LER, não o
+  // tamanho da caixa — numa segunda análise são 80 mensagens, não 20 mil, e
+  // fingir o contrário deixaria a barra parada em 99%.
   let read = 0;
-  // Próximo instante em que a cota comporta uma requisição. Cada uma reserva
-  // o seu custo em unidades e empurra o relógio.
-  let slotAt = Date.now();
+  report('reading', 0, toRead.length);
+  for (let i = 0; i < toRead.length; i += READ_CONCURRENCY) {
+    const batch = toRead.slice(i, i + READ_CONCURRENCY);
+    const startedAt = Date.now();
+    await Promise.all(
+      batch.map(async (id) => {
+        try {
+          const details = await gfetch(
+            `/messages/${id}?format=metadata&metadataHeaders=From&fields=payload/headers,sizeEstimate`
+          );
+          const headers: Array<{ name?: string; value?: string }> =
+            details.payload?.headers || [];
+          const fromHeader = headers.find((h) => h.name === 'From');
 
-  async function readJob(ids: string[]): Promise<void> {
-    const asThread = ids.length > 1;
-    const now = Date.now();
-    const wait = slotAt - now;
-    slotAt = Math.max(slotAt, now) + ((asThread ? COST_THREAD : COST_MESSAGE) / UNITS_PER_SEC) * 1000;
-    if (wait > 0) {
-      if (wait >= WAIT_REPORT_MS) report('waiting', read, toRead.length);
-      await sleep(wait);
-    }
-
-    let got = new Map<string, any>();
-    try {
-      if (asThread) {
-        const thread = await gfetch(
-          `/threads/${seenIds.get(ids[0]!)}?format=metadata&metadataHeaders=From&fields=messages(id,payload/headers,sizeEstimate)`
-        );
-        got = new Map(((thread.messages || []) as any[]).map((m) => [m.id, m]));
-      } else {
-        got.set(
-          ids[0]!,
-          await gfetch(
-            `/messages/${ids[0]}?format=metadata&metadataHeaders=From&fields=payload/headers,sizeEstimate`
-          )
-        );
-      }
-    } catch (err) {
-      if (err instanceof UnauthorizedError) throw err;
-      // gfetch já retentou 429/5xx cinco vezes. Chegar aqui é erro que não
-      // passa: todos os e-mails desta requisição caem como falha logo abaixo,
-      // e a tela avisa quantos foram (toast.analyzePartial). Não entram no
-      // cache — a próxima análise tenta de novo.
-    }
-
-    for (const id of ids) {
-      const msg = got.get(id);
-      // E-mail que a conversa não trouxe (saiu da caixa entre a varredura e a
-      // leitura) é o mesmo caso de um messages.get que falha: falha contada.
-      if (msg) facts.set(id, factsOf(msg));
-      else failedMessages++;
-      // A sem remetente e a que falhou também foram lidas. Fora daqui, o
-      // contador nunca fecharia no total.
-      report('reading', ++read, toRead.length);
+          const emailMatch = fromHeader?.value
+            ? fromHeader.value.match(/<(.+?)>/) ||
+              fromHeader.value.match(/([^\s]+@[^\s]+)/)
+            : null;
+          const raw = emailMatch ? emailMatch[1] : fromHeader?.value;
+          const senderEmail = String(raw || '').trim().toLowerCase();
+          // Remetente vazio = lida e sem remetente utilizável (rascunho,
+          // mensagem de chat, cabeçalho corrompido). Ela EXISTE na caixa, então
+          // entra no Map do mesmo jeito em vez de desaparecer — era o buraco
+          // silencioso que abria diferença entre o total da caixa e a soma da
+          // lista. Vai para o cache também: relê-la não mudaria o resultado.
+          facts.set(id, {
+            sender: validateSender(senderEmail) ? senderEmail : '',
+            size: Number(details.sizeEstimate) || 0
+          });
+        } catch (err) {
+          if (err instanceof UnauthorizedError) throw err;
+          // gfetch já retentou 429/5xx cinco vezes. Chegar aqui é erro que não
+          // passa, e a tela avisa quantas foram (toast.analyzePartial): número
+          // exato inclui dizer o que não deu para contar. Não entra no cache —
+          // a próxima análise tenta de novo.
+          failedMessages++;
+        } finally {
+          // No finally: a sem remetente e a que falhou também foram lidas.
+          // Fora daqui, o contador nunca fecharia no total.
+          report('reading', ++read, toRead.length);
+        }
+      })
+    );
+    // Ritmo, não pausa fixa: segura o lote no tempo que a cota permite. Uma
+    // pausa constante ou desperdiça cota (rede rápida) ou estoura (rede lenta
+    // que já demorou mais que o devido).
+    const owedMs = (batch.length / READ_PER_SEC) * 1000 - (Date.now() - startedAt);
+    if (owedMs > 0 && i + READ_CONCURRENCY < toRead.length) {
+      report('waiting', read, toRead.length);
+      await sleep(owedMs);
     }
   }
-
-  report('reading', 0, toRead.length);
-  let nextJob = 0;
-  await Promise.all(
-    Array.from({ length: Math.min(READ_CONCURRENCY, jobs.length) }, async () => {
-      while (nextJob < jobs.length) await readJob(jobs[nextJob++]!);
-    })
-  );
 
   // Guarda só os ids desta varredura — o Map já é exatamente isso, então o
   // cache se poda sozinho: mensagem que foi para a lixeira sai dele aqui, sem
