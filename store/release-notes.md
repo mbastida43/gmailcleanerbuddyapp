@@ -8,6 +8,49 @@ Uma seção por versão, a mais nova em cima.
 
 ---
 
+## 1.11 (versionCode 12)
+
+O que o testador percebe: na primeira análise, embaixo de "Lendo emails… xx%", um aviso
+pede paciência e diz que as próximas usarão cache. Só aparece quando o cache da conta está
+vazio; da segunda análise em diante, não. Leitura e contagem iguais à 1.10.
+
+### 🇧🇷 Português (pt-BR)
+```
+Na primeira análise, embaixo do percentual, aparece o aviso "Primeira leitura, tenha paciência! As próximas usarão cache!". A primeira leitura percorre a caixa inteira e leva alguns minutos; as seguintes só leem o que chegou depois e terminam em segundos.
+```
+
+### 🇺🇸 English (en-US)
+```
+On the first analysis, a note appears under the percentage: "First read, please be patient! The next ones will use the cache!". The first read goes through the whole mailbox and takes a few minutes; later ones only read what arrived since and finish in seconds.
+```
+
+### 🇪🇸 Español (es)
+```
+En el primer análisis aparece, debajo del porcentaje, el aviso "¡Primera lectura, ten paciencia! ¡Las próximas usarán caché!". La primera lectura recorre todo el buzón y tarda unos minutos; las siguientes solo leen lo nuevo y terminan en segundos.
+```
+
+### 🇫🇷 Français (fr)
+```
+Lors de la première analyse, un message s'affiche sous le pourcentage : « Première lecture, soyez patient ! Les suivantes utiliseront le cache ! ». La première lecture parcourt toute la boîte et prend quelques minutes ; les suivantes ne lisent que les nouveautés et se terminent en quelques secondes.
+```
+
+### 🇮🇹 Italiano (it-IT)
+```
+Alla prima analisi, sotto la percentuale, compare l'avviso "Prima lettura, abbi pazienza! Le prossime useranno la cache!". La prima lettura percorre tutta la casella e richiede qualche minuto; le successive leggono solo le novità e finiscono in pochi secondi.
+```
+
+### 🇷🇺 Русский (ru-RU)
+```
+При первом анализе под процентом появляется подсказка «Первое чтение — наберитесь терпения! Следующие будут использовать кэш!». Первое чтение проходит весь ящик и занимает несколько минут; следующие читают только новое и завершаются за секунды.
+```
+
+### 🇨🇳 中文 (zh-CN)
+```
+首次分析时，百分比下方会显示提示：“首次读取，请耐心等待！之后将使用缓存！”。首次读取会遍历整个邮箱，需要几分钟；之后只读取新到的邮件，几秒即可完成。
+```
+
+---
+
 ## 1.10 (versionCode 11)
 
 O que o testador percebe: a própria conta está sempre na lista, com cadeado e o botão
