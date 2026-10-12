@@ -8,6 +8,64 @@ Uma seção por versão, a mais nova em cima.
 
 ---
 
+## 1.10 (versionCode 11)
+
+O que o testador percebe: a própria conta está sempre na lista, com cadeado e o botão
+desabilitado, mesmo fora do top 10 ou em outra forma do endereço Gmail. A 1.9
+(leitura por conversa) foi revertida por ficar mais lenta na prática; esta versão
+lê como a 1.8, e-mail por e-mail. versionCode 11 instala por cima da 1.9.
+
+### 🇧🇷 Português (pt-BR)
+```
+A sua própria conta agora aparece sempre na lista, com cadeado e o botão de limpar desativado — mesmo fora dos 10 maiores. Ela é reconhecida em qualquer forma do endereço Gmail: com ou sem pontos, com +sufixo ou googlemail.com.
+
+A leitura volta ao ritmo da 1.8: cada e-mail continua lido e contado um por um.
+```
+
+### 🇺🇸 English (en-US)
+```
+Your own account now always appears in the list, with a lock and the clean button disabled — even outside the top 10. It is recognized in any form of the Gmail address: with or without dots, with a +suffix or googlemail.com.
+
+Reading is back to the 1.8 pace: every email is still read and counted one by one.
+```
+
+### 🇪🇸 Español (es)
+```
+Tu propia cuenta ahora aparece siempre en la lista, con candado y el botón de limpiar desactivado, incluso fuera de los 10 primeros. Se reconoce en cualquier forma de la dirección de Gmail: con o sin puntos, con +sufijo o googlemail.com.
+
+La lectura vuelve al ritmo de la 1.8: cada correo se sigue leyendo y contando uno por uno.
+```
+
+### 🇫🇷 Français (fr)
+```
+Votre propre compte apparaît désormais toujours dans la liste, avec un cadenas et le bouton de nettoyage désactivé — même hors du top 10. Il est reconnu sous toutes les formes de l'adresse Gmail : avec ou sans points, avec +suffixe ou googlemail.com.
+
+La lecture revient au rythme de la 1.8 : chaque e-mail est toujours lu et compté un par un.
+```
+
+### 🇮🇹 Italiano (it-IT)
+```
+Il tuo account ora appare sempre nell'elenco, con il lucchetto e il pulsante di pulizia disattivato, anche fuori dai primi 10. Viene riconosciuto in ogni forma dell'indirizzo Gmail: con o senza punti, con +suffisso o googlemail.com.
+
+La lettura torna al ritmo della 1.8: ogni email viene ancora letta e contata una per una.
+```
+
+### 🇷🇺 Русский (ru-RU)
+```
+Ваш собственный аккаунт теперь всегда виден в списке — с замком и отключённой кнопкой очистки, даже вне первой десятки. Он распознаётся в любой форме адреса Gmail: с точками или без, с +суффиксом или googlemail.com.
+
+Чтение вернулось к темпу версии 1.8: каждое письмо по-прежнему читается и считается по одному.
+```
+
+### 🇨🇳 中文 (zh-CN)
+```
+您自己的账户现在始终显示在列表中，带有锁图标，清理按钮处于禁用状态——即使不在前 10 名之内。Gmail 地址的任何写法都能识别：带或不带点号、带 +后缀或 googlemail.com。
+
+读取速度恢复到 1.8 的节奏：每封邮件仍逐封读取和计数。
+```
+
+---
+
 ## 1.8 (versionCode 9)
 
 O que o testador percebe: os números finalmente batem com a busca do Gmail, e a
