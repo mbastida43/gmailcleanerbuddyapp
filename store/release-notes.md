@@ -8,6 +8,50 @@ Uma seção por versão, a mais nova em cima.
 
 ---
 
+## 1.12 (versionCode 13)
+
+O que o testador percebe: a primeira análise de uma caixa grande não cai mais com "sessão
+expirada" depois de 1 hora. O token do Google vence em 1 hora; o app agora renova em silêncio
+(sem tela de login) e repete o pedido que falhou, sem perder e-mail lido. Leitura, contagem,
+proteção da própria conta e aviso de primeira leitura iguais à 1.11.
+
+### 🇧🇷 Português (pt-BR)
+```
+A primeira análise de uma caixa grande não cai mais no meio. O acesso ao Google dura 1 hora, e a leitura de uma caixa grande pode passar disso: antes, a sessão expirava e tudo o que já tinha sido lido se perdia. Agora o app renova o acesso sozinho, sem pedir login de novo, e a leitura continua de onde estava.
+```
+
+### 🇺🇸 English (en-US)
+```
+The first analysis of a large mailbox no longer drops halfway. Google access lasts 1 hour, and reading a large mailbox can take longer: before, the session expired and everything already read was lost. Now the app renews access on its own, without asking you to sign in again, and reading continues where it was.
+```
+
+### 🇪🇸 Español (es)
+```
+El primer análisis de un buzón grande ya no se corta a mitad. El acceso a Google dura 1 hora y leer un buzón grande puede tardar más: antes la sesión caducaba y se perdía todo lo leído. Ahora la app renueva el acceso sola, sin pedir que inicies sesión de nuevo, y la lectura sigue donde estaba.
+```
+
+### 🇫🇷 Français (fr)
+```
+La première analyse d'une grande boîte ne s'interrompt plus en cours de route. L'accès Google dure 1 heure et la lecture d'une grande boîte peut prendre plus longtemps : avant, la session expirait et tout ce qui avait été lu était perdu. Désormais l'app renouvelle l'accès toute seule, sans nouvelle connexion, et la lecture reprend là où elle en était.
+```
+
+### 🇮🇹 Italiano (it-IT)
+```
+La prima analisi di una casella grande non si interrompe più a metà. L'accesso a Google dura 1 ora e leggere una casella grande può richiedere di più: prima la sessione scadeva e tutto ciò che era già stato letto andava perso. Ora l'app rinnova l'accesso da sola, senza chiederti di accedere di nuovo, e la lettura continua da dove era.
+```
+
+### 🇷🇺 Русский (ru-RU)
+```
+Первый анализ большого ящика больше не обрывается на середине. Доступ к Google действует 1 час, а чтение большого ящика может длиться дольше: раньше сессия истекала, и всё прочитанное терялось. Теперь приложение само продлевает доступ, без повторного входа, и чтение продолжается с того же места.
+```
+
+### 🇨🇳 中文 (zh-CN)
+```
+大邮箱的首次分析不会再中途中断。Google 访问权限的有效期为 1 小时，而读取大邮箱可能需要更久：以前会话过期后，已读取的内容会全部丢失。现在应用会自动续期访问权限，无需重新登录，读取会从中断处继续。
+```
+
+---
+
 ## 1.11 (versionCode 12)
 
 O que o testador percebe: na primeira análise, embaixo de "Lendo emails… xx%", um aviso

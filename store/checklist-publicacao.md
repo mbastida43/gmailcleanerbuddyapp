@@ -117,7 +117,7 @@ Tudo pronto no repo:
 - ✅ **Feature graphic 1024×500** — `store/feature-graphics/feature-<idioma>.png` (7 idiomas)
 - ✅ **Screenshots** — `store/screenshots/` (3 capturas de celular, 1179×2556; mínimo do Google é 2)
 - ✅ **Textos PT/EN/ES/FR/IT/RU/ZH** — `store/play-listing.md` (os 7 idiomas da interface)
-- ✅ **Notas da versão 1.11** — `store/release-notes.md`, nos mesmos 7 idiomas, dentro do
+- ✅ **Notas da versão 1.12** — `store/release-notes.md`, nos mesmos 7 idiomas, dentro do
       limite de 500 caracteres. É campo da versão, preenchido no formulário de release
       (Fase 5), não na ficha
 - ✅ **Política de privacidade no ar** — `https://mbastida43.github.io/gmailcleanerbuddy/privacy.html`
@@ -138,18 +138,18 @@ Tudo pronto no repo:
 > 48h pelo reset do Google; perder a de assinatura, sem Play App Signing, custaria o app.
 
 - ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`, 5,8 MB)
-      e APK de mão em `.../apk/release/app-release.apk` (6,2 MB), ambos do build 12 / 1.11,
-      gerados em 2026-10-12 (tag `v1.11`). Conferido **no
+      e APK de mão em `.../apk/release/app-release.apk` (6,2 MB), ambos do build 13 / 1.12,
+      gerados em 2026-10-12 (tag `v1.12`). Conferido **no
       artefato**, não só no log do Gradle: `aapt2 dump badging` no APK devolve
-      `versionCode='12' versionName='1.11'` (no AAB, o manifesto empacotado traz `1.11`), o
+      `versionCode='13' versionName='1.12'` (no AAB, o manifesto empacotado traz `1.12`), o
       SHA-1 do certificado é o esperado nos dois (`apksigner verify --print-certs` no APK,
       `jarsigner -verify` + `keytool -printcert -jarfile` no AAB), e o `app.js` do APK e do AAB
-      tem o mesmo hash do `www/app.js` compilado. Por string: contém `loading.firstRead` (o aviso
-      da 1.11) e `googlemail` (a trava da própria conta, da 1.10), e **não** contém `/threads/`
+      tem o mesmo hash do `www/app.js` compilado. Por string: contém `tokeninfo` e o `refresh(` do
+      plugin (a renovação da 1.12), `loading.firstRead` (o aviso da 1.11) e `googlemail` (a trava da própria conta, da 1.10), e **não** contém `/threads/`
       (a leitura por conversa da 1.9, revertida).
       Build de cache passa despercebido justamente por sair verde no Gradle
 - ✅ `targetSdk 36` (`android/variables.gradle:4`) — atende a exigência atual
-- ✅ `versionCode 12` / `versionName 1.11` — build atual. A análise **lê cada e-mail da caixa,
+- ✅ `versionCode 13` / `versionName 1.12` — build atual. A análise **lê cada e-mail da caixa,
       um por um** (como na 1.8): a contagem e o tamanho por remetente são exatos e a soma fecha
       com o total da caixa. A primeira análise leva minutos numa caixa grande; as seguintes só
       leem o que chegou depois (cache por id). Novo na 1.10: a **própria conta aparece sempre**
@@ -157,15 +157,21 @@ Tudo pronto no repo:
       qualquer forma do endereço Gmail (pontos, `+sufixo`, `googlemail.com`). Só fica fora
       quando nunca enviou e-mail. Novo na 1.11: na primeira análise (cache vazio), embaixo
       do percentual, o aviso "Primeira leitura, tenha paciência! As próximas usarão cache!",
-      nos 7 idiomas. Instala por cima da 1.9 e da 1.10. Notas em `store/release-notes.md`;
-      `.apk` e `.aab` também na release `v1.11` do GitHub.
+      nos 7 idiomas. Novo na 1.12: a sessão **não cai** no meio da primeira leitura — o
+      token do Google dura 1 hora e, quando vence, o app renova em silêncio
+      (`SocialLogin.refresh`) e repete o pedido, sem perder e-mail; só aceita token da
+      mesma conta. Instala por cima da 1.9, 1.10 e 1.11. Notas em `store/release-notes.md`;
+      `.apk` e `.aab` também na release `v1.12` do GitHub.
       ⚠️ **Teste de aceite ainda não feito no aparelho.** Pegar o primeiro remetente da lista
       e conferir o mesmo número em `from:"<endereço>" in:anywhere -in:trash` na busca do
       Gmail, com "Visualização de conversa" DESATIVADA; `bebee@hive.bebee.com` tem de marcar
       265; a própria conta tem de aparecer com o cadeado e o botão desabilitado; e o aviso de
-      primeira leitura tem de aparecer na 1ª análise e sumir na 2ª. Enquanto
+      primeira leitura tem de aparecer na 1ª análise e sumir na 2ª; e uma primeira análise que
+      passe de 1 hora tem de terminar sem "sessão expirada" (a renovação nunca rodou num
+      aparelho de verdade — só no teste). Enquanto
       isso não acontecer, não suba este AAB.
-      Histórico: `versionCode 11` / `1.10` foi substituído pela 1.11 no mesmo dia (release
+      Histórico: `versionCode 12` / `1.11` foi substituído pela 1.12 no mesmo dia (release
+      `v1.11` no GitHub). `11` / `1.10` foi substituído pela 1.11 no mesmo dia (release
       `v1.10` no GitHub). `10` / `1.9` (leitura por conversa) foi **revertido** em
       2026-10-12 — na prática ficou mais lento: `threads.get` é mais pesado e, com 20 leituras
       simultâneas, o tempo de resposta passou a limitar o ritmo antes da cota. `9` / `1.8` foi
@@ -297,9 +303,9 @@ caçar bug grosseiro enquanto isso. É teste de verdade, só não conta prazo. E
 `UTEIS\GMAIL CLEANER BUDDY` no OneDrive, pasta separada da chave de propósito — junto vai um
 `LEIA-ME.txt` com o que avisar a quem instalar.
 
-Estado da pasta em 2026-10-12: `gmail-cleaner-buddy-1.11.apk` e `.aab` (build 12 / 1.11) são
-os atuais — também anexados à release `v1.11` no GitHub. O `1.10` (build 11) foi substituído
-pela 1.11, o `1.9` (build 10) foi revertido (a leitura por conversa ficou mais lenta na
+Estado da pasta em 2026-10-12: `gmail-cleaner-buddy-1.12.apk` e `.aab` (build 13 / 1.12) são
+os atuais — também anexados à release `v1.12` no GitHub. O `1.11` (build 12) foi substituído
+pela 1.12, o `1.10` (build 11) pela 1.11, o `1.9` (build 10) foi revertido (a leitura por conversa ficou mais lenta na
 prática) e o `1.8` (build 9) foi substituído pela 1.10. Esses e os pares `1.7`, `1.6`, `1.5` e
 `1.4` ficam na subpasta `antigas`, só por histórico. Não suba nenhum deles.
 **Confira a versão no nome antes de mandar ou de subir** — os pares convivem, e subir o
