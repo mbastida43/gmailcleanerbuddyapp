@@ -19,7 +19,7 @@
 // descoberto. Agora não há quem corrigir: todo mundo é lido.
 // ============================================================
 
-import { getAccessToken } from './auth';
+import { getAccessToken, renewToken } from './auth';
 
 const BASE = 'https://gmail.googleapis.com/gmail/v1/users/me';
 
@@ -271,10 +271,21 @@ function sleep(ms: number): Promise<void> {
 const RETRY_STATUS = new Set([429, 500, 502, 503, 504]);
 const MAX_RETRIES = 5;
 
+/**
+ * Token válido, renovando em silêncio se venceu. A primeira análise de uma
+ * caixa grande dura mais que o token (1 hora): sem isto, a sessão caía no meio
+ * da leitura e tudo o que já tinha sido lido se perdia.
+ */
+async function liveToken(): Promise<string> {
+  const token = getAccessToken() || ((await renewToken()) ? getAccessToken() : null);
+  if (!token) throw new UnauthorizedError();
+  return token;
+}
+
 async function gfetch(path: string, init: RequestInit = {}): Promise<any> {
+  let renewals = 0;
   for (let attempt = 0; ; attempt++) {
-    const token = getAccessToken();
-    if (!token) throw new UnauthorizedError();
+    const token = await liveToken();
 
     const res = await fetch(`${BASE}${path}`, {
       ...init,
@@ -290,6 +301,14 @@ async function gfetch(path: string, init: RequestInit = {}): Promise<any> {
 
     const { reason, message } = await readApiError(res);
     if (res.status === 401 || (res.status === 403 && AUTH_REASONS.has(reason))) {
+      // Venceu entre o relógio daqui e o do Google: renova e repete o MESMO
+      // pedido. Três tentativas; a pausa dá tempo de o Android largar o
+      // token velho que ele guarda até expirar.
+      if (renewals++ < 3 && (await renewToken())) {
+        await sleep(1000);
+        attempt--;
+        continue;
+      }
       throw new UnauthorizedError();
     }
     // O 403 de cota (rateLimitExceeded / userRateLimitExceeded) é transitório
@@ -405,8 +424,7 @@ export function top10Of(offenders: Offender[], own: Offender[]): Offender[] {
 }
 
 async function getOwnEmail(required = false): Promise<string> {
-  const token = getAccessToken();
-  if (!token) throw new UnauthorizedError();
+  const token = await liveToken();
   if (ownEmailCache && ownEmailCache.token === token) return ownEmailCache.email;
 
   try {

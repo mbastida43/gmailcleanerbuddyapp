@@ -4,7 +4,8 @@
 // Play Services — Credential Manager (caixa de contas que sobe do rodapé)
 // e Authorization API (consentimento do escopo do Gmail) — e devolve um
 // access token para chamar a REST API do Gmail.
-// O token vive só em memória (~1h) — nada persiste no aparelho.
+// O token vive só em memória (~1h) — nada persiste no aparelho. Quando ele
+// vence no meio de uma análise longa, renewToken() pega outro em silêncio.
 // ============================================================
 
 import { SocialLogin } from '@capgo/capacitor-social-login';
@@ -13,6 +14,8 @@ import { GOOGLE_WEB_CLIENT_ID, OAUTH_SCOPE } from './config';
 interface TokenState {
   accessToken: string;
   expiresAt: number;
+  /** Id da conta no Google: a renovação só aceita token da MESMA conta. */
+  sub: string;
 }
 
 let token: TokenState | null = null;
@@ -52,14 +55,80 @@ export async function signIn(): Promise<void> {
     throw new Error('no_access_token');
   }
 
-  await assertScopeGranted(raw);
+  const info = await tokenInfo(raw);
+  assertScopeGranted(info);
+  token = { accessToken: raw, expiresAt: expiresAtOf(info), sub: info?.sub || '' };
+}
 
-  token = {
-    accessToken: raw,
-    // Access tokens do Google duram ~1h; 5min de folga para não usar um
-    // token à beira de expirar no meio de uma limpeza
-    expiresAt: Date.now() + 55 * 60 * 1000
-  };
+interface TokenInfo {
+  scope: string;
+  expiresIn: number;
+  sub: string;
+}
+
+/** O que o Google diz do token. null = não deu para perguntar (rede etc.). */
+async function tokenInfo(accessToken: string): Promise<TokenInfo | null> {
+  try {
+    const res = await fetch(
+      `https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`
+    );
+    if (!res.ok) return null;
+    const info = await res.json();
+    return {
+      scope: typeof info?.scope === 'string' ? info.scope : '',
+      expiresIn: Number(info?.expires_in) || 0,
+      sub: typeof info?.sub === 'string' ? info.sub : ''
+    };
+  } catch {
+    return null;
+  }
+}
+
+// Validade exata, dita pelo Google. Sem folga de propósito: vencer aqui antes
+// de vencer lá faria a renovação receber de volta o MESMO token (o Android
+// guarda o token até ele expirar). Sem resposta do Google, ~1h menos 5 min.
+function expiresAtOf(info: TokenInfo | null): number {
+  return Date.now() + (info?.expiresIn ? info.expiresIn * 1000 : 55 * 60 * 1000);
+}
+
+/**
+ * Pega um token novo SEM tela, para a sessão não cair no meio da leitura.
+ *
+ * A primeira análise de uma caixa grande passa de 1 hora (45 e-mails/s), e o
+ * token do Google dura 1 hora: antes, a análise morria com "sessão expirada"
+ * e perdia tudo o que já tinha lido. O Android já tem a autorização do Gmail
+ * concedida, então refresh() devolve um token novo em silêncio.
+ *
+ * Uma renovação por vez: as 20 leituras paralelas batem no vencimento juntas
+ * e todas esperam a mesma. false = não deu (conta saiu, outra conta, sem
+ * rede) — aí sim a sessão cai, como antes.
+ */
+let renewing: Promise<boolean> | null = null;
+export function renewToken(): Promise<boolean> {
+  renewing ??= doRenew().finally(() => {
+    renewing = null;
+  });
+  return renewing;
+}
+
+async function doRenew(): Promise<boolean> {
+  const previous = token;
+  if (!previous) return false; // nunca entrou, ou clicou em Sair
+  try {
+    await SocialLogin.refresh({ provider: 'google', options: { scopes: [OAUTH_SCOPE] } });
+    const res: any = await SocialLogin.getAuthorizationCode({ provider: 'google' });
+    const raw = res?.accessToken;
+    if (typeof raw !== 'string' || raw.length === 0) return false;
+    const info = await tokenInfo(raw);
+    // Outra conta no meio da análise misturaria caixas: nunca.
+    if (info?.sub && previous.sub && info.sub !== previous.sub) return false;
+    if (info?.scope && !info.scope.split(/\s+/).includes(OAUTH_SCOPE)) return false;
+    if (token !== previous) return false; // clicou em Sair durante a renovação
+    token = { accessToken: raw, expiresAt: expiresAtOf(info), sub: info?.sub || previous.sub };
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -76,19 +145,8 @@ export async function signIn(): Promise<void> {
  * Melhor-esforço: se a própria checagem falhar (rede, formato inesperado),
  * seguimos com o login em vez de barrar por causa do diagnóstico.
  */
-async function assertScopeGranted(accessToken: string): Promise<void> {
-  let granted = '';
-  try {
-    const res = await fetch(
-      `https://oauth2.googleapis.com/tokeninfo?access_token=${encodeURIComponent(accessToken)}`
-    );
-    if (!res.ok) return;
-    const info = await res.json();
-    granted = typeof info?.scope === 'string' ? info.scope : '';
-  } catch {
-    return;
-  }
-
+function assertScopeGranted(info: TokenInfo | null): void {
+  const granted = info?.scope || '';
   if (granted && !granted.split(/\s+/).includes(OAUTH_SCOPE)) {
     throw new Error(`missing_scope: ${OAUTH_SCOPE} (concedidos: ${granted})`);
   }
