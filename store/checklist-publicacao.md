@@ -286,8 +286,9 @@ caçar bug grosseiro enquanto isso. É teste de verdade, só não conta prazo. E
 `UTEIS\GMAIL CLEANER BUDDY` no OneDrive, pasta separada da chave de propósito — junto vai um
 `LEIA-ME.txt` com o que avisar a quem instalar.
 
-Estado da pasta em 2026-08-16, depois do 1.6: `gmail-cleaner-buddy-1.6.apk` e `.aab`
-(build 7 / 1.6) são os atuais; os pares `1.5` e `1.4` ficaram lá por histórico.
+Estado da pasta em 2026-10-12: `gmail-cleaner-buddy-1.8.apk` e `.aab` (build 9 / 1.8) são
+os atuais. O par `1.9` (build 10) foi revertido — a leitura por conversa ficou mais lenta na
+prática — e fica lá só por histórico, como `1.7`, `1.6`, `1.5` e `1.4`. Não suba o `.aab` 1.9.
 **Confira a versão no nome antes de mandar ou de subir** — os pares convivem, e subir o
 `.aab` errado no Console publicaria a versão errada.
 
