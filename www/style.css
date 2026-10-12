@@ -193,6 +193,9 @@ h1{font-size:34px;font-weight:900;}
   color:white;font-weight:800;font-size:14px;text-align:center;
   max-width:80vw;min-height:20px;
 }
+.loading-hint{
+  color:white;opacity:.85;font-size:13px;text-align:center;max-width:80vw;
+}
 
 /* Só para leitor de tela: fora da tela, mas ainda na árvore de acessibilidade
    (display:none ou visibility:hidden tirariam o elemento do leitor junto). */

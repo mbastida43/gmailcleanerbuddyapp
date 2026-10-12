@@ -80,7 +80,9 @@ function readCount(): number {
 
 // ---- 1ª análise: caixa fria, lê tudo. ----
 mailbox = Array.from({ length: 20 }, (_, i) => String(i));
-const first = await analyze();
+let firstRead: boolean | undefined;
+const first = await analyze((phase, _d, _t, f) => { if (phase === 'reading') firstRead = f; });
+assert.equal(firstRead, true, '1ª: cache vazio = primeira leitura');
 checkExact(first, '1ª análise');
 assert.equal(first.failedMessages, 1, '1ª: só a mensagem quebrada falha');
 assert.equal(
@@ -92,7 +94,8 @@ assert.equal(
 // ---- 2ª análise: mesma caixa. Nada novo para ler. ----
 const readsBefore = readCount();
 for (const id of Object.keys(reads)) delete reads[id];
-const second = await analyze();
+const second = await analyze((phase, _d, _t, f) => { if (phase === 'reading') firstRead = f; });
+assert.equal(firstRead, false, '2ª: com cache, sem aviso de primeira leitura');
 checkExact(second, '2ª análise');
 
 assert.deepEqual(

@@ -219,7 +219,9 @@ export interface Offender {
  * lidos). Quem transforma isso num percentual ÚNICO de 0 a 100 é a interface.
  */
 export type ProgressPhase = 'scanning' | 'reading' | 'waiting';
-export type ProgressFn = (phase: ProgressPhase, done: number, total: number) => void;
+// `firstRead`: o cache desta conta estava vazio, então a leitura é a da caixa
+// inteira — a demorada. A tela usa isso para pedir paciência.
+export type ProgressFn = (phase: ProgressPhase, done: number, total: number, firstRead?: boolean) => void;
 
 export interface AnalyzeData {
   /** Mensagens consideradas na análise: a caixa inteira, igual a
@@ -484,6 +486,7 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
   const cached = ownEmail ? loadCache(ownEmail) : new Map<string, MsgFacts>();
   const facts = new Map<string, MsgFacts>();
   const toRead: string[] = [];
+  const firstRead = cached.size === 0;
   for (const id of allIds) {
     const hit = cached.get(id);
     if (hit) facts.set(id, hit);
@@ -498,7 +501,7 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
   // tamanho da caixa — numa segunda análise são 80 mensagens, não 20 mil, e
   // fingir o contrário deixaria a barra parada em 99%.
   let read = 0;
-  report('reading', 0, toRead.length);
+  report('reading', 0, toRead.length, firstRead);
   for (let i = 0; i < toRead.length; i += READ_CONCURRENCY) {
     const batch = toRead.slice(i, i + READ_CONCURRENCY);
     const startedAt = Date.now();
@@ -537,7 +540,7 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
         } finally {
           // No finally: a sem remetente e a que falhou também foram lidas.
           // Fora daqui, o contador nunca fecharia no total.
-          report('reading', ++read, toRead.length);
+          report('reading', ++read, toRead.length, firstRead);
         }
       })
     );
@@ -546,7 +549,7 @@ export async function analyze(onProgress?: ProgressFn): Promise<AnalyzeData> {
     // que já demorou mais que o devido).
     const owedMs = (batch.length / READ_PER_SEC) * 1000 - (Date.now() - startedAt);
     if (owedMs > 0 && i + READ_CONCURRENCY < toRead.length) {
-      report('waiting', read, toRead.length);
+      report('waiting', read, toRead.length, firstRead);
       await sleep(owedMs);
     }
   }

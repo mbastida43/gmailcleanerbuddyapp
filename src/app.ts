@@ -31,6 +31,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'results.title': '🏆 Ranking de remetentes',
     'loading.progress': '📖 Lendo emails… {pct}%',
     'loading.readingStart': '📖 Lendo a caixa postal…',
+    'loading.firstRead': 'Primeira leitura, tenha paciência! As próximas usarão cache!',
     'loading.waiting': '⏳ Aguarde… {pct}%',
     'loading.cleaning': '🗑️ Limpando… {pct}%',
     'btn.cleanAll': '🗑️ Limpar Tudo',
@@ -83,6 +84,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'results.title': '🏆 Sender ranking',
     'loading.progress': '📖 Reading emails… {pct}%',
     'loading.readingStart': '📖 Reading your mailbox…',
+    'loading.firstRead': 'First read, please be patient! The next ones will use the cache!',
     'loading.waiting': '⏳ Please wait… {pct}%',
     'loading.cleaning': '🗑️ Cleaning… {pct}%',
     'btn.cleanAll': '🗑️ Clean All',
@@ -135,6 +137,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'results.title': '🏆 Ranking de remitentes',
     'loading.progress': '📖 Leyendo correos… {pct}%',
     'loading.readingStart': '📖 Leyendo tu buzón…',
+    'loading.firstRead': '¡Primera lectura, ten paciencia! ¡Las próximas usarán caché!',
     'loading.waiting': '⏳ Espera… {pct}%',
     'loading.cleaning': '🗑️ Limpiando… {pct}%',
     'btn.cleanAll': '🗑️ Limpiar Todo',
@@ -187,6 +190,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'results.title': '🏆 Classement des expéditeurs',
     'loading.progress': '📖 Lecture des e-mails… {pct}%',
     'loading.readingStart': '📖 Lecture de votre boîte…',
+    'loading.firstRead': 'Première lecture, soyez patient ! Les suivantes utiliseront le cache !',
     'loading.waiting': '⏳ Veuillez patienter… {pct}%',
     'loading.cleaning': '🗑️ Nettoyage… {pct}%',
     'btn.cleanAll': '🗑️ Tout nettoyer',
@@ -239,6 +243,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'results.title': '🏆 Classifica dei mittenti',
     'loading.progress': '📖 Lettura delle email… {pct}%',
     'loading.readingStart': '📖 Lettura della casella…',
+    'loading.firstRead': 'Prima lettura, abbi pazienza! Le prossime useranno la cache!',
     'loading.waiting': '⏳ Attendere… {pct}%',
     'loading.cleaning': '🗑️ Pulizia… {pct}%',
     'btn.cleanAll': '🗑️ Pulisci tutto',
@@ -291,6 +296,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'results.title': '🏆 Рейтинг отправителей',
     'loading.progress': '📖 Чтение писем… {pct}%',
     'loading.readingStart': '📖 Читаем почтовый ящик…',
+    'loading.firstRead': 'Первое чтение — наберитесь терпения! Следующие будут использовать кэш!',
     'loading.waiting': '⏳ Подождите… {pct}%',
     'loading.cleaning': '🗑️ Очистка… {pct}%',
     'btn.cleanAll': '🗑️ Очистить всё',
@@ -343,6 +349,7 @@ const TRANSLATIONS: Record<Lang, Record<string, string>> = {
     'results.title': '🏆 发件人排行',
     'loading.progress': '📖 正在读取邮件… {pct}%',
     'loading.readingStart': '📖 正在读取收件箱…',
+    'loading.firstRead': '首次读取，请耐心等待！之后将使用缓存！',
     'loading.waiting': '⏳ 请稍候… {pct}%',
     'loading.cleaning': '🗑️ 正在清理… {pct}%',
     'btn.cleanAll': '🗑️ 全部清理',
@@ -790,9 +797,15 @@ function showLoading(): void { document.getElementById('loading')!.classList.add
 function hideLoading(): void {
   document.getElementById('loading')!.classList.remove('show');
   setLoadingStatus('');
+  setLoadingHint('');
   // Zera a fase anunciada: sem isso, uma segunda análise comecaria na mesma
   // fase da anterior e o leitor de tela nao anunciaria nada.
   announcePhase('', '');
+}
+
+/** Aviso sob o percentual. String vazia limpa. */
+function setLoadingHint(text: string): void {
+  document.getElementById('loadingHint')!.textContent = text;
 }
 
 /** Texto sob o spinner. String vazia limpa. */
@@ -845,7 +858,7 @@ function overallPct(phase: gmail.ProgressPhase, done: number, total: number): nu
 }
 
 /** Traduz o progresso de gmail.ts para o texto do overlay. */
-function reportProgress(phase: gmail.ProgressPhase, done: number, total: number): void {
+function reportProgress(phase: gmail.ProgressPhase, done: number, total: number, firstRead = false): void {
   // Análise nova zera o percentual. Sem isto, a segunda análise da sessão
   // começaria em 100% — o Math.max abaixo nunca deixaria descer.
   if (phase === 'scanning' && done === 0) lastPct = 0;
@@ -857,9 +870,13 @@ function reportProgress(phase: gmail.ProgressPhase, done: number, total: number)
     : t('loading.progress', { pct });
 
   setLoadingStatus(text);
+  // Sem cache, a leitura é a da caixa inteira e leva minutos: avisar que é só
+  // desta vez é o que faz o usuário esperar em vez de achar que travou.
+  const hint = firstRead && phase !== 'scanning' ? t('loading.firstRead') : '';
+  setLoadingHint(hint);
   // Para o leitor de tela, só a entrada na fase — o texto visível muda a cada
   // e-mail, e ler isso em voz alta seria um zumbido de meio minuto.
-  announcePhase(phase, phase === 'waiting' ? text : t('loading.readingStart'));
+  announcePhase(phase, phase === 'waiting' ? text : `${t('loading.readingStart')} ${hint}`.trim());
 }
 
 /**
