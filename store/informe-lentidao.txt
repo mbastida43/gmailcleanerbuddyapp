@@ -1,6 +1,6 @@
 INFORME — POR QUE O GMAIL CLEANER BUDDY FICA LENTO
 ====================================================
-Versão analisada: 1.12 (versionCode 13) — 2026-10-12
+Versão analisada: 1.13 (versionCode 14) — 2026-10-12
 
 RESUMO
 ------
@@ -142,6 +142,43 @@ Limites:
     continua.
   - Se a pessoa sair do app durante a leitura, o Android pode pausá-la. A
     renovação resolve o vencimento da hora, não o app em segundo plano.
+    (Foi exatamente isso que falhou no teste da 1.12 — veja o item 7A.)
+
+
+7A. A SESSÃO QUE CAÍA QUANDO A TELA APAGAVA (CORRIGIDO NA 1.13)
+---------------------------------------------------------------
+O que aconteceu no teste da 1.12:
+  - A tela do celular apagou sozinha para economizar energia. Com a tela
+    apagada o app vai para segundo plano: o Android adormece o app e corta
+    a internet dele. A leitura parou ali, sem ninguém ver.
+  - O acesso de 1 hora venceu enquanto isso. O app tentou renovar com a
+    tela apagada, mas a renovação do Google precisa do app na tela; ela
+    falhou e o app mostrou "sessão expirada".
+  - A suspeita do testador estava certa: com a tela apagada o app não roda
+    em segundo plano.
+
+A correção (1.13):
+  - Tela acesa: durante a análise e a limpeza, o app pede ao Android para
+    não apagar a tela (o mesmo que um vídeo faz). Ao terminar, a tela volta
+    a apagar normalmente.
+  - Se a pessoa apagar a tela pelo botão ou sair do app, a leitura pausa.
+    Nada é renovado nem dado como perdido em segundo plano: quando o app
+    volta para a tela, a renovação acontece e a leitura continua de onde
+    parou, sem perder nenhum e-mail.
+  - Queda de internet (tela apagando, troca de Wi-Fi para 4G, túnel): o
+    pedido é repetido. Na tela, o app espera até ~20 segundos pela rede
+    antes de desistir; com a tela apagada, espera ela voltar.
+  - Se a renovação falhar com o app na tela, tenta mais 2 vezes antes de
+    mostrar "sessão expirada".
+
+Limites:
+  - Testado em simulação (npm test, casos 4 e 5 de test/session.test.ts),
+    não num celular de verdade. Para confirmar: primeira análise com mais
+    de 1 hora; no meio, apagar a tela pelo botão por alguns minutos e
+    voltar. Tem de continuar, sem "sessão expirada".
+  - Com a tela apagada a leitura PAUSA, não continua. Ler com a tela
+    apagada exigiria um serviço em segundo plano com notificação fixa e
+    uma declaração extra no Play Console; não foi feito.
 
 
 8. O QUE DARIA PARA MELHORAR (SÓ PARA SABER, NADA FOI FEITO)

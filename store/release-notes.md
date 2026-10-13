@@ -8,6 +8,50 @@ Uma seção por versão, a mais nova em cima.
 
 ---
 
+## 1.13 (versionCode 14)
+
+O que o testador percebe: a primeira análise não cai mais com "sessão expirada" quando a tela
+do celular apaga. Durante a análise e a limpeza a tela fica acesa sozinha; se o usuário apagar
+a tela ou sair do app, a leitura pausa e continua de onde parou ao voltar. Queda de rede no
+meio repete o pedido em vez de perder e-mail. Leitura e contagem iguais à 1.12.
+
+### 🇧🇷 Português (pt-BR)
+```
+A primeira análise não cai mais com "sessão expirada" quando a tela do celular apaga. Durante a análise e a limpeza, a tela fica acesa sozinha. Se você apagar a tela ou sair do app, a leitura pausa e continua de onde parou quando você volta. Se a internet cair por um instante, o app tenta de novo sem perder nenhum e-mail.
+```
+
+### 🇺🇸 English (en-US)
+```
+The first analysis no longer stops with "session expired" when the phone screen turns off. During analysis and cleaning, the screen stays on by itself. If you turn the screen off or leave the app, reading pauses and resumes where it stopped when you come back. If the internet drops for a moment, the app retries without losing any email.
+```
+
+### 🇪🇸 Español (es)
+```
+El primer análisis ya no se corta con "sesión expirada" cuando se apaga la pantalla del móvil. Durante el análisis y la limpieza, la pantalla se mantiene encendida sola. Si apagas la pantalla o sales de la app, la lectura se pausa y continúa donde se quedó al volver. Si internet se cae un momento, la app reintenta sin perder ningún correo.
+```
+
+### 🇫🇷 Français (fr)
+```
+La première analyse ne s'arrête plus sur « session expirée » quand l'écran du téléphone s'éteint. Pendant l'analyse et le nettoyage, l'écran reste allumé tout seul. Si vous éteignez l'écran ou quittez l'app, la lecture se met en pause et reprend là où elle s'était arrêtée à votre retour. Si internet coupe un instant, l'app réessaie sans perdre aucun e-mail.
+```
+
+### 🇮🇹 Italiano (it-IT)
+```
+La prima analisi non si interrompe più con "sessione scaduta" quando lo schermo del telefono si spegne. Durante l'analisi e la pulizia lo schermo resta acceso da solo. Se spegni lo schermo o esci dall'app, la lettura si mette in pausa e riprende da dove si era fermata quando torni. Se internet cade per un attimo, l'app riprova senza perdere nessuna email.
+```
+
+### 🇷🇺 Русский (ru-RU)
+```
+Первый анализ больше не обрывается с «сессия истекла», когда гаснет экран телефона. Во время анализа и очистки экран остаётся включённым сам. Если вы выключите экран или выйдете из приложения, чтение встанет на паузу и продолжится с того же места, когда вы вернётесь. Если интернет пропадёт на мгновение, приложение повторит запрос без потери писем.
+```
+
+### 🇨🇳 中文 (zh-CN)
+```
+手机屏幕熄灭时，首次分析不会再因"会话已过期"而中断。分析和清理期间，屏幕会自动保持常亮。如果你关闭屏幕或离开应用，读取会暂停，回来后从中断处继续。网络短暂中断时，应用会自动重试，不会丢失任何邮件。
+```
+
+---
+
 ## 1.12 (versionCode 13)
 
 O que o testador percebe: a primeira análise de uma caixa grande não cai mais com "sessão

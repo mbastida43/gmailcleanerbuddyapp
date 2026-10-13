@@ -277,23 +277,73 @@ const MAX_RETRIES = 5;
  * da leitura e tudo o que já tinha sido lido se perdia.
  */
 async function liveToken(): Promise<string> {
-  const token = getAccessToken() || ((await renewToken()) ? getAccessToken() : null);
+  const token = getAccessToken() || ((await renew()) ? getAccessToken() : null);
   if (!token) throw new UnauthorizedError();
   return token;
 }
 
+// Tela apagada = app em segundo plano: o Android adormece o app e corta a rede
+// para poupar bateria, e a caixa de conta do Google não abre fora da tela. A
+// 1.12 tentava renovar ali mesmo, falhava e mostrava "sessão expirada". Agora a
+// leitura espera o app voltar à tela e continua de onde parou.
+function isHidden(): boolean {
+  return typeof document !== 'undefined' && document.hidden;
+}
+
+function whenVisible(): Promise<void> {
+  if (!isHidden()) return Promise.resolve();
+  return new Promise((resolve) => {
+    const onChange = () => {
+      if (isHidden()) return;
+      document.removeEventListener('visibilitychange', onChange);
+      resolve();
+    };
+    document.addEventListener('visibilitychange', onChange);
+  });
+}
+
+/**
+ * Renova só com o app na tela. Falha com o app na tela (saiu da conta, outra
+ * conta) desiste depois de 3 tentativas — aí sim a sessão cai.
+ */
+async function renew(): Promise<boolean> {
+  let failures = 0;
+  for (;;) {
+    await whenVisible();
+    if (await renewToken()) return true;
+    if (isHidden()) continue; // apagou a tela no meio: espera voltar
+    if (++failures >= 3) return false;
+    await sleep(2000);
+  }
+}
+
 async function gfetch(path: string, init: RequestInit = {}): Promise<any> {
   let renewals = 0;
+  let netFailures = 0;
   for (let attempt = 0; ; attempt++) {
     const token = await liveToken();
 
-    const res = await fetch(`${BASE}${path}`, {
-      ...init,
-      headers: {
-        ...(init.headers || {}),
-        Authorization: `Bearer ${token}`
+    let res: Response;
+    try {
+      res = await fetch(`${BASE}${path}`, {
+        ...init,
+        headers: {
+          ...(init.headers || {}),
+          Authorization: `Bearer ${token}`
+        }
+      });
+    } catch (err) {
+      // Sem rede (tela apagada, troca de Wi-Fi, túnel): repete o MESMO pedido.
+      // Com a tela apagada, espera ela voltar; na tela, ~20 s de paciência.
+      attempt--;
+      if (isHidden()) {
+        await whenVisible();
+        continue;
       }
-    });
+      if (++netFailures > 10) throw err;
+      await sleep(2000);
+      continue;
+    }
     if (res.ok) {
       if (res.status === 204) return null;
       return res.json();
@@ -304,7 +354,7 @@ async function gfetch(path: string, init: RequestInit = {}): Promise<any> {
       // Venceu entre o relógio daqui e o do Google: renova e repete o MESMO
       // pedido. Três tentativas; a pausa dá tempo de o Android largar o
       // token velho que ele guarda até expirar.
-      if (renewals++ < 3 && (await renewToken())) {
+      if (renewals++ < 3 && (await renew())) {
         await sleep(1000);
         attempt--;
         continue;

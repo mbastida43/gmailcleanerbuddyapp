@@ -1,3 +1,4 @@
+import { registerPlugin } from '@capacitor/core';
 import * as auth from './auth';
 import * as gmail from './gmail';
 import type { AnalyzeData } from './gmail';
@@ -792,10 +793,21 @@ async function cleanAll(): Promise<void> {
   }
 }
 
-function showLoading(): void { document.getElementById('loading')!.classList.add('show'); }
+// Plugin nativo do próprio app (KeepAwakePlugin.java): a tela não apaga
+// sozinha enquanto a análise/limpeza roda. Fora do aparelho, só ignora.
+const KeepAwake = registerPlugin<{ set(options: { on: boolean }): Promise<void> }>('KeepAwake');
+function keepAwake(on: boolean): void {
+  KeepAwake.set({ on }).catch(() => {});
+}
+
+function showLoading(): void {
+  document.getElementById('loading')!.classList.add('show');
+  keepAwake(true);
+}
 
 function hideLoading(): void {
   document.getElementById('loading')!.classList.remove('show');
+  keepAwake(false);
   setLoadingStatus('');
   setLoadingHint('');
   // Zera a fase anunciada: sem isso, uma segunda análise comecaria na mesma

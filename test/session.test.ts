@@ -51,4 +51,40 @@ stubAuth.token = null;
 stubAuth.canRenew = false;
 await assert.rejects(analyze(), (err: Error) => err.name === 'UnauthorizedError');
 
-console.log('ok — token vencido no meio da leitura renova e a análise termina, 3 casos');
+// 4) Tela apagada quando o token vence: NÃO tenta renovar em segundo plano
+//    (lá a renovação falhava e dava "sessão expirada"); espera a tela voltar.
+const listeners: Array<() => void> = [];
+const doc = {
+  hidden: true,
+  addEventListener: (_: string, fn: () => void) => listeners.push(fn),
+  removeEventListener: () => {}
+};
+(globalThis as any).document = doc;
+stubAuth.token = null;
+stubAuth.canRenew = true;
+const hiddenRenewals = stubAuth.renewals;
+let finished = false;
+const pending = analyze().then(() => (finished = true));
+await new Promise((r) => realSetTimeout(r, 20));
+assert.equal(finished, false, 'com a tela apagada a análise espera, não cai');
+assert.equal(stubAuth.renewals, hiddenRenewals, 'não renova com a tela apagada');
+doc.hidden = false;
+listeners.forEach((fn) => fn());
+await pending;
+assert.equal(stubAuth.renewals, hiddenRenewals + 1);
+
+// 5) A rede some no meio da leitura (tela apagando, troca de Wi-Fi): repete o
+//    mesmo pedido e nenhum e-mail se perde.
+(globalThis as any).localStorage?.clear?.(); // sem cache: lê tudo de novo
+const realFetch = globalThis.fetch;
+let drops = 3;
+globalThis.fetch = (async (input: string, init?: RequestInit) => {
+  if (String(input).includes('format=metadata') && drops-- > 0) throw new TypeError('Failed to fetch');
+  return realFetch(input, init);
+}) as typeof fetch;
+const net = await analyze();
+assert.ok(drops < 0, 'a leitura passou pelas quedas de rede');
+assert.equal(net.failedMessages, 0, 'queda de rede não perde e-mail');
+assert.equal(net.analyzedMessages, TOTAL);
+
+console.log('ok — token vencido renova, tela apagada espera, rede caída repete: 5 casos');
