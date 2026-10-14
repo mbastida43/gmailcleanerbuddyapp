@@ -137,19 +137,14 @@ Tudo pronto no repo:
 > de ir para produção. Depois de publicado, perder a chave de upload custa uma espera de
 > 48h pelo reset do Google; perder a de assinatura, sem Play App Signing, custaria o app.
 
-- ⏳ **AAB/APK da 1.14 (build 15) ainda não gerados**: a keystore e o `keystore.properties`
-      não estão nesta cópia do repo. Gerar com `npm run build:aab` e `npm run build:apk` onde a
-      chave estiver, e repetir as conferências abaixo; por string, o `classes*.dex` tem de conter
-      `GmailTokenPlugin`. O texto a seguir descreve o par anterior.
 - ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`, 5,8 MB)
-      e APK de mão em `.../apk/release/app-release.apk` (6,2 MB), ambos do build 14 / 1.13,
-      gerados em 2026-10-12 (tag `v1.13`). Conferido **no
+      e APK de mão em `.../apk/release/app-release.apk` (6,2 MB), ambos do build 15 / 1.14,
+      gerados em 2026-10-14 (tag `v1.14`). Conferido **no
       artefato**, não só no log do Gradle: `aapt2 dump badging` no APK devolve
-      `versionCode='14' versionName='1.13'` (no AAB, o manifesto empacotado traz `1.13`), o
+      `versionCode='15' versionName='1.14'` (no AAB, o manifesto empacotado traz `1.14`), o
       SHA-1 do certificado é o esperado nos dois (`apksigner verify --print-certs` no APK,
       `jarsigner -verify` + `keytool -printcert -jarfile` no AAB), e o `app.js` do APK e do AAB
-      tem o mesmo hash do `www/app.js` compilado. Por string: contém `KeepAwake` e `visibilitychange` (a tela acesa e a pausa da 1.13; a classe `KeepAwakePlugin` está no `classes2.dex`), `tokeninfo` e o `refresh(` do
-      plugin (a renovação da 1.12), `loading.firstRead` (o aviso da 1.11) e `googlemail` (a trava da própria conta, da 1.10), e **não** contém `/threads/`
+      tem o mesmo hash do `www/app.js` compilado. Por string: o `classes*.dex` do APK e do AAB contém `GmailTokenPlugin` (a renovação sem seletor da 1.14), contém `KeepAwake` e `visibilitychange` (a tela acesa e a pausa da 1.13; a classe `KeepAwakePlugin` está no `classes2.dex`), `tokeninfo` (a renovação da 1.12), `loading.firstRead` (o aviso da 1.11) e `googlemail` (a trava da própria conta, da 1.10), e **não** contém `/threads/`
       (a leitura por conversa da 1.9, revertida).
       Build de cache passa despercebido justamente por sair verde no Gradle
 - ✅ `targetSdk 36` (`android/variables.gradle:4`) — atende a exigência atual
@@ -173,7 +168,8 @@ Tudo pronto no repo:
       há mais de uma conta autorizada (ou logo depois de um Sair); agora o token novo vem da
       Authorization API presa ao e-mail da conta conectada (`GmailTokenPlugin`), sem tela. Se o
       Google exigir tela (permissão revogada), cai em "sessão expirada" como antes. Instala por
-      cima da 1.9 a 1.13. Notas em `store/release-notes.md`.
+      cima da 1.9 a 1.13. Notas em `store/release-notes.md`;
+      `.apk` e `.aab` também na release `v1.14` do GitHub.
       ⚠️ **Teste de aceite ainda não feito no aparelho.** Pegar o primeiro remetente da lista
       e conferir o mesmo número em `from:"<endereço>" in:anywhere -in:trash` na busca do
       Gmail, com "Visualização de conversa" DESATIVADA; `bebee@hive.bebee.com` tem de marcar
@@ -321,9 +317,9 @@ caçar bug grosseiro enquanto isso. É teste de verdade, só não conta prazo. E
 `UTEIS\GMAIL CLEANER BUDDY` no OneDrive, pasta separada da chave de propósito — junto vai um
 `LEIA-ME.txt` com o que avisar a quem instalar.
 
-Estado da pasta em 2026-10-12: `gmail-cleaner-buddy-1.13.apk` e `.aab` (build 14 / 1.13) são
-os atuais — também anexados à release `v1.13` no GitHub. O `1.12` (build 13) foi substituído
-pela 1.13 (caía com a tela apagada), o `1.11` (build 12) pela 1.12, o `1.10` (build 11) pela 1.11, o `1.9` (build 10) foi revertido (a leitura por conversa ficou mais lenta na
+Estado da pasta em 2026-10-14: `gmail-cleaner-buddy-1.14.apk` e `.aab` (build 15 / 1.14) são
+os atuais — também anexados à release `v1.14` no GitHub. O `1.13` (build 14) foi substituído
+pela 1.14 (abria a lista de contas a cada hora), o `1.12` (build 13) pela 1.13 (caía com a tela apagada), o `1.11` (build 12) pela 1.12, o `1.10` (build 11) pela 1.11, o `1.9` (build 10) foi revertido (a leitura por conversa ficou mais lenta na
 prática) e o `1.8` (build 9) foi substituído pela 1.10. Esses e os pares `1.7`, `1.6`, `1.5` e
 `1.4` ficam na subpasta `antigas`, só por histórico. Não suba nenhum deles.
 **Confira a versão no nome antes de mandar ou de subir** — os pares convivem, e subir o
