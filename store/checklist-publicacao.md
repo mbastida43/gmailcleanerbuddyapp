@@ -117,7 +117,7 @@ Tudo pronto no repo:
 - ✅ **Feature graphic 1024×500** — `store/feature-graphics/feature-<idioma>.png` (7 idiomas)
 - ✅ **Screenshots** — `store/screenshots/` (3 capturas de celular, 1179×2556; mínimo do Google é 2)
 - ✅ **Textos PT/EN/ES/FR/IT/RU/ZH** — `store/play-listing.md` (os 7 idiomas da interface)
-- ✅ **Notas da versão 1.13** — `store/release-notes.md`, nos mesmos 7 idiomas, dentro do
+- ✅ **Notas da versão 1.14** — `store/release-notes.md`, nos mesmos 7 idiomas, dentro do
       limite de 500 caracteres. É campo da versão, preenchido no formulário de release
       (Fase 5), não na ficha
 - ✅ **Política de privacidade no ar** — `https://mbastida43.github.io/gmailcleanerbuddy/privacy.html`
@@ -137,6 +137,10 @@ Tudo pronto no repo:
 > de ir para produção. Depois de publicado, perder a chave de upload custa uma espera de
 > 48h pelo reset do Google; perder a de assinatura, sem Play App Signing, custaria o app.
 
+- ⏳ **AAB/APK da 1.14 (build 15) ainda não gerados**: a keystore e o `keystore.properties`
+      não estão nesta cópia do repo. Gerar com `npm run build:aab` e `npm run build:apk` onde a
+      chave estiver, e repetir as conferências abaixo; por string, o `classes*.dex` tem de conter
+      `GmailTokenPlugin`. O texto a seguir descreve o par anterior.
 - ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`, 5,8 MB)
       e APK de mão em `.../apk/release/app-release.apk` (6,2 MB), ambos do build 14 / 1.13,
       gerados em 2026-10-12 (tag `v1.13`). Conferido **no
@@ -149,7 +153,7 @@ Tudo pronto no repo:
       (a leitura por conversa da 1.9, revertida).
       Build de cache passa despercebido justamente por sair verde no Gradle
 - ✅ `targetSdk 36` (`android/variables.gradle:4`) — atende a exigência atual
-- ✅ `versionCode 14` / `versionName 1.13` — build atual. A análise **lê cada e-mail da caixa,
+- ✅ `versionCode 15` / `versionName 1.14` — build atual. A análise **lê cada e-mail da caixa,
       um por um** (como na 1.8): a contagem e o tamanho por remetente são exatos e a soma fecha
       com o total da caixa. A primeira análise leva minutos numa caixa grande; as seguintes só
       leem o que chegou depois (cache por id). Novo na 1.10: a **própria conta aparece sempre**
@@ -164,18 +168,25 @@ Tudo pronto no repo:
       (app em segundo plano: sem rede, e a renovação não roda fora da tela). Agora a tela
       fica acesa durante a análise/limpeza (`KeepAwakePlugin`, `FLAG_KEEP_SCREEN_ON`); com a
       tela apagada a leitura pausa e só renova/continua quando o app volta à tela; queda de
-      rede repete o pedido. Instala por cima da 1.9 a 1.12. Notas em `store/release-notes.md`;
-      `.apk` e `.aab` também na release `v1.13` do GitHub.
+      rede repete o pedido. Novo na 1.14: a renovação **não abre mais o seletor de contas**.
+      `SocialLogin.refresh` passa pelo Credential Manager, que mostra a lista a cada hora quando
+      há mais de uma conta autorizada (ou logo depois de um Sair); agora o token novo vem da
+      Authorization API presa ao e-mail da conta conectada (`GmailTokenPlugin`), sem tela. Se o
+      Google exigir tela (permissão revogada), cai em "sessão expirada" como antes. Instala por
+      cima da 1.9 a 1.13. Notas em `store/release-notes.md`.
       ⚠️ **Teste de aceite ainda não feito no aparelho.** Pegar o primeiro remetente da lista
       e conferir o mesmo número em `from:"<endereço>" in:anywhere -in:trash` na busca do
       Gmail, com "Visualização de conversa" DESATIVADA; `bebee@hive.bebee.com` tem de marcar
       265; a própria conta tem de aparecer com o cadeado e o botão desabilitado; e o aviso de
       primeira leitura tem de aparecer na 1ª análise e sumir na 2ª; e uma primeira análise que
-      passe de 1 hora tem de terminar sem "sessão expirada" — a tela não pode apagar sozinha
+      passe de 1 hora tem de terminar sem "sessão expirada" e **sem abrir a lista de contas**,
+      com duas contas Google no aparelho — a tela não pode apagar sozinha
       e, apagada no botão por alguns minutos no meio, a leitura tem de continuar ao voltar
       (a renovação e a pausa nunca rodaram num aparelho de verdade — só no teste). Enquanto
       isso não acontecer, não suba este AAB.
-      Histórico: `versionCode 13` / `1.12` caiu com "sessão expirada" no teste do
+      Histórico: `versionCode 14` / `1.13` renovava pelo seletor de contas (pedia a mesma
+      conta de novo a cada hora com mais de uma conta no aparelho) e foi substituído pela 1.14
+      (release `v1.13` no GitHub). `versionCode 13` / `1.12` caiu com "sessão expirada" no teste do
       aparelho, com a tela apagada, e foi substituído pela 1.13 (release `v1.12` no GitHub).
       `versionCode 12` / `1.11` foi substituído pela 1.12 no mesmo dia (release
       `v1.11` no GitHub). `11` / `1.10` foi substituído pela 1.11 no mesmo dia (release

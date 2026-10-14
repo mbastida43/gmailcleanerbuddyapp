@@ -1,6 +1,6 @@
 INFORME — POR QUE O GMAIL CLEANER BUDDY FICA LENTO
 ====================================================
-Versão analisada: 1.13 (versionCode 14) — 2026-10-12
+Versão analisada: 1.14 (versionCode 15) — 2026-10-14
 
 RESUMO
 ------
@@ -137,9 +137,9 @@ Limites:
   - A renovação foi testada só em simulação, não num celular de verdade.
     Para confirmar: fazer uma primeira análise que passe de 1 hora, sem sair
     do app.
-  - Com mais de uma conta Google autorizada no celular, o Android pode
-    mostrar a caixa de escolha de conta. Escolhendo a mesma conta, a leitura
-    continua.
+  - Com mais de uma conta Google autorizada no celular, o Android podia
+    mostrar a caixa de escolha de conta a cada hora. Corrigido na 1.14 —
+    veja o item 7B.
   - Se a pessoa sair do app durante a leitura, o Android pode pausá-la. A
     renovação resolve o vencimento da hora, não o app em segundo plano.
     (Foi exatamente isso que falhou no teste da 1.12 — veja o item 7A.)
@@ -179,6 +179,30 @@ Limites:
   - Com a tela apagada a leitura PAUSA, não continua. Ler com a tela
     apagada exigiria um serviço em segundo plano com notificação fixa e
     uma declaração extra no Play Console; não foi feito.
+
+
+7B. A LISTA DE CONTAS QUE ABRIA A CADA HORA (CORRIGIDO NA 1.14)
+----------------------------------------------------------------
+O que acontecia na 1.12 e 1.13:
+  - Para renovar o acesso, o app usava o mesmo caminho do login: a caixa
+    de contas do Android, que pergunta "com qual conta entrar?".
+  - Essa caixa só responde sozinha quando há uma única conta Google
+    autorizada no app, e não logo depois de um Sair. Com duas contas no
+    celular, ela abria a lista a cada hora e esperava a pessoa tocar de
+    novo na mesma conta.
+
+A correção (1.14):
+  - No login o app guarda (só em memória) o e-mail da conta escolhida.
+  - Para renovar, pede ao Google Play Services o acesso ao Gmail direto
+    para esse e-mail. A permissão já foi dada no login, então o acesso
+    novo chega sem nenhuma tela.
+  - Se o Google exigir tela (a pessoa tirou a permissão do app, ou a conta
+    saiu do celular), o app não abre nada e mostra "sessão expirada".
+
+Limites:
+  - Testado em compilação e simulação, não num celular de verdade. Para
+    confirmar: duas contas Google no aparelho, primeira análise com mais de
+    1 hora. Não pode aparecer a lista de contas.
 
 
 8. O QUE DARIA PARA MELHORAR (SÓ PARA SABER, NADA FOI FEITO)

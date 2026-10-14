@@ -8,6 +8,51 @@ Uma seção por versão, a mais nova em cima.
 
 ---
 
+## 1.14 (versionCode 15)
+
+O que o testador percebe: na primeira análise que passa de 1 hora, o app não pede mais para
+escolher a conta de novo. Na 1.12/1.13 a renovação do token passava pelo seletor de contas do
+Android, que abria a lista a cada hora quando havia mais de uma conta Google no aparelho (ou
+logo depois de um Sair). Agora o token novo é pedido direto para a conta já conectada, sem
+tela. Leitura, contagem, tela acesa e pausa iguais à 1.13.
+
+### 🇧🇷 Português (pt-BR)
+```
+Quem já entrou com a conta não precisa mais entrar de novo durante a primeira análise. Antes, numa leitura com mais de 1 hora, o app podia abrir a lista de contas do Google para você escolher a mesma conta outra vez. Agora o acesso é renovado sozinho, sem nenhuma tela, até a leitura terminar.
+```
+
+### 🇺🇸 English (en-US)
+```
+Once you sign in, you no longer have to sign in again during the first analysis. Before, in a read lasting more than 1 hour, the app could open the Google account list for you to pick the same account again. Now access renews by itself, with no screen at all, until the read finishes.
+```
+
+### 🇪🇸 Español (es)
+```
+Si ya iniciaste sesión, no tendrás que volver a hacerlo durante el primer análisis. Antes, en una lectura de más de 1 hora, la app podía abrir la lista de cuentas de Google para que eligieras la misma cuenta otra vez. Ahora el acceso se renueva solo, sin ninguna pantalla, hasta que termina la lectura.
+```
+
+### 🇫🇷 Français (fr)
+```
+Une fois connecté, vous n'avez plus à vous reconnecter pendant la première analyse. Avant, lors d'une lecture de plus d'1 heure, l'app pouvait ouvrir la liste des comptes Google pour que vous choisissiez à nouveau le même compte. Désormais l'accès se renouvelle tout seul, sans aucun écran, jusqu'à la fin de la lecture.
+```
+
+### 🇮🇹 Italiano (it-IT)
+```
+Dopo aver effettuato l'accesso, non devi più accedere di nuovo durante la prima analisi. Prima, in una lettura di oltre 1 ora, l'app poteva aprire l'elenco degli account Google per farti scegliere di nuovo lo stesso account. Ora l'accesso si rinnova da solo, senza nessuna schermata, fino alla fine della lettura.
+```
+
+### 🇷🇺 Русский (ru-RU)
+```
+После входа в аккаунт больше не нужно входить снова во время первого анализа. Раньше при чтении дольше 1 часа приложение могло открыть список аккаунтов Google, чтобы вы снова выбрали тот же аккаунт. Теперь доступ обновляется сам, без каких-либо экранов, до конца чтения.
+```
+
+### 🇨🇳 中文 (zh-CN)
+```
+登录账号后，首次分析期间无需再次登录。以前，读取超过 1 小时时，应用可能会弹出 Google 账号列表，让你再次选择同一个账号。现在访问权限会自动续期，不弹出任何界面，直到读取完成。
+```
+
+---
+
 ## 1.13 (versionCode 14)
 
 O que o testador percebe: a primeira análise não cai mais com "sessão expirada" quando a tela

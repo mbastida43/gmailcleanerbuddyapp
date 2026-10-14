@@ -8,6 +8,7 @@
 // vence no meio de uma análise longa, renewToken() pega outro em silêncio.
 // ============================================================
 
+import { registerPlugin } from '@capacitor/core';
 import { SocialLogin } from '@capgo/capacitor-social-login';
 import { GOOGLE_WEB_CLIENT_ID, OAUTH_SCOPE } from './config';
 
@@ -16,7 +17,15 @@ interface TokenState {
   expiresAt: number;
   /** Id da conta no Google: a renovação só aceita token da MESMA conta. */
   sub: string;
+  /** E-mail da conta: a renovação pede o token direto para ela, sem seletor. */
+  email: string;
 }
+
+// Plugin nativo do próprio app (GmailTokenPlugin.java): token novo pela
+// Authorization API, preso à conta, sem abrir tela nenhuma.
+const GmailToken = registerPlugin<{
+  renew(options: { email: string; scope: string }): Promise<{ accessToken: string }>;
+}>('GmailToken');
 
 let token: TokenState | null = null;
 let initialized = false;
@@ -57,13 +66,19 @@ export async function signIn(): Promise<void> {
 
   const info = await tokenInfo(raw);
   assertScopeGranted(info);
-  token = { accessToken: raw, expiresAt: expiresAtOf(info), sub: info?.sub || '' };
+  token = {
+    accessToken: raw,
+    expiresAt: expiresAtOf(info),
+    sub: info?.sub || '',
+    email: info?.email || ''
+  };
 }
 
 interface TokenInfo {
   scope: string;
   expiresIn: number;
   sub: string;
+  email: string;
 }
 
 /** O que o Google diz do token. null = não deu para perguntar (rede etc.). */
@@ -77,7 +92,8 @@ async function tokenInfo(accessToken: string): Promise<TokenInfo | null> {
     return {
       scope: typeof info?.scope === 'string' ? info.scope : '',
       expiresIn: Number(info?.expires_in) || 0,
-      sub: typeof info?.sub === 'string' ? info.sub : ''
+      sub: typeof info?.sub === 'string' ? info.sub : '',
+      email: typeof info?.email === 'string' ? info.email : ''
     };
   } catch {
     return null;
@@ -97,7 +113,10 @@ function expiresAtOf(info: TokenInfo | null): number {
  * A primeira análise de uma caixa grande passa de 1 hora (45 e-mails/s), e o
  * token do Google dura 1 hora: antes, a análise morria com "sessão expirada"
  * e perdia tudo o que já tinha lido. O Android já tem a autorização do Gmail
- * concedida, então refresh() devolve um token novo em silêncio.
+ * concedida, então a Authorization API devolve um token novo em silêncio.
+ * Não usa SocialLogin.refresh(): ele passa pelo Credential Manager, que abre
+ * o seletor de contas a cada hora quando há mais de uma conta autorizada no
+ * aparelho — o usuário tinha de clicar na mesma conta de novo.
  *
  * Uma renovação por vez: as 20 leituras paralelas batem no vencimento juntas
  * e todas esperam a mesma. false = não deu (conta saiu, outra conta, sem
@@ -115,8 +134,8 @@ async function doRenew(): Promise<boolean> {
   const previous = token;
   if (!previous) return false; // nunca entrou, ou clicou em Sair
   try {
-    await SocialLogin.refresh({ provider: 'google', options: { scopes: [OAUTH_SCOPE] } });
-    const res: any = await SocialLogin.getAuthorizationCode({ provider: 'google' });
+    if (!previous.email) return false; // sem a conta, não dá para pedir sem tela
+    const res = await GmailToken.renew({ email: previous.email, scope: OAUTH_SCOPE });
     const raw = res?.accessToken;
     if (typeof raw !== 'string' || raw.length === 0) return false;
     const info = await tokenInfo(raw);
@@ -124,7 +143,7 @@ async function doRenew(): Promise<boolean> {
     if (info?.sub && previous.sub && info.sub !== previous.sub) return false;
     if (info?.scope && !info.scope.split(/\s+/).includes(OAUTH_SCOPE)) return false;
     if (token !== previous) return false; // clicou em Sair durante a renovação
-    token = { accessToken: raw, expiresAt: expiresAtOf(info), sub: info?.sub || previous.sub };
+    token = { ...previous, accessToken: raw, expiresAt: expiresAtOf(info), sub: info?.sub || previous.sub };
     return true;
   } catch {
     return false;
