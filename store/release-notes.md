@@ -8,6 +8,25 @@ Uma seção por versão, a mais nova em cima.
 
 ---
 
+## 1.15 (versionCode 16)
+
+O que o testador percebe: nada na tela. O plugin de login deixou de embutir o SDK do Facebook
+(que o app nunca usou) e, com ele, a permissão de ID de publicidade — a Play declara "sem ID de
+publicidade" e "nenhuma coleta de dados". O app ficou ~1 MB menor. Primeira versão do teste
+fechado: as notas abaixo resumem também o que veio na 1.14.
+
+### 🇧🇷 Português (pt-BR)
+```
+Primeira versão de teste. A análise lê cada e-mail da caixa e conta com precisão quantos cada remetente enviou. Numa primeira leitura longa, o acesso é renovado sozinho, sem pedir a conta de novo, e a tela fica acesa até terminar. O app não usa ID de publicidade e ficou menor.
+```
+
+### 🇺🇸 English (en-US)
+```
+First test release. The analysis reads every email in your inbox and counts exactly how many each sender sent. During a long first read, access renews by itself without asking for your account again, and the screen stays on until it finishes. The app does not use an advertising ID and is now smaller.
+```
+
+---
+
 ## 1.14 (versionCode 15)
 
 O que o testador percebe: na primeira análise que passa de 1 hora, o app não pede mais para

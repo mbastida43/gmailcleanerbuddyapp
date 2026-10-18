@@ -5,8 +5,9 @@
 // Mesmo caminho do feature graphic: Chrome instalado em modo headless, sem
 // dependencia npm. Defina CHROME_PATH se o seu Chrome estiver em outro lugar.
 //
-// Tamanho: 393x852 CSS a 3x = 1179x2556 — a proporcao de um celular atual
-// (~9:19.5). As tres saem IGUAIS: na Play Store e no site elas aparecem lado a
+// Tamanho: 393x699 CSS a 3x = 1179x2097 — 9:16. A Play recusa captura com o
+// lado maior acima do dobro do menor, entao o 9:19.5 de um celular atual
+// (1179x2556) nao entra na ficha. As tres saem IGUAIS: na Play Store e no site elas aparecem lado a
 // lado, e uma com recorte diferente das outras salta aos olhos.
 
 import { execFileSync } from 'node:child_process';
@@ -45,7 +46,7 @@ if (!chrome) {
 }
 
 const WIDTH = 393;
-const HEIGHT = 852;
+const HEIGHT = 699;
 const SCALE = 3;
 
 const SHOTS = [
