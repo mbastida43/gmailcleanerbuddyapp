@@ -107,8 +107,9 @@ Projeto: `509052485005` (`src/config.ts:17`)
 Considerada em 2026-11-02 por falta de testadores. Conta de **organização** não tem a
 exigência dos 12 testadores × 14 dias; dá para ir direto à produção.
 
-- ⬜ **Pedir o D-U-N-S da empresa** — grátis na Dun & Bradstreet, MEI serve. Leva de dias a
-      semanas: é o novo caminho crítico, peça antes de tudo
+- 🔄 **Pedir o D-U-N-S da empresa** — grátis na Dun & Bradstreet, MEI serve. Leva de dias a
+      semanas: é o novo caminho crítico, peça antes de tudo. **Pedido feito em 2026-11-03**
+      (Dun & Bradstreet Brasil) — aguardando o número
 - ⬜ **Criar uma conta NOVA no Play Console, tipo Organização** — US$ 25 de novo. Conta
       pessoal não vira organização (confirmar na ajuda do Play Console antes de pagar)
 - ⚠️ Nome, endereço e telefone da conta têm que bater **exatamente** com o cadastro do
