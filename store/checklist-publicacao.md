@@ -33,6 +33,8 @@ pensar no upload, e o sintoma parece bug do app:
 - ⬜ **12+ testadores inscritos na trilha de teste fechado** (Fase 2 e Fase 6). É o caminho
       crítico de verdade: o prazo só começa quando os 12 estão dentro, e reinicia se cair
       de 12. Comece a recrutar antes de ter conta, não depois.
+- ⚠️ Sem testadores? Conta de **organização (PJ + D-U-N-S)** não tem essa exigência — ver
+      a alternativa no fim da Fase 2.
 
 **Não existe automação de upload neste repo** — sem service account, sem API do Play, sem
 fastlane. O AAB sobe à mão pelo Console. Se um dia isso incomodar, o caminho é uma service
@@ -99,6 +101,26 @@ Projeto: `509052485005` (`src/config.ts:17`)
       2. **Google Cloud → Tela de permissão OAuth → Test users** (Fase 1) — sem isso a pessoa
          instala, abre e trava no login com `403 access_denied`
       Faltando a 1ª, o prazo não anda; faltando a 2ª, o app não funciona para ela.
+
+### Alternativa: conta de organização (PJ com CNPJ) — pula os 12 testadores
+
+Considerada em 2026-11-02 por falta de testadores. Conta de **organização** não tem a
+exigência dos 12 testadores × 14 dias; dá para ir direto à produção.
+
+- ⬜ **Pedir o D-U-N-S da empresa** — grátis na Dun & Bradstreet, MEI serve. Leva de dias a
+      semanas: é o novo caminho crítico, peça antes de tudo
+- ⬜ **Criar uma conta NOVA no Play Console, tipo Organização** — US$ 25 de novo. Conta
+      pessoal não vira organização (confirmar na ajuda do Play Console antes de pagar)
+- ⚠️ Nome, endereço e telefone da conta têm que bater **exatamente** com o cadastro do
+      D-U-N-S, senão a verificação reprova
+- ⚠️ Se algum AAB com `com.mbastida.gmailcleanerbuddy` já subiu na conta pessoal, o pacote
+      fica preso nela → pedir a **transferência do app** para a conta nova (formulário no
+      Play Console). Se nunca subiu, é só criar o app direto na conta nova
+- ⚠️ **Isso NÃO resolve o Gmail.** O escopo restrito (Fase 0) independe do tipo de conta:
+      sem verificação OAuth + CASA, só os até 100 *Test users* conseguem logar — qualquer
+      outro que baixar da loja trava no login. Na prática a PJ troca "esperar 14 dias" por
+      "lançar só depois do CASA aprovado". Use a espera do D-U-N-S para adiantar o vídeo e a
+      justificativa da Fase 1
 
 ---
 
