@@ -8,6 +8,26 @@ Uma seção por versão, a mais nova em cima.
 
 ---
 
+## 1.16 (versionCode 17)
+
+O que o testador percebe: nada, a não ser que toque em **Sair** — aí a próxima análise volta a
+ser lenta como a primeira. Privacidade: o cache da análise (remetente e tamanho de cada
+mensagem, mais o endereço da conta) agora é apagado no Sair e não vai mais para o backup do
+Android (`allowBackup="false"`). Se a 1.15 não chegou a subir, use estas notas como as da
+primeira versão.
+
+### 🇧🇷 Português (pt-BR)
+```
+Primeira versão de teste. A análise lê cada e-mail da caixa e conta com precisão quantos cada remetente enviou. As próximas análises são rápidas porque o app guarda no aparelho só o remetente e o tamanho de cada mensagem. Esses dados nunca saem do celular, nem no backup, e são apagados quando você toca em Sair.
+```
+
+### 🇺🇸 English (en-US)
+```
+First test release. The analysis reads every email in your inbox and counts exactly how many each sender sent. Later scans are fast because the app keeps only each message's sender and size on your phone. That data never leaves the device, not even in backups, and is erased when you tap Sign out.
+```
+
+---
+
 ## 1.15 (versionCode 16)
 
 O que o testador percebe: nada na tela. O plugin de login deixou de embutir o SDK do Facebook

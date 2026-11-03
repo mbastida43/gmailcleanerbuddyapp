@@ -142,6 +142,26 @@ function saveCache(email: string, facts: Map<string, MsgFacts>): void {
   }
 }
 
+/**
+ * Apaga o cache de TODAS as contas que já passaram pelo aparelho. Chamado no
+ * Sair: o cache guarda remetentes e o endereço da conta (dado pessoal), e sair
+ * é o jeito de o usuário apagar isso. Custa só uma próxima análise lenta.
+ */
+export function clearCache(): void {
+  const store = storage();
+  if (!store) return;
+  try {
+    const keys: string[] = [];
+    for (let i = 0; i < store.length; i++) {
+      const k = store.key(i);
+      if (k && k.startsWith(CACHE_PREFIX)) keys.push(k);
+    }
+    for (const k of keys) store.removeItem(k);
+  } catch {
+    /* storage desligado: não há o que apagar */
+  }
+}
+
 export class UnauthorizedError extends Error {
   constructor() {
     super('unauthorized');

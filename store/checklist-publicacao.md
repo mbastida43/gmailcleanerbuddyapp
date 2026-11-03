@@ -159,6 +159,12 @@ Tudo pronto no repo:
 > de ir para produção. Depois de publicado, perder a chave de upload custa uma espera de
 > 48h pelo reset do Google; perder a de assinatura, sem Play App Signing, custaria o app.
 
+- ✅ **Build atual: `versionCode 17` / `1.16`**, gerado em 2026-11-02 —
+      `gmail-cleaner-buddy-1.16.aab` (4,8 MB) e `.apk` (5,1 MB) em `Downloads`. Novo: o cache
+      da análise é apagado no **Sair** e `allowBackup="false"` (o cache nunca sai do aparelho).
+      Conferido no artefato: `aapt2` devolve `versionCode='17' versionName='1.16'` e
+      `allowBackup=false`, SHA-1 `66:00:EE:...` no APK e no AAB, `app.js` com o mesmo hash do
+      `www/app.js`. O texto abaixo descreve a 1.14 e segue valendo para o resto do comportamento.
 - ✅ AAB assinado: `android/app/build/outputs/bundle/release/app-release.aab` (chave `gcb`, 5,8 MB)
       e APK de mão em `.../apk/release/app-release.apk` (6,2 MB), ambos do build 15 / 1.14,
       gerados em 2026-10-14 (tag `v1.14`). Conferido **no

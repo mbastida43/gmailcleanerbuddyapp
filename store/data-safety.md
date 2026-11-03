@@ -18,7 +18,8 @@ ver [Antes de enviar](#antes-de-enviar). As respostas abaixo podem ser usadas co
 | Nenhum servidor próprio. Só chama `gmail.googleapis.com` e `oauth2.googleapis.com` | `src/gmail.ts:13`, `src/auth.ts:86` | Nenhum dado do usuário vai para infraestrutura do desenvolvedor |
 | Nenhum SDK de analytics, crash reporting ou anúncio | auditoria: sem Firebase/Crashlytics/Sentry/ads em `src/` | Nada de coleta por terceiros |
 | Token OAuth só em memória, expira em ~55 min | `src/auth.ts:18`, `src/auth.ts:58` | Nenhuma credencial persistida |
-| `localStorage` guarda **só** o idioma da interface | `src/app.ts:147` | Não é dado pessoal |
+| `localStorage` guarda o idioma e um **cache da análise**: endereço da conta, id, remetente e tamanho de cada mensagem — nunca assunto ou corpo | `src/gmail.ts` (`saveCache`) | Fica só no aparelho, então não é *coleta*. Apagado no **Sair** (`clearCache`) |
+| `allowBackup="false"` | `AndroidManifest.xml` | O cache não vai para o backup do Android no Drive — nunca sai do aparelho |
 | Só o cabeçalho `From` é lido — nunca o corpo da mensagem | `src/gmail.ts:102` (`format=metadata&metadataHeaders=From`) | Conteúdo de e-mail nunca é acessado |
 | E-mails vão para o rótulo `TRASH`, não são apagados | `src/gmail.ts:241` | Recuperável por 30 dias |
 | Única permissão Android é `INTERNET` | `AndroidManifest.xml:48` | Nenhuma declaração de permissão sensível |

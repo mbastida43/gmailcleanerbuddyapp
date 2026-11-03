@@ -4,7 +4,7 @@
 // exatamente os mesmos números, com a segunda não lendo quase nada.
 // Roda com: npm test
 import { strict as assert } from 'node:assert';
-import { analyze } from '../src/gmail';
+import { analyze, clearCache } from '../src/gmail';
 
 // As retentativas e o ritmo de cota não têm por que atrasar o teste.
 const realSetTimeout = globalThis.setTimeout;
@@ -19,8 +19,10 @@ const stored = new Map<string, string>();
   setItem: (k: string, v: string) => void stored.set(k, v),
   removeItem: (k: string) => void stored.delete(k),
   clear: () => stored.clear(),
-  key: () => null,
-  length: 0
+  key: (i: number) => [...stored.keys()][i] ?? null,
+  get length() {
+    return stored.size;
+  }
 };
 
 const OWN = 'eu@exemplo.com';
@@ -145,6 +147,12 @@ assert.deepEqual(
   mailbox.filter((id) => id !== BROKEN).sort(),
   'o cache guarda os ids da varredura atual — sem a que falhou, sem as que saíram'
 );
+
+// Sair apaga o cache (é dado pessoal), e só ele: o idioma escolhido fica.
+stored.set('lang', 'pt');
+stored.set('msgfacts:v1:outra@exemplo.com', '{}');
+clearCache();
+assert.deepEqual([...stored.keys()], ['lang'], 'Sair apaga o cache de todas as contas e mais nada');
 
 console.log(
   `✅ cache: 1ª análise leu ${readsBefore} vezes, 2ª leu ${1}, ` +

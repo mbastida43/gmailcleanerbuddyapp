@@ -518,6 +518,8 @@ async function loginGoogle(): Promise<void> {
 }
 
 async function logout(): Promise<void> {
+  // Antes do signOut: mesmo que o logout nativo falhe, os dados saem do aparelho.
+  gmail.clearCache();
   try {
     await auth.signOut();
     showAuthScreen();

@@ -77,6 +77,7 @@ of their emails to the trash at once.
 **Privacy first**
 - Official Google sign-in — the app never sees your password.
 - No credentials are stored on your device: access lives only in memory and expires in about 1 hour.
+- To speed up the next scan, the app keeps a local cache of each message's sender and size. It never leaves the phone (not even in Android backups) and is erased when you sign out.
 - Emails are moved to Gmail's own Trash (recoverable for 30 days) — **nothing is permanently deleted**.
 - The app does not read the content of your messages: only the sender address is used to build the ranking.
 - No backend of our own: the phone talks straight to the Gmail API.
