@@ -50,12 +50,21 @@ pelo Google como **escopo restrito**. Isso define o que é possível:
 | Caminho | O que dá | Custo / prazo |
 |---|---|---|
 | **Teste fechado** (consent screen em *Testing*) | Até 100 usuários, adicionados por e-mail. Cada um vê o aviso "app não verificado" | Grátis, imediato |
-| **Produção aberta** | Usuários ilimitados, sem aviso | Verificação OAuth + **CASA Tier 2**: ~US$ 500–1.000/ano, 4–8 semanas |
+| **Produção aberta** | Usuários ilimitados, sem aviso | Verificação OAuth do escopo restrito (sem taxa encontrada, refeita a cada 12 meses). **CASA só se o Google exigir**: ~US$ 500–1.800/ano |
 
 Não existe escopo mais leve que permita mover e-mail para a lixeira. Mandar para o `TRASH`
-exige `gmail.modify` — então não há como contornar o CASA mantendo a função de limpeza.
+exige `gmail.modify` — então não há como evitar a verificação OAuth mantendo a função de limpeza.
 
-**Recomendação:** valide o produto em teste fechado antes de gastar com o CASA.
+**O CASA provavelmente não se aplica (corrigido em 2026-11-05).** A
+[regra do Google](https://developers.google.com/identity/protocols/oauth2/production-readiness/restricted-scope-verification)
+o exige *"if you store or transmit restricted scope data on servers"*, e este app não tem
+servidor: só chama `gmail.googleapis.com` e `oauth2.googleapis.com` a partir do aparelho (ver
+[`data-safety.md`](data-safety.md)). ⚠️ É uma leitura da regra: o Google não diz com todas as
+letras que app sem servidor está isento, e a Gmail API Policy ainda não foi lida.
+
+**Recomendação:** envie a verificação OAuth explicando que o app é 100% cliente e **não contrate
+o CASA antes de o Google pedir**. Os preços acima vêm de fornecedores e relatos, não do Google:
+peça orçamento se chegar a esse ponto.
 
 ---
 
@@ -77,7 +86,9 @@ Projeto: `509052485005` (`src/config.ts:17`)
       sem cortes: a URL do app → tela de login do Google → **a tela de consentimento com os
       escopos visíveis** → o app usando os dados. É o motivo nº 1 de reprova quando o vídeo
       não mostra a tela de consentimento inteira.
-- ⬜ Para produção aberta: contratar o **CASA Tier 2** com um laboratório autorizado
+- ⬜ Para produção aberta: enviar a verificação do escopo restrito e declarar que não há
+      servidor. Contratar o **CASA Tier 2** com um laboratório autorizado **só se o Google exigir**
+      (Fase 0)
 
 **Enquanto isso:** deixe a tela em *Testing* e cadastre os testadores em
 *Test users* (limite de 100).
@@ -107,9 +118,8 @@ Projeto: `509052485005` (`src/config.ts:17`)
 Considerada em 2026-11-02 por falta de testadores. Conta de **organização** não tem a
 exigência dos 12 testadores × 14 dias; dá para ir direto à produção.
 
-- 🔄 **Pedir o D-U-N-S da empresa** — grátis na Dun & Bradstreet, MEI serve. Leva de dias a
-      semanas: é o novo caminho crítico, peça antes de tudo. **Pedido feito em 2026-11-03**
-      (Dun & Bradstreet Brasil) — aguardando o número
+- ✅ **D-U-N-S da empresa recebido** — pedido em 2026-11-03 na Dun & Bradstreet Brasil, chegada
+      registrada em 2026-11-05. O número fica fora deste repo, que é público
 - ⬜ **Criar uma conta NOVA no Play Console, tipo Organização** — US$ 25 de novo. Conta
       pessoal não vira organização (confirmar na ajuda do Play Console antes de pagar)
 - ⚠️ Nome, endereço e telefone da conta têm que bater **exatamente** com o cadastro do
@@ -118,10 +128,10 @@ exigência dos 12 testadores × 14 dias; dá para ir direto à produção.
       fica preso nela → pedir a **transferência do app** para a conta nova (formulário no
       Play Console). Se nunca subiu, é só criar o app direto na conta nova
 - ⚠️ **Isso NÃO resolve o Gmail.** O escopo restrito (Fase 0) independe do tipo de conta:
-      sem verificação OAuth + CASA, só os até 100 *Test users* conseguem logar — qualquer
+      sem a verificação OAuth aprovada, só os até 100 *Test users* conseguem logar — qualquer
       outro que baixar da loja trava no login. Na prática a PJ troca "esperar 14 dias" por
-      "lançar só depois do CASA aprovado". Use a espera do D-U-N-S para adiantar o vídeo e a
-      justificativa da Fase 1
+      "lançar só depois da verificação OAuth aprovada". Adiante o vídeo e a justificativa da
+      Fase 1
 
 ---
 
@@ -377,7 +387,7 @@ assinatura. Mesmo motivo do `store/backup-local.md`. Ao trocar o binário da pas
 |---|---|---|
 | Verificação OAuth reprovada por vídeo incompleto | Alta | Mostrar a tela de consentimento inteira, sem corte |
 | Rejeição por falta de credenciais de teste | Alta | Fase 5, item 6 |
-| Custo/prazo do CASA inviabilizar produção aberta | Alta | Validar em teste fechado primeiro |
+| Google exigir o CASA mesmo sem servidor, e o custo inviabilizar produção aberta | Média | Declarar na verificação que o app é 100% cliente; só contratar se for exigido (Fase 0) |
 | Não juntar 12 testadores por 14 dias seguidos | Alta | Conta pessoal, exigência obrigatória. Recrutar ~15 e começar cedo (Fase 2) |
 | Perder 14 dias distribuindo APK, ou usando teste interno no lugar do fechado | Alta | Só a trilha de **teste fechado** conta. Ver Fase 6 |
 | Perda do keystore | Crítica | 3 backups da chave (feito) + Play App Signing |
