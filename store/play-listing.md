@@ -14,7 +14,7 @@ Limites do Google: **nome do app ≤ 30 caracteres**, **descrição curta ≤ 80
   Gerados por `node scripts/make-screenshots.mjs` a partir de `store/screenshot.html`, que monta as telas
   do app com o CSS de produção (`www/style.css`) e **dados de exemplo** — não são capturas de uma conta real.
   A Play cobra que a imagem represente o app de verdade: ao mudar layout ou textos da interface, rode o script de novo.
-- **Política de Privacidade (URL pública):** https://mbastida43.github.io/gmailcleanerbuddy/privacy.html
+- **Política de Privacidade (URL pública):** https://mbastida43.github.io/gmailcleanerbuddyapp/privacy.html
 - **App Bundle para upload:** `android/app/build/outputs/bundle/release/app-release.aab`
   (gerado por `npm run build:aab`; os `.apk`/`.aab` não são versionados)
 - **Notas da versão:** `store/release-notes.md` — nos mesmos 7 idiomas, uma seção por versão.

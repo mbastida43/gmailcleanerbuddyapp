@@ -75,9 +75,9 @@ Projeto: `509052485005` (`src/config.ts:17`)
 - ⬜ **Tela de consentimento OAuth** → tipo **External**
 - ⬜ Preencher: nome do app, e-mail de suporte, logo, domínio autorizado (`mbastida43.github.io`),
       link da política de privacidade, e-mail do desenvolvedor
-- ⬜ Adicionar o escopo `gmail.modify` e escrever a **justificativa** — explique que o app
-      lê apenas o cabeçalho `From` para montar o ranking e usa `batchModify` para mover ao
-      `TRASH`; nunca lê o corpo das mensagens
+- ⬜ Adicionar o escopo `gmail.modify` e colar a **justificativa** pronta de
+      [`oauth-justificativa-gmail-modify.md`](oauth-justificativa-gmail-modify.md) — confira
+      antes o aviso no topo do arquivo
 - ✅ Frase de **Limited Use** já presente na `privacy.html` (verificado): *"Gmail Cleaner
       Buddy's use and transfer of information received from Google APIs to any other app will
       adhere to the Google API Services User Data Policy, including the Limited Use
@@ -153,7 +153,9 @@ Tudo pronto no repo:
 - ✅ **Notas da versão 1.14** — `store/release-notes.md`, nos mesmos 7 idiomas, dentro do
       limite de 500 caracteres. É campo da versão, preenchido no formulário de release
       (Fase 5), não na ficha
-- ✅ **Política de privacidade no ar** — `https://mbastida43.github.io/gmailcleanerbuddy/privacy.html`
+- ✅ **Política de privacidade** — `privacy.html` na raiz deste repo, publicada em
+      `https://mbastida43.github.io/gmailcleanerbuddyapp/privacy.html`. Vale para Android e iOS;
+      é a URL a informar no Play Console e na tela de consentimento OAuth
 
 ---
 

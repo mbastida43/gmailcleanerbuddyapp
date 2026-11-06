@@ -34,18 +34,19 @@ ver [Antes de enviar](#antes-de-enviar). As respostas abaixo podem ser usadas co
 
 **Por que "Não" está correto:** o Google define *coletar* como **transmitir os dados para fora
 do dispositivo**. Neste app o fluxo é o inverso — os dados do Gmail vêm **da** API do Google
-**para** o aparelho, são processados na memória e nunca são enviados a nenhum outro destino.
+**para** o aparelho, são processados nele e nunca são enviados a nenhum outro destino.
 Não existe backend do desenvolvedor. As requisições à API do Gmail vão do aparelho direto para
 o Google, que já é o provedor da conta do próprio usuário; a documentação do Google não trata
 isso como coleta pelo app.
 
-Processamento efêmero (em memória, sem persistir, sem sair do aparelho) também é explicitamente
-excluído da definição de coleta.
+O cache da análise fica gravado no aparelho até o **Sair**, então não é processamento efêmero. A
+resposta continua "Não" porque ele nunca sai do aparelho (`allowBackup="false"`).
 
 > **Se o Google questionar**, a resposta é: *"O app é 100% cliente. Não há servidor do
-> desenvolvedor. Os dados do Gmail são lidos via API oficial, processados em memória no
-> dispositivo e descartados ao encerrar a sessão. Somente o cabeçalho From é lido — nunca o
-> corpo das mensagens."*
+> desenvolvedor. Os dados do Gmail são lidos via API oficial e processados no dispositivo. O
+> endereço da conta e o id, o remetente e o tamanho de cada mensagem ficam em um cache local, que
+> nunca sai do aparelho e é apagado ao sair da conta. Somente o cabeçalho From e o tamanho
+> estimado são lidos — nunca o assunto nem o corpo das mensagens."*
 
 ---
 
@@ -54,7 +55,7 @@ excluído da definição de coleta.
 | Pergunta | Resposta | Justificativa |
 |---|---|---|
 | Os dados são criptografados em trânsito? | **Sim** | Todo tráfego é HTTPS (`gmail.googleapis.com`, `oauth2.googleapis.com`) |
-| Você oferece um jeito de o usuário pedir exclusão dos dados? | **Não se aplica** | Nenhum dado é coletado ou retido. Sair da conta revoga o token (`src/auth.ts:73`) |
+| Você oferece um jeito de o usuário pedir exclusão dos dados? | **Não se aplica** | Nenhum dado é coletado. O cache local é apagado no **Sair**, que também revoga o token (`src/auth.ts:73`) |
 | O app passou por revisão de segurança independente? | **Não** | Marque *Sim* só depois de concluir o CASA (veja o checklist) |
 
 ---
@@ -72,7 +73,7 @@ excluído da definição de coleta.
 | Rastreamento entre apps (privacidade) | **Não** |
 | Classificação de conteúdo | Questionário → tudo "Não". Deve sair **Livre / Everyone** |
 | Segurança dos dados — coleta | **Não** (Seção 1) |
-| Política de Privacidade | `https://mbastida43.github.io/gmailcleanerbuddy/privacy.html` |
+| Política de Privacidade | `https://mbastida43.github.io/gmailcleanerbuddyapp/privacy.html` |
 
 ---
 

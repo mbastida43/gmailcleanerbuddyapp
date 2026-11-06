@@ -22,7 +22,7 @@
 </p>
 
 > 🛠️ **Como compilar, assinar e publicar:** [`INSTRUCTIONS.md`](INSTRUCTIONS.md)
-> 🔒 **Política de privacidade:** https://mbastida43.github.io/gmailcleanerbuddy/privacy.html
+> 🔒 **Política de privacidade:** https://mbastida43.github.io/gmailcleanerbuddyapp/privacy.html
 
 ---
 
