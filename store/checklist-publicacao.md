@@ -103,6 +103,13 @@ Projeto: `509052485005` (`src/config.ts:17`)
       **12 testadores inscritos num teste fechado por 14 dias seguidos** se aplica: qualquer
       conta aberta hoje é posterior a nov/2023. Só conta de organização escapa, e isso exige
       pessoa jurídica com D-U-N-S.
+- ⬜ **D-U-N-S — reenviar em 2026-12-03.** MEI aberto em 2026-11-03. O 1º pedido
+      (caso 11237011) foi recusado em 2026-11-12 com "CNPJ não encontrado": a empresa tinha só
+      9 dias e ainda não estava na base da D&B. Dados prontos em
+      `Downloads\NOVO_PEDIDO_DUNS.TXT`, com o Cartão CNPJ (`Downloads\CNPJ.pdf`) para anexar.
+      Lembrete agendado: rascunho no Gmail em 03/12 às 09:00. Se for recusado de novo,
+      espere mais um mês. Com o D-U-N-S, dá para abrir conta de organização e escapar dos
+      12 testadores.
 - ⬜ **Recrutar os testadores — comece por aqui, é o caminho crítico.** Os 14 dias só começam
       a contar quando houver 12 inscritos, e se o número cair de 12 no meio, o relógio
       reinicia. Recrute ~15 para ter folga.
