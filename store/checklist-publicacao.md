@@ -118,10 +118,15 @@ Projeto: `509052485005` (`src/config.ts:17`)
 Considerada em 2026-11-02 por falta de testadores. Conta de **organização** não tem a
 exigência dos 12 testadores × 14 dias; dá para ir direto à produção.
 
-- ✅ **D-U-N-S da empresa recebido** — pedido em 2026-11-03 na Dun & Bradstreet Brasil, chegada
-      registrada em 2026-11-05. O número fica fora deste repo, que é público
-- ⬜ **Criar uma conta NOVA no Play Console, tipo Organização** — US$ 25 de novo. Conta
-      pessoal não vira organização (confirmar na ajuda do Play Console antes de pagar)
+- ⬜ **D-U-N-S da empresa: pedido REJEITADO, refazer.** O 1º pedido (2026-11-03) foi encerrado
+      em 2026-11-12 com "D-U-N-S Number could not be created / Insufficient information": a D&B
+      não achou o CNPJ. Refazer com o CNPJ completo (14 dígitos) e a razão social e o endereço
+      copiados do cartão CNPJ da Receita. Prazo de até 30 dias recomeça. Quando chegar, o número
+      fica fora deste repo, que é público
+- ⬜ **Criar uma conta NOVA no Play Console, tipo Organização** — US$ 25. Fluxo iniciado em
+      2026-11-09 e parado no perfil para pagamentos, à espera do D-U-N-S. O Google permite
+      [converter conta pessoal em organização](https://support.google.com/googleplay/android-developer/answer/13634888?hl=en),
+      mas não diz se a regra dos 12 testadores deixa de valer; por isso, conta nova
 - ⚠️ Nome, endereço e telefone da conta têm que bater **exatamente** com o cadastro do
       D-U-N-S, senão a verificação reprova
 - ⚠️ Se algum AAB com `com.mbastida.gmailcleanerbuddy` já subiu na conta pessoal, o pacote
