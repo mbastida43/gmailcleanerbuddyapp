@@ -103,13 +103,6 @@ Projeto: `509052485005` (`src/config.ts:17`)
       **12 testadores inscritos num teste fechado por 14 dias seguidos** se aplica: qualquer
       conta aberta hoje é posterior a nov/2023. Só conta de organização escapa, e isso exige
       pessoa jurídica com D-U-N-S.
-- ⬜ **D-U-N-S — reenviar em 2026-12-03.** MEI aberto em 2026-11-03. O 1º pedido
-      (caso 11237011) foi recusado em 2026-11-12 com "CNPJ não encontrado": a empresa tinha só
-      9 dias e ainda não estava na base da D&B. Dados prontos em
-      `Downloads\NOVO_PEDIDO_DUNS.TXT`, com o Cartão CNPJ (`Downloads\CNPJ.pdf`) para anexar.
-      Lembrete agendado: rascunho no Gmail em 03/12 às 09:00. Se for recusado de novo,
-      espere mais um mês. Com o D-U-N-S, dá para abrir conta de organização e escapar dos
-      12 testadores.
 - ⬜ **Recrutar os testadores — comece por aqui, é o caminho crítico.** Os 14 dias só começam
       a contar quando houver 12 inscritos, e se o número cair de 12 no meio, o relógio
       reinicia. Recrute ~15 para ter folga.
@@ -125,10 +118,14 @@ Projeto: `509052485005` (`src/config.ts:17`)
 Considerada em 2026-11-02 por falta de testadores. Conta de **organização** não tem a
 exigência dos 12 testadores × 14 dias; dá para ir direto à produção.
 
-- ⬜ **D-U-N-S da empresa: pedido REJEITADO, refazer.** O 1º pedido (2026-11-03) foi encerrado
-      em 2026-11-12 com "D-U-N-S Number could not be created / Insufficient information": a D&B
-      não achou o CNPJ. Refazer com o CNPJ completo (14 dígitos) e a razão social e o endereço
-      copiados do cartão CNPJ da Receita. Prazo de até 30 dias recomeça. Quando chegar, o número
+- ⬜ **D-U-N-S da empresa: pedido REJEITADO, reenviar em 2026-12-03.** O 1º pedido
+      (2026-11-03, caso 11237011) foi encerrado em 2026-11-12 com "D-U-N-S Number could not be
+      created / Insufficient information": a D&B não achou o CNPJ. Provável causa: o MEI foi
+      aberto em 2026-11-03, só 9 dias antes, e ainda não estava na base deles. Refazer com o
+      CNPJ completo (14 dígitos) e a razão social e o endereço copiados do cartão CNPJ. Dados
+      prontos fora do repo em `Downloads\NOVO_PEDIDO_DUNS.TXT`; anexar `Downloads\CNPJ.pdf`.
+      Lembrete agendado: rascunho no Gmail em 03/12 às 09:00. Se for recusado de novo,
+      esperar mais um mês. Prazo de até 30 dias recomeça. Quando chegar, o número
       fica fora deste repo, que é público
 - ⬜ **Criar uma conta NOVA no Play Console, tipo Organização** — US$ 25. Fluxo iniciado em
       2026-11-09 e parado no perfil para pagamentos, à espera do D-U-N-S. O Google permite
